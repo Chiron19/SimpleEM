@@ -3,10 +3,10 @@
 
 #include <stdbool.h>
 
-const bool REPORT_STRANGE = true;
+#define REPORT_ERROR true
+#define REPORT_ACTION true
+#define REPORT_MESSAGE true
 
-const bool REPORT_IPV6 = true;
-const bool REPORT_IPV4 = true;
 
 const char FRAME_START[] = "/--------------------------------------------------\\";
 const char FRAME_END[] = "\\--------------------------------------------------/";

@@ -18,7 +18,8 @@
 
 #include <pthread.h>
 
-#include "tcp_server.h"
+#include "tcp/tcp_server.h"
+#include "verbosity/verbosity.h"
 
 #define N 5
 
@@ -35,12 +36,12 @@ int main() {
             (struct sockaddr*)&conn_descs[i].addr, &len);
 
         if (conn_descs[i].connfd == -1) {
-            if (REPORT_ERRORS)
+            if (REPORT_ERROR)
                 printf("[ERROR] Accepting failed.\n");
             exit(0);
         }
-        if (REPORT_ACTIONS) {
-            printf("Server accepted connection from client: %s %u\n", 
+        if (REPORT_ACTION) {
+            printf("[ACTION] Server accepted connection from client: %s %u\n", 
                 inet_ntoa(conn_descs[i].addr.sin_addr), 
                 ntohs(conn_descs[i].addr.sin_port));
         }
@@ -52,6 +53,9 @@ int main() {
     }
 
     close(sockfd);
+    if (REPORT_ACTION) {
+        printf("[ACTION] Socked closed.\n");
+    }
     return 0;
 }
 
@@ -66,12 +70,12 @@ int set_up_server() {
     struct sockaddr_in servaddr;
    
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-        if (REPORT_ERRORS)
+        if (REPORT_ERROR)
             printf("[ERROR] Socket creation failed.\n");
         exit(0);
     }
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) != 0) {
-        if (REPORT_ERRORS)
+        if (REPORT_ERROR)
             printf("[ERROR] setsockopt SO_REUSEADDR failed.\n");
         exit(0);
     }
@@ -82,18 +86,18 @@ int set_up_server() {
     servaddr.sin_port = htons(PORT);
    
     if (bind(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) != 0) {
-        if (REPORT_ERRORS)
+        if (REPORT_ERROR)
             printf("[ERROR] Socket binding failed.\n");
         exit(0);
     }
     if (listen(sockfd, 2) != 0) {
-        if (REPORT_ERRORS)   
+        if (REPORT_ERROR)   
             printf("[ERROR] Listening failed.\n");
         exit(0);
     }
 
-    if (REPORT_ACTIONS)
-        printf("Server ready, starts listening.\n");
+    if (REPORT_ACTION)
+        printf("[ACTION] Server ready, starts listening.\n");
     return sockfd;
 }
 
@@ -106,18 +110,18 @@ void echo_client(conn_desc_t conn_desc) {
         if ((read_res = read(conn_desc.connfd, read_buff, sizeof(read_buff))) == -1) {
             if (errno == ECONNRESET) {
                 /* Client reset connection */
-                if (REPORT_ACTIONS)
+                if (REPORT_ACTION)
                     printf("Client reset connection.\n");
                 return;
             }
-            if (REPORT_ERRORS)
+            if (REPORT_ERROR)
                 printf("[ERROR] Error while reading, errno: %d\n", errno);
             exit(0);
         }
         read_buff[read_res] = '\0';
 
-        if (REPORT_MESSAGES)
-            printf("Received from addr: %s port: %d message: %s\n", 
+        if (REPORT_MESSAGE)
+            printf("[MESSAGE] Received from addr: %s port: %d message: %s\n", 
                 inet_ntoa(conn_desc.addr.sin_addr), 
                 ntohs(conn_desc.addr.sin_port), 
                 read_buff);
@@ -128,7 +132,7 @@ void echo_client(conn_desc_t conn_desc) {
 
         if ((write_res = write(conn_desc.connfd, write_buff, 
             strlen(write_buff))) != strlen(write_buff)) {
-            if (REPORT_ERRORS)
+            if (REPORT_ERROR)
                 printf("[ERROR] Error while writeing, errno: %d\n", errno);
             exit(0);
         }

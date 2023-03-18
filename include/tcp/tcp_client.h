@@ -4,10 +4,6 @@
 #define MAX_BUFF 128
 #define PORT 8080
 
-#define REPORT_ACTIONS true
-#define REPORT_ERRORS true
-
-
 int set_up_client(struct sockaddr_in* servaddr_ptr);
 void mes_rec_server(int sockfd);
 void mes_rec_server_periodically(int sockfd);

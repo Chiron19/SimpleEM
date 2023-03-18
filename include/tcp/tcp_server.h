@@ -6,10 +6,6 @@
 #define MAX_BUFF 128
 #define PORT 8080
 
-#define REPORT_MESSAGES true
-#define REPORT_ACTIONS true
-#define REPORT_ERRORS true
-
 typedef struct conn_desc_t {
     int connfd;
     struct sockaddr_in addr;

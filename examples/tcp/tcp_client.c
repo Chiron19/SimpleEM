@@ -74,7 +74,7 @@ void mes_rec_server_periodically(int sockfd) {
             if (errno == ECONNRESET) {
                 /* Server reset connection */
                 if (REPORT_ACTION)
-                    printf("Server reset connection.\n");
+                    printf("[Action] Server reset connection.\n");
                 return;
             }
             if (REPORT_ERROR)

@@ -9,10 +9,10 @@
 #include <arpa/inet.h>
 #include <stdio.h>
 
-#include "proc_frame.h"
-#include "utils.h"
+#include "proc_frame.hpp"
+#include "utils.hpp"
 
-#include "verbosity/verbosity.h"
+#include "verbosity.hpp"
 
 sender_desc_t process(const char *buf, size_t len) {
 	if (len == 0) {
@@ -32,7 +32,7 @@ sender_desc_t process(const char *buf, size_t len) {
 }
 
 sender_desc_t process_ip6(const char *buf, size_t len) {
-	const struct ip6_hdr *ip = (const void *) buf;
+	const struct ip6_hdr *ip = reinterpret_cast<const struct ip6_hdr *>(buf);
 	char src[INET6_ADDRSTRLEN], dst[INET6_ADDRSTRLEN];
 
 	if (len < sizeof (*ip)) {
@@ -53,7 +53,7 @@ sender_desc_t process_ip6(const char *buf, size_t len) {
 }
 
 sender_desc_t process_ip4(const char *buf, size_t len) {
-	const struct iphdr *ip = (const void *) buf;
+	const struct iphdr *ip = reinterpret_cast<const struct iphdr *>(buf);
 	char src[INET_ADDRSTRLEN], dst[INET_ADDRSTRLEN];
 
 	if (len < sizeof (*ip)) {
@@ -99,7 +99,7 @@ sender_desc_t process_ip4(const char *buf, size_t len) {
 }
 
 sender_desc_t process_ip4_tcp(const struct iphdr *ip, const char *buf, size_t len) {
-	const struct tcphdr *tcp = (const void *) (buf + sizeof(*ip));
+	const struct tcphdr *tcp = reinterpret_cast<const struct tcphdr *>(buf + sizeof(*ip));
 
 	if (REPORT_MESSAGE) {
 		printf("tcp: %hu -> %hu\n", 
@@ -130,7 +130,7 @@ sender_desc_t process_ip4_tcp(const struct iphdr *ip, const char *buf, size_t le
 }
 
 sender_desc_t process_ip4_udp(const struct iphdr *ip, const char *buf, size_t len) {
-	const struct udphdr *udp = (const void *) (buf + sizeof(*ip));
+	const struct udphdr *udp = reinterpret_cast<const struct udphdr *>(buf + sizeof(*ip));
 
 	if (REPORT_MESSAGE)
 		printf("udp: %hu -> %hu    len: %hu, sum: %hu\n", 

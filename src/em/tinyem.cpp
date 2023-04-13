@@ -16,102 +16,9 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include "tinyem.h"
-#include "utils.h"
-#include "proc_frame.h"
-#include "trans_frame.h"
 
 #define MTU 1500
 
-
-
-int create_tun(char *dest, const char *addr, const char *mask) {
-	static const char clonedev[] = "/dev/net/tun";
-	struct sockaddr_in sin;
-	struct ifreq ifr;
-	int fd, ifd;
-
-	printf("create TUN interface: '%s'\n", dest);
-
-	fd = open(clonedev, O_RDWR);
-	if (fd < 0)
-		panic("open");
-
-	memset(&ifr, 0, sizeof (ifr));
-	ifr.ifr_flags = IFF_TUN | IFF_NO_PI;
-	strncpy(ifr.ifr_name, dest, IFNAMSIZ);
-
-	if (ioctl(fd, TUNSETIFF, &ifr) < 0)
-		panic("ioctl(TUNSETIFF)");
-
-	strncpy(dest, ifr.ifr_name, IFNAMSIZ);
-
-	printf("bring TUN interface up\n");
-
-	memset(&ifr, 0, sizeof (ifr));
-	strncpy(ifr.ifr_name, dest, IFNAMSIZ);
-	ifr.ifr_flags =
-		(short) (IFF_UP | IFF_BROADCAST | IFF_MULTICAST | IFF_DYNAMIC);
-
-	ifd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
-	if (ifd < 0)
-		panic("socket");
-	printf("fd value: %d ifd value: %d\n", fd, ifd);
-
-	if (ioctl(ifd, SIOCSIFFLAGS, &ifr) < 0)
-		panic("ioctl(SIOCSIFFLAGS)");
-
-	printf("give TUN interface addr: '%s'\n", addr);
-
-	sin.sin_family = AF_INET;
-	inet_pton(AF_INET, addr, &sin.sin_addr);
-	memset(&ifr, 0, sizeof (ifr));
-	strncpy(ifr.ifr_name, dest, IFNAMSIZ);
-	ifr.ifr_addr = *(struct sockaddr *) &sin;
-
-	if (ioctl(ifd, SIOCSIFADDR, &ifr) < 0)
-		panic("ioctl(SIOCSIFADDR)");
-
-	printf("give TUN interface mask: '%s'\n", mask);
-
-	sin.sin_family = AF_INET;
-	inet_pton(AF_INET, mask, &sin.sin_addr);
-	memset(&ifr, 0, sizeof (ifr));
-	strncpy(ifr.ifr_name, dest, IFNAMSIZ);
-	ifr.ifr_netmask = *(struct sockaddr *) &sin;
-
-	if (ioctl(ifd, SIOCSIFNETMASK, &ifr) < 0)
-		panic("ioctl(SIOCSIFNETMASK)");
-
-	printf("\n");
-
-	return fd;
-}
-
-
-
-int create_sending_socket() {
-	int sockfd;
-    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        printf("Socket creation failed...\n");
-        exit(0);
-    }   
-	return sockfd;
-}
-
-void send_socket(int sock, struct sockaddr_in recvaddr, const char* data, size_t len) {
-	sendto(sock, data, len, MSG_CONFIRM, (const struct sockaddr *) &recvaddr, sizeof(recvaddr));
-	printf("Message sent.\n");
-
-	// int n;
-    // socklen_t len;
-    // n = recvfrom(sockfd, (char *)buffer, MAXLINE, 
-    //             MSG_WAITALL, (struct sockaddr *) &servaddr,
-    //             &len);
-    // buffer[n] = '\0';
-
-    // printf("Message received: %s\n", buffer);
-}
 
 
 int main() {
@@ -121,9 +28,11 @@ int main() {
 		mask[16] = "255.240.0.0",
 		buf[MTU];
 	int fd = create_tun(dev, inter_addr, mask);
-	int sock = create_sending_socket();
 	sender_desc_t desc;
 	ssize_t ssize;
+
+	clients_desc_t clients;
+	memset(&clients, 0, sizeof(clients));
 
 	while (1) {
 		if ((ssize = read(fd, buf, sizeof(buf))) < 0)
@@ -147,7 +56,6 @@ int main() {
 		}
 	}
 
-	close(sock);
 	return EXIT_SUCCESS;
 }
 

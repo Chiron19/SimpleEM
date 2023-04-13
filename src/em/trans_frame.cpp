@@ -1,11 +1,11 @@
 #include <assert.h>
 #include <string.h>
 
-#include "trans_frame.h"
-#include "utils.h"
+#include "trans_frame.hpp"
+#include "utils.hpp"
 
 uint16_t tcp_checksum(const struct iphdr *ip, const char *buf, size_t len) {
-	const struct tcphdr *tcp = (const void *) buf;
+	const struct tcphdr *tcp = reinterpret_cast<const struct tcphdr *>(buf);
 	const uint16_t *ptr;
 	uint32_t sum = 0;
 	size_t i;
@@ -66,10 +66,10 @@ void write_or_die(int fd, const char *buf, size_t len) {
 	}
 }
 
-void transfer_ip4_udp(int fd, const char* buf, size_t len) {	
+void transfer_ip4_udp(int fd, char* buf, size_t len) {	
 	int8_t msg_buf[len];
-	struct iphdr *ip = (struct iphdr*)buf;
-	const struct udphdr *udp = (const void *)(buf + sizeof(*ip));
+	struct iphdr *ip = reinterpret_cast<struct iphdr*>(buf);
+	const struct udphdr *udp = reinterpret_cast<const struct udphdr *>(buf + sizeof(*ip));
 
 	int helpy = ip->daddr;
 	ip->daddr = ip->saddr;
@@ -90,13 +90,14 @@ void transfer_ip4_udp(int fd, const char* buf, size_t len) {
 	for (; off < len; ++off) {
 		msg_buf[off] = buf[off];
 	}
-	write_or_die(fd, (void *) msg_buf, len);
+	write_or_die(fd, (char *) msg_buf, len);
 }
 
-void transfer_ip4_tcp(int fd, const char* buf, size_t len) {
+void transfer_ip4_tcp(int fd, char* buf, size_t len, clients_desc_t* clients) {
 	int8_t msg_buf[len];
-	struct iphdr *ip = (struct iphdr*)buf;
-	const struct tcphdr *tcp = (const void *)(buf + sizeof(*ip));
+	struct iphdr *ip = reinterpret_cast<struct iphdr *>(buf);
+	const struct tcphdr *tcp = reinterpret_cast<const struct tcphdr *>(buf + sizeof(*ip));
+
 
 	int helpy = ip->daddr;
 	ip->daddr = ip->saddr;
@@ -117,42 +118,5 @@ void transfer_ip4_tcp(int fd, const char* buf, size_t len) {
 	for (; off < len; ++off) {
 		msg_buf[off] = buf[off];
 	}
-	write_or_die(fd, (void *) msg_buf, len);
-}
-
-void transfer_ip4_tcp_syn(int fd, const struct iphdr *ip, const struct tcphdr *tcp) {
-    msg_t msg;
-
-	msg.ip = *ip;
-	msg.ip.saddr = ip->daddr;
-	msg.ip.daddr = ip->saddr;
-	msg.ip.tot_len = htons(sizeof (msg));
-	msg.ip.check = htons(ip4_checksum(&msg.ip));
-
-	msg.tcp = *tcp;
-	msg.tcp.th_sport = tcp->th_dport;
-	msg.tcp.th_dport = tcp->th_sport;
-	msg.tcp.th_ack = htonl(ntohl(tcp->th_seq) + 1);
-	msg.tcp.th_seq = htonl(42);
-	msg.tcp.ack = 1;
-	msg.tcp.doff = (sizeof (msg) - sizeof (msg.ip)) / sizeof (uint32_t);
-
-	msg.tcpopt_mss.kind = TCPOPT_MAXSEG;
-	msg.tcpopt_mss.len = TCPOLEN_MAXSEG;
-	msg.tcpopt_mss.val = htons(1460);
-
-	msg.tcpopt_wscale.kind = TCPOPT_WINDOW;
-	msg.tcpopt_wscale.len = TCPOLEN_WINDOW;
-	msg.tcpopt_wscale.val = 7;
-
-	memset(msg.pad, 0, sizeof (msg.pad));
-
-	msg.tcp.th_sum = htons(tcp_checksum(&msg.ip, (void *) &msg.tcp,
-					    sizeof (msg) - sizeof (msg.ip)));
-
-	printf("\n");
-	printf("reply SYN/ACK:\n");
-	dump((char *) &msg, sizeof (msg));
-
-	write_or_die(fd, (void *) &msg, sizeof (msg));
+	write_or_die(fd, (char *) msg_buf, len);
 }

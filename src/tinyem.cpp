@@ -10,58 +10,40 @@
 #include "config.hpp"
 
 #include "utils.hpp"
-#include "proc_control/emproc.hpp"
-#include "proc_control/proc_init.hpp"
+
+#include "emulator.hpp"
+
 #include "network/tun_init.hpp"
 
 #define PATH_MAX 128
 
 FILE* logging_fptr;
-int children_pids[EXTRA_PROCESSES]; // For signal to kill children
+// extern Emulator* em_ptr;
+// Emulator* em_ptr;
 
 void sigint_handler(int signum);
 
 int main() {
 	signal(SIGINT, sigint_handler);
-	EMProc emprocs[EXTRA_PROCESSES];
 
 	logging_fptr = open_logging((char*)"tinyem", false);
 	log_event("Process %d started, spawning %d children", getpid(), EXTRA_PROCESSES);
 
-	fork_stop_run(EXTRA_PROCESSES, children_pids, PROGRAM_PATH, PROGRAM_ARGV);
-	for (em_id_t i = 0; i < EXTRA_PROCESSES; ++i) {
-		emprocs[i].em_id = i;
-		emprocs[i].pid = children_pids[i];
-	}
-
 	int fd = create_tun(TUN_DEV_NAME, TUN_ADDR, TUN_MASK);
 
-	real_sleep(10 * MILLISECOND); /* Give some time */
+	// em_ptr = new Emulator(EXTRA_PROCESSES, fd);
+	// em_ptr->build_children();
 
+	// real_sleep(10 * MILLISECOND); /* Give some time */
 
-	/* Main loop */
-	while (true) {
-
-		struct timespec ts = (struct timespec){0, 10 * MILLISECOND};
-
-		for (int i = 0; i < EXTRA_PROCESSES; ++i) {
-
-			emprocs[i].awake(ts, fd);
-
-			/* Now move from to_send buffers to apropriate to_receive buffers,
-			   with appropriate buf changes  main NETWORKING stuff */
-
-		}
-
-
-	}
+	// em_ptr->start_emulation();
 
 	return 0;
 }
 
 
 void sigint_handler(int signum) {
-	kill_all(EXTRA_PROCESSES, children_pids);
+	// em_ptr->kill_emulation();
 	fclose(logging_fptr);
 
 	char buf[BUF_SIZE];

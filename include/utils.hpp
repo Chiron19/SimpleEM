@@ -1,5 +1,4 @@
-#ifndef PLAYGROUND_SLEEP
-#define PLAYGROUND_SLEEP
+#pragma once
 
 #include <stdio.h>
 #include <time.h>
@@ -26,11 +25,16 @@ void full_sleep(struct timespec ts);
 
 long long nano_from_ts(struct timespec ts);
 struct timespec ts_from_nano(long long nsecs);
-struct timespec ts_subtract(struct timespec ts1, struct timespec ts2);
-struct timespec ts_add(struct timespec ts1, struct timespec ts2);
-bool is_greater(struct timespec ts1, struct timespec ts2); // ts1 > ts2
 bool check_if_elapsed(struct timespec ts1, struct timespec ts2); // ts2 elapsed from ts1
 struct timespec get_time_since(struct timespec ts1);
+struct timespec operator+(const struct timespec& ts1, 
+                          const struct timespec& ts2);
+struct timespec operator-(const struct timespec& ts1, 
+                          const struct timespec& ts2);
+bool operator>(const struct timespec& ts1, 
+               const struct timespec& ts2);
+bool operator<(const struct timespec& ts1, 
+               const struct timespec& ts2);
 
 /*
  * If time was in the form of a*sec + b*msec + c*micsec + d*nsec
@@ -73,5 +77,3 @@ void log_event_proc_cpu_time(const char* format, ...);
 #define RET_IPV6 11
 
 void dump(const char *buf, size_t len);
-
-#endif // PLAYGROUND_SLEEP

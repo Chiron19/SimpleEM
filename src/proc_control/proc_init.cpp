@@ -38,10 +38,3 @@ void fork_stop_run(int procs_num, int* pids,
 		}
 	}
 }
-
-void kill_all(int procs_num, int* pids) {
-	for (int i = 0; i < procs_num; ++i) {
-		kill(pids[i], SIGCONT);
-		kill(pids[i], SIGINT);
-	}
-}

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SIMPLEEM_PACKET
+#define SIMPLEEM_PACKET
 
 #include <stddef.h>
 #include <time.h>
@@ -25,10 +26,12 @@ public:
     }
 
     bool operator<(const Packet& other) const {
-        return nano_from_ts(ts) > nano_from_ts(other.ts);
+        return ts > other.ts;
     }
 
     ~Packet() {
         free(buffer);
     }
 };
+
+#endif // SIMPLEEM_PACKET

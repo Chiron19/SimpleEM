@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SIMPLEEM_EMPROC
+#define SIMPLEEM_EMPROC
 
 #include <time.h>
 #include <signal.h>
@@ -8,9 +9,10 @@
 #include <errno.h>
 #include <unistd.h>
 
+#include <queue>
+
 #include "utils.hpp"
 #include "network/packet.hpp"
-#include "network/packets_buffer.hpp"
 
 #define SIG_LATENCY_UPPERBOUND 50000000 // in nanoseconds
 
@@ -23,14 +25,19 @@ typedef int em_id_t;
  * Information about an emulated process
  */
 class EMProc {
-public:
-    em_id_t em_id;                  ///< Internal id of emulated process
-    int pid;                        ///< pid of emulated process
-    struct timespec proc_runtime;   ///< Time that the process was awake
-    PacketsBuffer out_packets;      ///< Buffer of packets sent by process
-    PacketsBuffer in_packets;       ///< Buffer of packets to be received by process
 
-    /** \brief Function to awake emulated process and let him run for
+public:
+
+    em_id_t em_id;                              ///< Internal id of emulated process
+    int pid;                                    ///< pid of emulated process
+    struct timespec proc_runtime;               ///< Time that the process was awake
+    std::priority_queue<Packet> out_packets;    ///< Buffer of packets sent by process
+    std::priority_queue<Packet> in_packets;     ///< Buffer of packets to be received by process
+
+    EMProc(em_id_t em_id, int pid): em_id(em_id), pid(pid), 
+                                    proc_runtime({0, 0}) {}
+
+    /** \brief Awake emulated process and let him run for
      *         spefified amount of time, intercepting packets sent by it.
      * 
      * Awakes emulated process for amount of time specified by \p ts .
@@ -51,12 +58,29 @@ public:
      */
     void awake(struct timespec ts, int tun_fd);
 
+private:
+
+    /** \brief Check if there is any packet that this process should receive
+     *         before the specified timestamp.  
+     * 
+     * Checks if the first packet in in_packets buffer exists and has 
+     * timestamp lower then the one specified by \p ts
+     * 
+     * @param ts Time for which to check
+     * @return If such packet exists
+     */
+    bool to_receive_before(struct timespec ts);
+
+    /** \brief Receive first packet from in_packets
+     */
+    void receive_first_packet(int tun_fd);
+
 };
 
 void sigchld_handler(int signum);
 
 void EMProc::awake(struct timespec ts, int tun_fd) {
-    struct timespec start_time, curr_time, elapsed_time;
+    struct timespec start_time, elapsed_time;
     ssize_t ssize;
     char buf[MTU];
 
@@ -67,27 +91,20 @@ void EMProc::awake(struct timespec ts, int tun_fd) {
     while (true) {
         elapsed_time = get_time_since(start_time);
 
-        if (is_greater(elapsed_time, ts))
+        if (elapsed_time > ts)
             break; /* Apropriate time run */
         
         /* If running process sent anything, save it */
-        if ((ssize = read(tun_fd, buf, sizeof(buf))) < 0) {
-            if (errno == EAGAIN)
-                continue; /* Nothing to read */
-            else
-                panic("read");
-        }
-        else {
-            this->out_packets.add_packet(buf, ssize, elapsed_time);
-        }
+        if ((ssize = read(tun_fd, buf, sizeof(buf))) < 0 && errno != EAGAIN)
+            panic("read");
+        else
+            this->out_packets.push(Packet(buf, ssize, 
+                                   this->proc_runtime + elapsed_time));
 
         /* If anything should be sent to this process in this loop, send it */
-        while (!this->in_packets.packets.empty() && 
-               is_greater(elapsed_time, this->in_packets.get_first_ts())) {
-            /* First packet from to_receive can be sent */
-
-            Packet packet = this->in_packets.pop_first_packet();
-            // TODO sending packet.
+        while (to_receive_before(proc_runtime + elapsed_time)) {
+            receive_first_packet(tun_fd);
+            this->in_packets.pop();
         }
     }
 
@@ -102,8 +119,18 @@ void EMProc::awake(struct timespec ts, int tun_fd) {
     }
     signal(SIGCHLD, SIG_IGN); /* For now, no need to care about it */
 
-    this->proc_runtime = ts_add(this->proc_runtime, ts);
+    this->proc_runtime = this->proc_runtime + ts;
     log_event("Process %d run for %ld nanoseconds.", this->pid, nano_from_ts(ts));
+}
+
+bool EMProc::to_receive_before(struct timespec ts) {
+    if (in_packets.empty())
+        return false;
+    return in_packets.top().ts < ts;
+}
+
+void EMProc::receive_first_packet(int tun_fd) {
+    // TODO   
 }
 
 void sigchld_handler(int signum) {
@@ -117,3 +144,5 @@ void sigchld_handler(int signum) {
     /* Write to IO FD */
     write(STDOUT_FILENO, buf, offset);
 }
+
+#endif // SIMPLEEM_EMPROC

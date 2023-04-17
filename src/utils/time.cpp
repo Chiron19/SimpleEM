@@ -43,28 +43,36 @@ struct timespec ts_from_nano(long long nsecs) {
     return (struct timespec){nsecs / SECOND, nsecs % SECOND};
 }
 
-bool is_greater(struct timespec ts1, struct timespec ts2) {
-    return nano_from_ts(ts1) > nano_from_ts(ts2);
+struct timespec operator+(const struct timespec& ts1, 
+                          const struct timespec& ts2) {
+    return ts_from_nano(nano_from_ts(ts1) + nano_from_ts(ts2));
 }
 
-struct timespec ts_subtract(struct timespec ts1, struct timespec ts2) {
+struct timespec operator-(const struct timespec& ts1, 
+                          const struct timespec& ts2) {
     return ts_from_nano(nano_from_ts(ts1) - nano_from_ts(ts2));
 }
 
-struct timespec ts_add(struct timespec ts1, struct timespec ts2) {
-    return ts_from_nano(nano_from_ts(ts1) + nano_from_ts(ts2));
+bool operator>(const struct timespec& ts1, 
+               const struct timespec& ts2) {
+    return nano_from_ts(ts1) > nano_from_ts(ts2);
+}
+
+bool operator<(const struct timespec& ts1, 
+               const struct timespec& ts2) {
+    return nano_from_ts(ts1) < nano_from_ts(ts2);
 }
 
 bool check_if_elapsed(struct timespec ts1, struct timespec ts2) {
     struct timespec curr_time;
     clock_gettime(CLOCK_REALTIME, &curr_time);
-    return is_greater(ts_subtract(curr_time, ts1), ts2);
+    return curr_time - ts1 > ts2;
 }
 
 struct timespec get_time_since(struct timespec ts1) {
     struct timespec curr_time;
     clock_gettime(CLOCK_REALTIME, &curr_time);
-    return ts_subtract(curr_time, ts1);
+    return curr_time - ts1;
 }
 
 long get_sec(struct timespec t) {

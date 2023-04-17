@@ -10,11 +10,9 @@ set(SOURCES_TINYEM
     src/utils/report.cpp
     src/utils/time.cpp
 
-    src/proc_control/context.cpp
     src/proc_control/proc_init.cpp
 
     src/network/tun_init.cpp
-    src/network/buffers.cpp
 
     src/em/proc_frame.cpp
     src/em/trans_frame.cpp

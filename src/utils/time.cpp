@@ -51,6 +51,10 @@ struct timespec ts_subtract(struct timespec ts1, struct timespec ts2) {
     return ts_from_nano(nano_from_ts(ts1) - nano_from_ts(ts2));
 }
 
+struct timespec ts_add(struct timespec ts1, struct timespec ts2) {
+    return ts_from_nano(nano_from_ts(ts1) + nano_from_ts(ts2));
+}
+
 bool check_if_elapsed(struct timespec ts1, struct timespec ts2) {
     struct timespec curr_time;
     clock_gettime(CLOCK_REALTIME, &curr_time);

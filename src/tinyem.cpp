@@ -10,11 +10,9 @@
 #include "config.hpp"
 
 #include "utils.hpp"
-#include "proc_control/context.hpp"
+#include "proc_control/emproc.hpp"
 #include "proc_control/proc_init.hpp"
 #include "network/tun_init.hpp"
-
-#include "network/buffers.hpp"
 
 #define PATH_MAX 128
 
@@ -48,7 +46,7 @@ int main() {
 
 		for (int i = 0; i < EXTRA_PROCESSES; ++i) {
 
-			awake(emprocs[i], ts, fd);
+			emprocs[i].awake(ts, fd);
 
 			/* Now move from to_send buffers to apropriate to_receive buffers,
 			   with appropriate buf changes  main NETWORKING stuff */

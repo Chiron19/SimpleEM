@@ -21,35 +21,29 @@ public:
     em_id_t em_id;
     int pid;
     struct timespec proc_runtime;   /* Time that the process was active */
-    PacketsBuffer to_send;
-    PacketsBuffer to_receive;
+    PacketsBuffer out_packets;
+    PacketsBuffer in_packets;
 };
 
-/*
- * Awakes emulated process with a given em_proc and lets him run 
- * for specified time.
+/** \brief Function to awake chosen emulated process and let him run for
+ *         spefified amount of time, intercepting packets sent by it.
  * 
- * The timing assumption of this functions are as follows:
+ * Awakes emulated process specified by \p emproc for amount of time
+ * specified by \p ts . All packets sent by this process to addresses in
+ * TUN subnetwork will be intercepted and stored in 
+ * the \p emproc ->out_packets.
  * 
- * - Send SIGCONT to em_proc
- * [negligable amount of time]
- * - em_proc truly starts working
- * [negligable amount of time]
- * - This process gets SIGCHLD signal (informing that em_proc indeed started working)
- * - t1 = gettime()
- * - sleep for ts
- * - send SIGSTOP to em_proc
- * [unspecified amount of time]
- * - em_proc truly stops working
- * [negligable amount of time]
- * - this process gets SIGCHLD signal (informing that em_proc indeed started working)
- * - t2 = gettime()
- * - return t2 - t1 - ts (how much more did the process work then we wanted it to,
- *          we hope this number to be small, but for control we add this).
+ * Function sends SIGCONT signal to specified process, then after \p ts time
+ * it sends the SIGSTOP signal. During the time that the process is running
+ * all packets sent by it will be intercepted. Also, in appropriate times,
+ * packets from \p emproc ->in_packets will be sent to the process using 
+ * the TUN interface with \p tun_fd . It is guaranteed that when the function
+ * returns, the specified process has already stopped.
  * 
- * Waiting for the second SIGCHLD signal is necessary to assure that only one
- * emulated process is running concurrently
+ * @param emproc Descriptor of emulated process to be awaken
+ * @param ts Time for the process to run
+ * @param tun_fd TUN interface file descriptor
  */
-struct timespec awake(EMProc& emproc, struct timespec ts, int tun_fd);
+void awake(EMProc& emproc, struct timespec ts, int tun_fd);
 
 #endif // PLAYGROUND_CONTEXT

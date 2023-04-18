@@ -97,10 +97,10 @@ void EMProc::awake(struct timespec ts, int tun_fd) {
         /* If running process sent anything, save it */
         if ((ssize = read(tun_fd, buf, sizeof(buf))) < 0 && errno != EAGAIN)
             panic("read");
-        else
-            this->out_packets.push(Packet(buf, ssize, 
-                                   this->proc_runtime + elapsed_time));
-
+        else if (ssize >= 0)
+            this->out_packets.emplace(buf, ssize, 
+                                      this->proc_runtime + elapsed_time);
+                                      
         /* If anything should be sent to this process in this loop, send it */
         while (to_receive_before(proc_runtime + elapsed_time)) {
             receive_first_packet(tun_fd);

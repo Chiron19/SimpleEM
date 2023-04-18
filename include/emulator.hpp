@@ -8,6 +8,7 @@
 #include "proc_control/proc_init.hpp"
 #include "proc_control/emproc.hpp"
 
+#include "proc_frame.hpp"
 
 class Emulator {
 
@@ -38,18 +39,33 @@ void Emulator::build_children() {
 }
 
 void Emulator::start_emulation() {
+    struct timespec ts = (struct timespec){0, 5 * MILLISECOND};
     
-	while (true) {
+    for (int loop = 0; loop < 500; ++loop) {
 
-		struct timespec ts = (struct timespec){0, 10 * MILLISECOND};
 
         for (em_id_t em_id = 0; em_id < procs; ++em_id) {
             emprocs[em_id].awake(ts, ni_fd);
 
             /* Now move from to_send buffers to apropriate to_receive buffers,
 			   with appropriate buf changes  main NETWORKING stuff */
+
+            // TEMP
+
+
+            while(!emprocs[em_id].out_packets.empty()) {
+                Packet packet = emprocs[em_id].out_packets.top();
+                emprocs[em_id].out_packets.pop();
+
+                // process(packet.buffer, packet.size);
+            }
         }
+
+        printf("ITERATION %d FINISHED\n", loop);
+
 	}
+
+    while(true) {}
 }
 
 void Emulator::kill_emulation() {

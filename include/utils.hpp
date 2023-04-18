@@ -9,9 +9,9 @@
 */
 
 #define NANOSECOND  1
-#define MICROSECOND 1000
-#define MILLISECOND 1000000
-#define SECOND      1000000000
+#define MICROSECOND (int)1e3
+#define MILLISECOND (int)1e6
+#define SECOND      (int)1e9
 
 /*
  * Sets current process to sleep for the time specified in ts. 

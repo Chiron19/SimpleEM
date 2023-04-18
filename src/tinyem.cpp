@@ -18,8 +18,7 @@
 #define PATH_MAX 128
 
 FILE* logging_fptr;
-// extern Emulator* em_ptr;
-// Emulator* em_ptr;
+Emulator* em_ptr;
 
 void sigint_handler(int signum);
 
@@ -31,19 +30,19 @@ int main() {
 
 	int fd = create_tun(TUN_DEV_NAME, TUN_ADDR, TUN_MASK);
 
-	// em_ptr = new Emulator(EXTRA_PROCESSES, fd);
-	// em_ptr->build_children();
+	em_ptr = new Emulator(EXTRA_PROCESSES, fd);
+	em_ptr->build_children();
 
-	// real_sleep(10 * MILLISECOND); /* Give some time */
+	real_sleep(10 * MILLISECOND); /* Give some time */
 
-	// em_ptr->start_emulation();
+	em_ptr->start_emulation();
 
 	return 0;
 }
 
 
 void sigint_handler(int signum) {
-	// em_ptr->kill_emulation();
+	em_ptr->kill_emulation();
 	fclose(logging_fptr);
 
 	char buf[BUF_SIZE];

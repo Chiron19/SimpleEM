@@ -1,12 +1,13 @@
 #ifndef TUNTAP_PLAYGROUND_PROC_FRAME
 #define TUNTAP_PLAYGROUND_PROC_FRAME
 
+#include <netinet/in.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 typedef struct sender_desc_t{
     struct sockaddr_in addr;
-    uint8_t protocol;
+    int protocol;
 } sender_desc_t;
 
 sender_desc_t process(const char *buf, size_t len);

@@ -19,7 +19,7 @@ set(SOURCES_TINYEM
 )
 
 set(SOURCES_DUMMY
-    examples/dummy/dummy.cpp
+    examples/dummy/src/dummy.cpp
 
     src/utils/report.cpp
     src/utils/time.cpp
@@ -40,4 +40,5 @@ target_include_directories(tinyem
 target_include_directories(dummy
     PRIVATE 
         ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/examples/dummy/include
 )

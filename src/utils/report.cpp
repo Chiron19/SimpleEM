@@ -103,6 +103,7 @@ void log_event(const char* format, ...) {
     char buf[BUF_SIZE];
     buf[push_to_buffer_time(buf, CLOCK_REALTIME)] = '\0';
     fprintf(fptr, "%s", buf);
+    fprintf(fptr, "\t\t");
     vfprintf(fptr, format, args);
     fprintf(fptr, "\n");
     
@@ -122,6 +123,7 @@ void log_event_proc_cpu_time(const char* format, ...) {
     offset += push_to_buffer_time(buf + offset, CLOCK_PROCESS_CPUTIME_ID);
     buf[offset] = '\0';
     fprintf(fptr, "%s", buf);
+    fprintf(fptr, "\t\t");
     vfprintf(fptr, format, args);
     fprintf(fptr, "\n");
 

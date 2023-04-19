@@ -65,13 +65,13 @@ bool operator<(const struct timespec& ts1,
 
 bool check_if_elapsed(struct timespec ts1, struct timespec ts2) {
     struct timespec curr_time;
-    clock_gettime(CLOCK_REALTIME, &curr_time);
+    clock_gettime(CLOCK_MONOTONIC, &curr_time);
     return curr_time - ts1 > ts2;
 }
 
 struct timespec get_time_since(struct timespec ts1) {
     struct timespec curr_time;
-    clock_gettime(CLOCK_REALTIME, &curr_time);
+    clock_gettime(CLOCK_MONOTONIC, &curr_time);
     return curr_time - ts1;
 }
 

@@ -2,8 +2,10 @@
 #define SIMPLEEM_EMULATOR
 
 #include <vector>
+#include <iostream>
 
 #include "utils.hpp"
+#include "config.hpp"
 
 #include "proc_control/proc_init.hpp"
 #include "proc_control/emproc.hpp"
@@ -41,7 +43,7 @@ void Emulator::build_children() {
 void Emulator::start_emulation() {
     struct timespec ts = (struct timespec){0, 5 * MILLISECOND};
     
-    for (int loop = 0; loop < 500; ++loop) {
+    for (int loop = 0; loop < 1000; ++loop) {
 
 
         for (em_id_t em_id = 0; em_id < procs; ++em_id) {
@@ -61,9 +63,9 @@ void Emulator::start_emulation() {
             }
         }
 
-        printf("ITERATION %d FINISHED\n", loop);
-
 	}
+
+    std::cout << "ITERS FINISHED\n";
 
     while(true) {}
 }

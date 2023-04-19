@@ -49,7 +49,7 @@ void sigint_handler(int signum) {
     size_t offset = 0;
 
     offset += push_to_buffer_string(buf, "[TINYEM][SIGINT]");
-    offset += push_to_buffer_time(buf + offset, CLOCK_REALTIME);
+    offset += push_to_buffer_time(buf + offset, CLOCK_MONOTONIC);
     offset += push_to_buffer_string(buf + offset, "\n");
 
     /* Write to IO FD */

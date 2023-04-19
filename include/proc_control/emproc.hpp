@@ -84,9 +84,15 @@ void EMProc::awake(struct timespec ts, int tun_fd) {
     ssize_t ssize;
     char buf[MTU];
 
-    signal(SIGCHLD, SIG_IGN); /* For now, no need to care about it */    
+    int sig;
+    sigset_t to_block;
+    sigemptyset(&to_block);
+    sigaddset(&to_block, SIGCHLD);
+    sigprocmask(SIG_BLOCK, &to_block, nullptr);
+
     kill(this->pid, SIGCONT);
-    clock_gettime(CLOCK_REALTIME, &start_time);
+    clock_gettime(CLOCK_MONOTONIC, &start_time);
+    sigwait(&to_block, &sig); 
 
     while (true) {
         elapsed_time = get_time_since(start_time);
@@ -108,16 +114,8 @@ void EMProc::awake(struct timespec ts, int tun_fd) {
         }
     }
 
-    signal(SIGCHLD, sigchld_handler);
     kill(this->pid, SIGSTOP);
-
-    struct timespec req = ts_from_nano(SIG_LATENCY_UPPERBOUND), rem;
-    if (nanosleep(&req, &rem) == 0) {
-        /* Full sleep performed, without signal, error */
-        printf("[CONTEXT SWITCHING ERROR]\n");
-        exit(1);
-    }
-    signal(SIGCHLD, SIG_IGN); /* For now, no need to care about it */
+    sigwait(&to_block, &sig);
 
     this->proc_runtime = this->proc_runtime + ts;
     log_event("Process %d run for %ld nanoseconds.", this->pid, nano_from_ts(ts));
@@ -138,7 +136,7 @@ void sigchld_handler(int signum) {
     size_t offset = 0;
 
     offset += push_to_buffer_string(buf, "[TINYEM][SIGCHLD]");
-    offset += push_to_buffer_time(buf + offset, CLOCK_REALTIME);
+    offset += push_to_buffer_time(buf + offset, CLOCK_MONOTONIC);
     offset += push_to_buffer_string(buf + offset, "\n");
 
     /* Write to IO FD */

@@ -101,7 +101,7 @@ void log_event(const char* format, ...) {
     va_start (args, format);
 
     char buf[BUF_SIZE];
-    buf[push_to_buffer_time(buf, CLOCK_REALTIME)] = '\0';
+    buf[push_to_buffer_time(buf, CLOCK_MONOTONIC)] = '\0';
     fprintf(fptr, "%s", buf);
     fprintf(fptr, "\t\t");
     vfprintf(fptr, format, args);

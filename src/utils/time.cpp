@@ -53,6 +53,14 @@ struct timespec operator-(const struct timespec& ts1,
     return ts_from_nano(nano_from_ts(ts1) - nano_from_ts(ts2));
 }
 
+struct timespec operator* (double x, const struct timespec& ts) {
+    return ts_from_nano(x * nano_from_ts(ts));
+}
+
+struct timespec operator* (const struct timespec& ts, double x) {
+    return ts_from_nano(x * nano_from_ts(ts));
+}
+
 bool operator>(const struct timespec& ts1, 
                const struct timespec& ts2) {
     return nano_from_ts(ts1) > nano_from_ts(ts2);

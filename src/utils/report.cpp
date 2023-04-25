@@ -6,6 +6,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <iostream>
+#include <string>
+
 #include "utils.hpp"
 
 size_t push_to_buffer_time(char* buf, clockid_t clk_id) {
@@ -74,24 +77,15 @@ size_t push_to_buffer_int(char* buf, int expr) {
     return offset;
 }
 
-FILE* open_logging(char* prog_name, bool pid_in_name) {
-    char buf[BUF_SIZE],
-        log_file_pref[]     = "logging_",
-        pid_indicator[]     = "_pid_",
-        log_file_suf[]      = ".txt";
-    size_t offset = 0;
-
-    offset += push_to_buffer_string(buf, log_file_pref);
-    offset += push_to_buffer_string(buf + offset, prog_name);
-    offset += push_to_buffer_string(buf + offset, pid_indicator);
+FILE* open_logging(const std::string& prog_name, bool pid_in_name) {
+    std::string file_name = 
+        "logging_" + prog_name;
     if (pid_in_name)
-        offset += push_to_buffer_int(buf + offset, getpid());
-    offset += push_to_buffer_string(buf + offset, log_file_suf);
-    buf[offset] = '\0';
+        file_name += "_pid_" + std::to_string(getpid());
+    file_name += ".txt";
 
-    printf("%s\n", buf);
-
-    return fopen(buf, "w");
+    std::cout << "[LOGGING] Logging file created: " << file_name << std::endl;
+    return fopen(file_name.c_str(), "w");
 }
 
 void log_event(const char* format, ...) {

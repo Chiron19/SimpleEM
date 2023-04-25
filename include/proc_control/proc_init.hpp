@@ -9,6 +9,9 @@
  */
 void fork_stop_run(int procs_num, int* pids, 
 				   const char* program_path, 
-				   const char* program_argv[]);
+				   const char* program_config_path);
+
+void child_init(int em_pid, const char* program_path, 
+				const char* program_config_path);
 
 #endif // SIMPLEEM_PROC_INIT

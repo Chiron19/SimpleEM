@@ -11,8 +11,11 @@
 
 #include <queue>
 
+#include "proc_frame.hpp"
+
 #include "utils.hpp"
 #include "network/packet.hpp"
+#include "network/network.hpp"
 
 #define SIG_LATENCY_UPPERBOUND 50000000 // in nanoseconds
 
@@ -55,8 +58,9 @@ public:
      * 
      * @param ts Time for the process to run
      * @param tun_fd TUN interface file descriptor
+     * @param network Network on which the simulator is operating
      */
-    void awake(struct timespec ts, int tun_fd);
+    void awake(struct timespec ts, int tun_fd, const Network& network);
 
 private:
 
@@ -71,15 +75,9 @@ private:
      */
     bool to_receive_before(struct timespec ts);
 
-    /** \brief Receive first packet from in_packets
-     */
-    void receive_first_packet(int tun_fd);
-
 };
 
-void sigchld_handler(int signum);
-
-void EMProc::awake(struct timespec ts, int tun_fd) {
+void EMProc::awake(struct timespec ts, int tun_fd, const Network& network) {
     struct timespec start_time, elapsed_time;
     ssize_t ssize;
     char buf[MTU];
@@ -103,13 +101,25 @@ void EMProc::awake(struct timespec ts, int tun_fd) {
         /* If running process sent anything, save it */
         if ((ssize = read(tun_fd, buf, sizeof(buf))) < 0 && errno != EAGAIN)
             panic("read");
-        else if (ssize >= 0)
-            this->out_packets.emplace(buf, ssize, 
-                                      this->proc_runtime + elapsed_time);
+        else if (ssize > 0 && (buf[0] >> 4) == 4) { // FIXME now only v4 works
+            Packet packet(buf, ssize, this->proc_runtime + elapsed_time);
+            
+            log_event("Process %d sending packet to %s", em_id, packet.get_dest_addr().c_str());
+
+            if (network.get_em_id(packet.get_dest_addr()) == em_id) {
+                // Packet sent to my own listening socket, receive immidietly
+                log_event("SENT TO MYSELF");
+                packet.swap_source_dest_addr();
+                packet.send(tun_fd);
+            }
+            else {
+                out_packets.push(packet);
+            }
+        }
                                       
         /* If anything should be sent to this process in this loop, send it */
         while (to_receive_before(proc_runtime + elapsed_time)) {
-            receive_first_packet(tun_fd);
+            in_packets.top().send(tun_fd);
             this->in_packets.pop();
         }
     }
@@ -127,20 +137,5 @@ bool EMProc::to_receive_before(struct timespec ts) {
     return in_packets.top().ts < ts;
 }
 
-void EMProc::receive_first_packet(int tun_fd) {
-    // TODO   
-}
-
-void sigchld_handler(int signum) {
-	char buf[BUF_SIZE];
-    size_t offset = 0;
-
-    offset += push_to_buffer_string(buf, "[TINYEM][SIGCHLD]");
-    offset += push_to_buffer_time(buf + offset, CLOCK_MONOTONIC);
-    offset += push_to_buffer_string(buf + offset, "\n");
-
-    /* Write to IO FD */
-    write(STDOUT_FILENO, buf, offset);
-}
 
 #endif // SIMPLEEM_EMPROC

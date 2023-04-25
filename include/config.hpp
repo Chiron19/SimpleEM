@@ -2,30 +2,16 @@
 #define SIMPLEEM_CONFIG
 
 #include <stddef.h>
+#include <string>
 
-#define EXTRA_PROCESSES 1
+const std::string CONFIG_PATH("config.txt");
+const int STEPS = 1;
 
 const char PROGRAM_PATH[] = "dummy"; 
-const char *PROGRAM_ARGV[] = {"dummy", NULL};
+const char PROGRAM_CONFIG_PATH[] = "../examples/dummy/config/config.txt";
 
 char TUN_DEV_NAME[] = "tun0";
-const char TUN_ADDR[] = "172.16.0.1";
-const char TUN_MASK[] = "255.240.0.0";
-
-// #define _DEFAULT_SOURCE 1
-
-// #include <arpa/inet.h>
-// #include <netinet/tcp.h>
-
-// typedef struct {
-//     int fd;
-//     int ifd;
-// } fds_t;
-
-// typedef struct {
-//     struct iphdr ip;
-//     struct tcphdr tcp;
-//     uint8_t tcp_opt[20];
-// } msg_opt20_t;
+const std::string TUN_ADDR("172.16.0.1");
+const std::string TUN_MASK("255.240.0.0");
 
 #endif // SIMPLEEM_CONFIG

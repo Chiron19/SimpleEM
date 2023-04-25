@@ -4,6 +4,8 @@
 #include <time.h>
 #include <stdbool.h>
 
+#include <string>
+
 /*
     time.c
 */
@@ -31,6 +33,8 @@ struct timespec operator+(const struct timespec& ts1,
                           const struct timespec& ts2);
 struct timespec operator-(const struct timespec& ts1, 
                           const struct timespec& ts2);
+struct timespec operator* (double x, const struct timespec& ts);
+struct timespec operator* (const struct timespec& ts, double x);
 bool operator>(const struct timespec& ts1, 
                const struct timespec& ts2);
 bool operator<(const struct timespec& ts1, 
@@ -64,7 +68,7 @@ size_t push_to_buffer_string(char* buf, const char* expr);
 size_t push_to_buffer_int(char* buf, int expr);
 size_t push_to_buffer_time(char* buf, clockid_t clk_id);
 
-FILE* open_logging(char* prog_name, bool pid_in_name);
+FILE* open_logging(const std::string& prog_name, bool pid_in_name);
 void log_event(const char* format, ...);
 void log_event_proc_cpu_time(const char* format, ...);
 

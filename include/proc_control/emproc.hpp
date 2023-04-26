@@ -91,7 +91,7 @@ void EMProc::awake(struct timespec ts, int tun_fd, const Network& network) {
     kill(this->pid, SIGCONT);
     clock_gettime(CLOCK_MONOTONIC, &start_time);
     sigwait(&to_block, &sig); 
-
+    log_event("Process %d starting awake with %d packets to receive", getpid(), in_packets.size());
     while (true) {
         elapsed_time = get_time_since(start_time);
 
@@ -108,7 +108,6 @@ void EMProc::awake(struct timespec ts, int tun_fd, const Network& network) {
 
             if (network.get_em_id(packet.get_dest_addr()) == em_id) {
                 // Packet sent to my own listening socket, receive immidietly
-                log_event("SENT TO MYSELF");
                 packet.swap_source_dest_addr();
                 packet.send(tun_fd);
             }
@@ -123,6 +122,8 @@ void EMProc::awake(struct timespec ts, int tun_fd, const Network& network) {
             this->in_packets.pop();
         }
     }
+    log_event("Process %d ending awake with %d packets to receive", getpid(), in_packets.size());
+
 
     kill(this->pid, SIGSTOP);
     sigwait(&to_block, &sig);

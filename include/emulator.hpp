@@ -110,7 +110,6 @@ void Emulator::schedule_sent_packets(em_id_t em_id) {
         Packet packet = emprocs[em_id].out_packets.top();
         emprocs[em_id].out_packets.pop();
 
-        process(packet.buffer, packet.size);
         if (packet.get_version() != 4)
             continue; // FIXME temporary fix of random packets
 

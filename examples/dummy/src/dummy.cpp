@@ -13,6 +13,7 @@
 #include <string>
 
 #include "dummy.hpp"
+#include "algorithms.hpp"
 
 #include "utils.hpp"
 
@@ -24,25 +25,24 @@ int main(int argc, char* argv[]) {
     
     int em_id = std::stoi(std::string(argv[1]));
     NetworkInterface net = NetworkInterface(em_id, std::string(argv[2]));
+    std::string message;
 
     log_event_proc_cpu_time("Start of %d", getpid());
 
     for (int i = 0;; ++i) {
         for (int ii = 0; ii < 1e5; ++ii) {}
 
-        log_event_proc_cpu_time("Alive...");
-
-        message_t mes = net.recv();
-        if (mes.first >= 0) {
-            log_event_proc_cpu_time("Received from %d message: %s", mes.first, mes.second);
+        message = net.receive();
+        if (!message.empty()) {
+            log_event_proc_cpu_time("Received message: %s", message.c_str());
         }
 
-        if (i >= net.addresses.size())
+        if (i >= 3)
             continue;
 
 
-        std::string message = "Good morning";
-        net.send(0, message);
+        message = "[PING from " + std::to_string(em_id) + "]";
+        net.send((i + 1) % net.addresses.size(), message);
 
         log_event_proc_cpu_time("Sent message");
     }

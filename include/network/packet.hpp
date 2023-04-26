@@ -27,6 +27,8 @@ public:
     Packet(const char* buf, size_t size, struct timespec ts): size(size), ts(ts) {
         buffer = (char*)malloc(size * sizeof(char));
         memcpy(buffer, buf, size);
+        log_event("New packet created, from %s to %s", 
+            get_source_addr().c_str(), get_dest_addr().c_str());
     }
 
     Packet(const Packet &other): size(other.size), ts(other.ts) {
@@ -110,6 +112,9 @@ void Packet::send(int fd) const {
 		offset += (size_t) ssize;
 		to_send -= (size_t) ssize;
 	}
+
+    log_event("Packet send from %s to %s", 
+        get_source_addr().c_str(), get_dest_addr().c_str());
 }
 
 #endif // SIMPLEEM_PACKET

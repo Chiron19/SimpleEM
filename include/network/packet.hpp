@@ -3,7 +3,6 @@
 
 #define _DEFAULT_SOURCE 1
 
-#include <netinet/in.h>
 #include <stddef.h>
 #include <time.h>
 #include <string.h>
@@ -27,8 +26,6 @@ public:
     Packet(const char* buf, size_t size, struct timespec ts): size(size), ts(ts) {
         buffer = (char*)malloc(size * sizeof(char));
         memcpy(buffer, buf, size);
-        log_event("New packet created, from %s to %s", 
-            get_source_addr().c_str(), get_dest_addr().c_str());
     }
 
     Packet(const Packet &other): size(other.size), ts(other.ts) {
@@ -64,9 +61,16 @@ public:
 
     std::string get_dest_addr() const;
 
+    int get_source_port() const;
+
+    int get_dest_port() const;
+
+    void set_source_addr(const std::string& addr);
+
+    void set_dest_addr(const std::string& addr);
+
     void swap_source_dest_addr();
 
-    void send(int fd) const;
 };
 
 int Packet::get_version() const {
@@ -87,6 +91,36 @@ std::string Packet::get_dest_addr() const {
     return std::string(buf);
 }
 
+int Packet::get_source_port() const {
+    const struct udphdr *udp = reinterpret_cast<const struct udphdr *>
+        (buffer + sizeof(struct iphdr));
+    return ntohs(udp->uh_sport);
+}
+
+int Packet::get_dest_port() const {
+    const struct udphdr *udp = reinterpret_cast<const struct udphdr *>
+        (buffer + sizeof(struct iphdr));
+    return ntohs(udp->uh_dport);
+}
+
+void Packet::set_source_addr(const std::string& addr) {
+    struct iphdr *ip = reinterpret_cast<struct iphdr*>(buffer);
+    ip->saddr = inet_addr(addr.c_str());
+    ip->check = ip4_checksum(ip);
+    for (size_t i = 0; i < sizeof(struct iphdr); ++i) {
+		buffer[i] = *(((uint8_t*) ip) + i);
+	}
+}
+
+void Packet::set_dest_addr(const std::string& addr) {
+    struct iphdr *ip = reinterpret_cast<struct iphdr*>(buffer);
+    ip->daddr = inet_addr(addr.c_str());
+    ip->check = ip4_checksum(ip);
+    for (size_t i = 0; i < sizeof(struct iphdr); ++i) {
+		buffer[i] = *(((uint8_t*) ip) + i);
+	}
+}
+
 void Packet::swap_source_dest_addr() {
     struct iphdr *ip = reinterpret_cast<struct iphdr*>(buffer);
 
@@ -98,23 +132,6 @@ void Packet::swap_source_dest_addr() {
     for (size_t i = 0; i < sizeof(struct iphdr); ++i) {
 		buffer[i] = *(((uint8_t*) ip) + i);
 	}
-}
-
-void Packet::send(int fd) const {
-    ssize_t ssize;
-    size_t to_send = size, offset = 0;
-
-	while (to_send > 0) {
-		ssize = write(fd, buffer, to_send);
-		if (ssize < 0)
-			panic("write");
-
-		offset += (size_t) ssize;
-		to_send -= (size_t) ssize;
-	}
-
-    log_event("Packet send from %s to %s", 
-        get_source_addr().c_str(), get_dest_addr().c_str());
 }
 
 #endif // SIMPLEEM_PACKET

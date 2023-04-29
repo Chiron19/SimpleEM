@@ -12,8 +12,6 @@ set(SOURCES_TINYEM
 
     src/proc_control/proc_init.cpp
 
-    src/network/tun_init.cpp
-
     src/em/proc_frame.cpp
     src/em/trans_frame.cpp
 )

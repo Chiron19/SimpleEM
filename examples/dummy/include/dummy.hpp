@@ -16,7 +16,7 @@ typedef std::pair<int, std::string> message_t; // sender em_id + message
 
 class NetworkInterface {
 public:
-    int em_id;
+    int em_id, procs;
     int send_fd, recv_fd;
     std::vector<std::pair<std::string, int>> addresses;
 
@@ -27,6 +27,7 @@ public:
         while(config >> address >> port) {
             addresses.push_back(std::make_pair(address, port));
         }
+        procs = address.size();
 
         setup_recv_socket();
         setup_send_socket();
@@ -43,28 +44,43 @@ public:
                (const struct sockaddr *) &recvaddr, sizeof(recvaddr)) == -1) {
             printf("[DUMMY] sendto error: %d\n", errno);
         }
+        log_event_proc_cpu_time("Send packet to proc %d (%s), message: %s", 
+            target_em_id, addresses[target_em_id].first.c_str(), message.c_str());
     }
 
     /*
         Returns received message or empty string if nothing was received
      */
-    std::string receive() {
+    message_t receive() {
         char buffer[MAXLINE];
         struct sockaddr_in sender_addr;
+        int sender_id = -1;
         memset(&sender_addr, 0, sizeof(sender_addr));
         socklen_t len = sizeof(sender_addr);
 
-        ssize_t n = recv(recv_fd, (char *)buffer, MAXLINE, MSG_DONTWAIT);
+        ssize_t n = recvfrom(recv_fd, (char *)buffer, MAXLINE, MSG_DONTWAIT, (struct sockaddr*) &sender_addr, &len);
 
         if (n < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
-            return "";
+            return {-1, ""};
         }
         buffer[n] = '\0';
+        
+        log_event_proc_cpu_time("Received something");
 
-        return std::string(buffer);
+        for (sender_id = 0; sender_id < procs; ++sender_id) {
+            if (inet_addr(addresses[sender_id].first.c_str()) == 
+                sender_addr.sin_addr.s_addr) 
+                break;
+        }
 
-        std::cout << "ERROR - SENDER DOESNT EXIST" << std::endl;
-        exit(1);
+        if (sender_id == -1) {
+            std::cout << "ERROR - SENDER DOESNT EXIST" << std::endl;
+            exit(1);
+        }
+
+        log_event_proc_cpu_time("Received packet from proc %d (%s), message: %s",
+            sender_id, addresses[sender_id].first.c_str(), buffer);
+        return {sender_id, buffer};
     }
 
 private:

@@ -18,15 +18,13 @@
 class Emulator {
 
     int procs;
-    int ni_fd;
     std::vector<EMProc> emprocs;
-    Network network;
+    Network& network;
 
 public:
 
-    Emulator(int ni_fd, std::string config_path, 
-             const char* program_path, const char* program_config_path): 
-             ni_fd(ni_fd), network(config_path) {
+    Emulator(Network& network, const char* program_path, const char* program_config_path): 
+             network(network) {
         procs = network.get_procs();   
 
         int children_pids[procs];
@@ -70,7 +68,7 @@ void Emulator::start_emulation(int steps) {
     for (int loop = 0; loop < steps; ++loop) {
         em_id = choose_next_proc();
         ts = get_time_interval(em_id);
-        emprocs[em_id].awake(ts, ni_fd, network);
+        emprocs[em_id].awake(ts, network);
         schedule_sent_packets(em_id);
 	}
 
@@ -116,7 +114,13 @@ void Emulator::schedule_sent_packets(em_id_t em_id) {
         em_id_t dest_em_id = network.get_em_id(packet.get_dest_addr());
         packet.ts = packet.ts + network.get_latency(em_id, dest_em_id);
 
+
+        /* WHY NOT WORK :( */
+        // packet.set_dest_addr(packet.get_source_addr());
+        // packet.set_source_addr(network.get_addr(em_id));
+
         packet.swap_source_dest_addr();
+
         emprocs[dest_em_id].in_packets.push(packet);
     }
 }

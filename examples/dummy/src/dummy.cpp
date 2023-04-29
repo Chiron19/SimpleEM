@@ -29,24 +29,14 @@ int main(int argc, char* argv[]) {
 
     log_event_proc_cpu_time("Start of %d", getpid());
 
-    for (int i = 0;; ++i) {
-        for (int ii = 0; ii < 1e5; ++ii) {}
+    // Broadcast broadcast(em_id, net);
+    // broadcast.start(std::to_string(getpid()));
 
-        message = net.receive();
-        if (!message.empty()) {
-            log_event_proc_cpu_time("Received message: %s", message.c_str());
-        }
-
-        if (i >= 3)
-            continue;
+    SingleMessage sm(em_id, net);
+    sm.start(std::to_string(getpid()));
 
 
-        message = "[PING from " + std::to_string(em_id) + "]";
-        net.send((i + 1) % net.addresses.size(), message);
-
-        log_event_proc_cpu_time("Sent message");
-    }
-
+    while(true) {}
     return 0;
 }
 

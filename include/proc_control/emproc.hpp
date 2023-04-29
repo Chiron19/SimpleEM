@@ -57,10 +57,9 @@ public:
      * returns, the specified process has already stopped.
      * 
      * @param ts Time for the process to run
-     * @param tun_fd TUN interface file descriptor
      * @param network Network on which the simulator is operating
      */
-    void awake(struct timespec ts, int tun_fd, const Network& network);
+    void awake(struct timespec ts, const Network& network);
 
 private:
 
@@ -77,7 +76,9 @@ private:
 
 };
 
-void EMProc::awake(struct timespec ts, int tun_fd, const Network& network) {
+void EMProc::awake(struct timespec ts, const Network& network) {
+    log_event("Process %d awaken, in_packets: %d, out_packets: %d", 
+        em_id, in_packets.size(), out_packets.size());
     struct timespec start_time, elapsed_time;
     ssize_t ssize;
     char buf[MTU];
@@ -91,7 +92,6 @@ void EMProc::awake(struct timespec ts, int tun_fd, const Network& network) {
     kill(this->pid, SIGCONT);
     clock_gettime(CLOCK_MONOTONIC, &start_time);
     sigwait(&to_block, &sig); 
-    log_event("Process %d starting awake with %d packets to receive", getpid(), in_packets.size());
     while (true) {
         elapsed_time = get_time_since(start_time);
 
@@ -99,17 +99,17 @@ void EMProc::awake(struct timespec ts, int tun_fd, const Network& network) {
             break; /* Apropriate time run */
         
         /* If running process sent anything, save it */
-        if ((ssize = read(tun_fd, buf, sizeof(buf))) < 0 && errno != EAGAIN)
-            panic("read");
-        else if (ssize > 0 && (buf[0] >> 4) == 4) { // FIXME now only v4 works
+        ssize = network.receive(buf, sizeof(buf));
+        if (ssize > 0 && (buf[0] >> 4) == 4) { // FIXME now only v4 works
             Packet packet(buf, ssize, this->proc_runtime + elapsed_time);
             
-            log_event("Process %d sending packet to %s", em_id, packet.get_dest_addr().c_str());
+            log_event("Process %d sending packet to process %d", em_id, network.get_em_id(packet.get_dest_addr()));
 
             if (network.get_em_id(packet.get_dest_addr()) == em_id) {
                 // Packet sent to my own listening socket, receive immidietly
+                // packet.set_dest_addr(packet.get_source_addr()); // TODO FIXME
                 packet.swap_source_dest_addr();
-                packet.send(tun_fd);
+                in_packets.push(packet);
             }
             else {
                 out_packets.push(packet);
@@ -118,18 +118,18 @@ void EMProc::awake(struct timespec ts, int tun_fd, const Network& network) {
                                       
         /* If anything should be sent to this process in this loop, send it */
         while (to_receive_before(proc_runtime + elapsed_time)) {
-            in_packets.top().send(tun_fd);
+            network.send(in_packets.top());
             this->in_packets.pop();
         }
     }
-    log_event("Process %d ending awake with %d packets to receive", getpid(), in_packets.size());
 
 
     kill(this->pid, SIGSTOP);
     sigwait(&to_block, &sig);
 
     this->proc_runtime = this->proc_runtime + ts;
-    log_event("Process %d run for %ld nanoseconds.", this->pid, nano_from_ts(ts));
+    log_event("Process %d run for %ld nanoseconds, in_packets: %d, out_packets: %d", 
+        em_id, nano_from_ts(ts), in_packets.size(), out_packets.size());
 }
 
 bool EMProc::to_receive_before(struct timespec ts) {

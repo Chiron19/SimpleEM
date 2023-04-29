@@ -11,9 +11,8 @@
 
 #include "utils.hpp"
 
+#include "network/network.hpp"
 #include "emulator.hpp"
-
-#include "network/tun_init.hpp"
 
 FILE* logging_fptr;
 Emulator* em_ptr = nullptr;
@@ -23,12 +22,10 @@ void sigint_handler(int signum);
 int main() {
 	logging_fptr = open_logging("tinyem", false);
 
-	int fd = create_tun(TUN_DEV_NAME, TUN_ADDR.c_str(), TUN_MASK.c_str());
-	log_event("TUN interface set up with name %s", TUN_DEV_NAME);
-
-	em_ptr = new Emulator(fd, CONFIG_PATH, PROGRAM_PATH, PROGRAM_CONFIG_PATH);
+	Network network(CONFIG_PATH, TUN_DEV_NAME, TUN_ADDR, TUN_MASK);
+	em_ptr = new Emulator(network, PROGRAM_PATH, PROGRAM_CONFIG_PATH);
+	
 	real_sleep(10 * MILLISECOND); /* Give some time */
-
 
 	signal(SIGINT, sigint_handler);
 	em_ptr->start_emulation(STEPS);

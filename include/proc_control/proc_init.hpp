@@ -1,5 +1,4 @@
-#ifndef SIMPLEEM_PROC_INIT
-#define SIMPLEEM_PROC_INIT
+#pragma once
 
 /*
  * Creates procs_num new processes that want to run
@@ -13,5 +12,3 @@ void fork_stop_run(int procs_num, int* pids,
 
 void child_init(int em_pid, const char* program_path, 
 				const char* program_config_path);
-
-#endif // SIMPLEEM_PROC_INIT

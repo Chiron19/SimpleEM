@@ -1,5 +1,4 @@
-#ifndef TUNTAP_PLAYGROUND_TRANS_FRAME
-#define TUNTAP_PLAYGROUND_TRANS_FRAME
+#pragma once
 
 #define _DEFAULT_SOURCE 1
 
@@ -17,5 +16,3 @@
 uint16_t tcp_checksum(const struct iphdr *ip, const char *buf, size_t len);
 uint16_t ip4_checksum(const struct iphdr *ip);
 void write_or_die(int fd, const char *buf, size_t len);
-
-#endif

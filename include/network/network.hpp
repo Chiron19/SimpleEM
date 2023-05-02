@@ -1,5 +1,4 @@
-#ifndef SIMPLEEM_NETWORK
-#define SIMPLEEM_NETWORK
+#pragma once
 
 #include <linux/if.h>
 #include <linux/if_tun.h>
@@ -198,5 +197,3 @@ void Network::create_tun() {
 	int flags = fcntl(tun_fd, F_GETFL, 0);
 	fcntl(tun_fd, F_SETFL, flags | O_NONBLOCK);
 }
-
-#endif // SIMPLEEM_NETWORK

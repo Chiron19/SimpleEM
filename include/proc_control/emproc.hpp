@@ -1,5 +1,4 @@
-#ifndef SIMPLEEM_EMPROC
-#define SIMPLEEM_EMPROC
+#pragma once
 
 #include <time.h>
 #include <signal.h>
@@ -138,6 +137,3 @@ bool EMProc::to_receive_before(struct timespec ts) {
         return false;
     return in_packets.top().ts < ts;
 }
-
-
-#endif // SIMPLEEM_EMPROC

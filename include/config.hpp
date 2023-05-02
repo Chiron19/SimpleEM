@@ -1,5 +1,4 @@
-#ifndef SIMPLEEM_CONFIG
-#define SIMPLEEM_CONFIG
+#pragma once
 
 #include <stddef.h>
 #include <string>
@@ -13,5 +12,3 @@ const char PROGRAM_CONFIG_PATH[] = "../examples/dummy/config/config.txt";
 const std::string TUN_DEV_NAME("tun0");
 const std::string TUN_ADDR("172.16.0.1");
 const std::string TUN_MASK("255.240.0.0");
-
-#endif // SIMPLEEM_CONFIG

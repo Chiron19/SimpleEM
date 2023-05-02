@@ -1,5 +1,4 @@
-#ifndef SIMPLEEM_EMULATOR
-#define SIMPLEEM_EMULATOR
+#pragma once
 
 #include <vector>
 #include <iostream>
@@ -124,5 +123,3 @@ void Emulator::schedule_sent_packets(em_id_t em_id) {
         emprocs[dest_em_id].in_packets.push(packet);
     }
 }
-
-#endif

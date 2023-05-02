@@ -65,8 +65,6 @@ public:
         }
         buffer[n] = '\0';
         
-        log_event_proc_cpu_time("Received message: %s", buffer);
-
         for (sender_id = 0; sender_id < procs; ++sender_id) {
             if (inet_addr(addresses[sender_id].first.c_str()) == 
                 sender_addr.sin_addr.s_addr) 

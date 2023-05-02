@@ -1,5 +1,4 @@
-#ifndef TUNTAP_PLAYGROUND_PROC_FRAME
-#define TUNTAP_PLAYGROUND_PROC_FRAME
+#pragma once
 
 #include <netinet/in.h>
 #include <stdlib.h>
@@ -15,7 +14,3 @@ sender_desc_t process_ip6(const char *buf, size_t len);
 sender_desc_t process_ip4(const char *buf, size_t len);
 sender_desc_t process_ip4_tcp(const struct iphdr *ip, const char *buf, size_t len);
 sender_desc_t process_ip4_udp(const struct iphdr *ip, const char *buf, size_t len);
-
-void process_ip4_tcp_syn(int fd, const struct iphdr *ip, const struct tcphdr *tcp);
-
-#endif

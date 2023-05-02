@@ -1,5 +1,4 @@
-#ifndef SIMPLEEM_PACKET
-#define SIMPLEEM_PACKET
+#pragma once
 
 #define _DEFAULT_SOURCE 1
 
@@ -133,5 +132,3 @@ void Packet::swap_source_dest_addr() {
 		buffer[i] = *(((uint8_t*) ip) + i);
 	}
 }
-
-#endif // SIMPLEEM_PACKET

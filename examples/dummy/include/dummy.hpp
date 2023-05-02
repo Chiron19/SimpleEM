@@ -27,7 +27,7 @@ public:
         while(config >> address >> port) {
             addresses.push_back(std::make_pair(address, port));
         }
-        procs = address.size();
+        procs = addresses.size();
 
         setup_recv_socket();
         setup_send_socket();
@@ -65,7 +65,7 @@ public:
         }
         buffer[n] = '\0';
         
-        log_event_proc_cpu_time("Received something");
+        log_event_proc_cpu_time("Received message: %s", buffer);
 
         for (sender_id = 0; sender_id < procs; ++sender_id) {
             if (inet_addr(addresses[sender_id].first.c_str()) == 

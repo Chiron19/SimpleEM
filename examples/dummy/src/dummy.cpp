@@ -29,11 +29,14 @@ int main(int argc, char* argv[]) {
 
     log_event_proc_cpu_time("Start of %d", getpid());
 
+    PingPong pp(em_id, net);
+    pp.start(std::to_string(getpid()), 5);
+
     // Broadcast broadcast(em_id, net);
     // broadcast.start(std::to_string(getpid()));
 
-    SingleMessage sm(em_id, net);
-    sm.start(std::to_string(getpid()));
+    // SingleMessage sm(em_id, net);
+    // sm.start(std::to_string(getpid()));
 
 
     while(true) {}

@@ -5,7 +5,7 @@
 #include <string>
 
 const std::string CONFIG_PATH("config.txt");
-const int STEPS = 2; /* Number of times emulator awakes a process */
+const int STEPS = 100; /* Number of times emulator awakes a process */
 
 const char PROGRAM_PATH[] = "dummy"; 
 const char PROGRAM_CONFIG_PATH[] = "../examples/dummy/config/config.txt";

@@ -118,6 +118,7 @@ void EMProc::awake(struct timespec ts, const Network& network) {
                                       
         /* If anything should be sent to this process in this loop, send it */
         while (to_receive_before(proc_runtime + elapsed_time)) {
+            log_event("Sending something at proc time: %ld", nano_from_ts(proc_runtime + elapsed_time));
             network.send(in_packets.top());
             this->in_packets.pop();
         }

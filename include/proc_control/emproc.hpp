@@ -106,8 +106,9 @@ void EMProc::awake(struct timespec ts, const Network& network) {
 
             if (network.get_em_id(packet.get_dest_addr()) == em_id) {
                 // Packet sent to my own listening socket, receive immidietly
-                // packet.set_dest_addr(packet.get_source_addr()); // TODO FIXME
-                packet.swap_source_dest_addr();
+                packet.set_dest_addr(network.get_inter_addr());
+                packet.set_source_addr(network.get_addr(em_id));
+
                 in_packets.push(packet);
             }
             else {
@@ -135,5 +136,5 @@ void EMProc::awake(struct timespec ts, const Network& network) {
 bool EMProc::to_receive_before(struct timespec ts) {
     if (in_packets.empty())
         return false;
-    return in_packets.top().ts < ts;
+    return in_packets.top().get_ts() < ts;
 }

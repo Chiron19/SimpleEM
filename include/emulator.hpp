@@ -111,14 +111,10 @@ void Emulator::schedule_sent_packets(em_id_t em_id) {
             continue; // FIXME temporary fix of random packets
 
         em_id_t dest_em_id = network.get_em_id(packet.get_dest_addr());
-        packet.ts = packet.ts + network.get_latency(em_id, dest_em_id);
+        packet.increase_ts(network.get_latency(em_id, dest_em_id));
 
-
-        /* WHY NOT WORK :( */
-        // packet.set_dest_addr(packet.get_source_addr());
-        // packet.set_source_addr(network.get_addr(em_id));
-
-        packet.swap_source_dest_addr();
+        packet.set_dest_addr(network.get_inter_addr());
+        packet.set_source_addr(network.get_addr(em_id));
 
         emprocs[dest_em_id].in_packets.push(packet);
     }

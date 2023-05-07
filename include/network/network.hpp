@@ -49,6 +49,7 @@ public:
     int get_em_id(const std::string& address) const;
 
     std::string get_addr(int em_id) const;
+    std::string get_inter_addr() const;
 
     void send(const Packet& packet) const;
 
@@ -116,13 +117,17 @@ int Network::get_em_id(const std::string& address) const {
 std::string Network::get_addr(int em_id) const {
     return addresses[em_id].first;
 }
+std::string Network::get_inter_addr() const {
+    return inter_addr;
+}
+
 
 void Network::send(const Packet& packet) const {
     ssize_t ssize;
-    size_t to_send = packet.size, offset = 0;
+    size_t to_send = packet.get_size(), offset = 0;
 
 	while (to_send > 0) {
-		ssize = write(tun_fd, packet.buffer, to_send);
+		ssize = write(tun_fd, packet.get_buffer(), to_send);
 		if (ssize < 0)
 			panic("write");
 

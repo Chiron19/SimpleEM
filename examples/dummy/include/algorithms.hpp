@@ -95,25 +95,23 @@ public:
 
     SingleMessage(int em_id, NetworkInterface& net): em_id(em_id), net(net) {}
 
-    /** \brief em_id=0 sends one message to em_id=1
+    /** \brief send message to next
      *
      */
     void start(std::string message) {
 
         log_event_proc_cpu_time("Starting");
-        if (em_id == 0) {
-            net.send(1, message);
-        }
-        else {
-            while(true) {
-                // Just send acknowledgement
-                message_t mes = net.receive();
-                if (mes.first >= 0) {
-                    log_event_proc_cpu_time("Got from %d message: %s", mes.first, mes.second.c_str());
-                    break;  
-                }
+        
+        net.send((em_id + 1) % net.procs, message);
+        while(true) {
+            // Just send acknowledgement
+            message_t mes = net.receive();
+            if (mes.first >= 0) {
+                log_event_proc_cpu_time("Got from %d message: %s", mes.first, mes.second.c_str());
+                break;  
             }
         }
+
         log_event_proc_cpu_time("Broadcast finished");
     }
 

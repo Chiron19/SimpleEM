@@ -114,8 +114,6 @@ struct timespec Packet::get_ts() const {
     return ts;
 }
 
-
-
 std::string Packet::get_source_addr() const {
     const struct iphdr *ip = reinterpret_cast<const struct iphdr *>(buffer);
     char buf[INET_ADDRSTRLEN];

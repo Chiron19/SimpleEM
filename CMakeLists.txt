@@ -10,8 +10,6 @@ set(SOURCES_TINYEM
     src/utils/report.cpp
     src/utils/time.cpp
 
-    src/proc_control/proc_init.cpp
-
     src/em/proc_frame.cpp
 )
 

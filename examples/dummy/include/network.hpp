@@ -8,19 +8,19 @@
 
 #include "utils.hpp"
 
-#define MAXLINE 160
+#define MAXLINE 10000
 
 void sigint_handler(int signum);
 
 typedef std::pair<int, std::string> message_t; // sender em_id + message
 
-class NetworkInterface {
+class Network {
 public:
     int em_id, procs;
     int send_fd, recv_fd;
     std::vector<std::pair<std::string, int>> addresses;
 
-    NetworkInterface(int em_id, std::string config_file): em_id(em_id) {
+    Network(int em_id, std::string config_file): em_id(em_id) {
         std::ifstream config(config_file);
         std::string address;
         int port;
@@ -57,14 +57,24 @@ public:
         int sender_id = -1;
         memset(&sender_addr, 0, sizeof(sender_addr));
         socklen_t len = sizeof(sender_addr);
+        
+        // if (em_id == 1) log_event_proc_cpu_time("Before receiving");
 
         ssize_t n = recvfrom(recv_fd, (char *)buffer, MAXLINE, MSG_DONTWAIT, (struct sockaddr*) &sender_addr, &len);
 
-        if (n < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
-            return {-1, ""};
+        // if (em_id == 1) log_event_proc_cpu_time("After receiving");
+
+        if (n < 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+                return {-1, ""};
+            std::cout << "RECVFROM ERROR" << std::endl;
+            exit(1);
+
         }
         buffer[n] = '\0';
         
+        if (em_id == 1) log_event_proc_cpu_time("Received: %ld", n);
+
         for (sender_id = 0; sender_id < procs; ++sender_id) {
             if (inet_addr(addresses[sender_id].first.c_str()) == 
                 sender_addr.sin_addr.s_addr) 

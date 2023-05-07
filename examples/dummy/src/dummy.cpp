@@ -12,8 +12,8 @@
 
 #include <string>
 
-#include "dummy.hpp"
-#include "algorithms.hpp"
+#include "network.hpp"
+#include "algorithms/algorithms.hpp"
 
 #include "utils.hpp"
 
@@ -24,8 +24,7 @@ int main(int argc, char* argv[]) {
     signal(SIGINT, sigint_handler);
     
     int em_id = std::stoi(std::string(argv[1]));
-    NetworkInterface net = NetworkInterface(em_id, std::string(argv[2]));
-    std::string message;
+    Network net = Network(em_id, std::string(argv[2]));
 
     log_event_proc_cpu_time("Start of %d", getpid());
 
@@ -35,8 +34,12 @@ int main(int argc, char* argv[]) {
     // Broadcast broadcast(em_id, net);
     // broadcast.start(std::to_string(getpid()));
 
+    std::string message;
+    for (int i = 0; i < 2500; ++i)
+        message.push_back('a');
+
     SingleMessage sm(em_id, net);
-    sm.start(std::to_string(getpid()));
+    sm.start(message);
 
 
     while(true) {}

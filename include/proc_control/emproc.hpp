@@ -103,6 +103,7 @@ void EMProc::awake(struct timespec ts, const Network& network) {
             Packet packet(buf, ssize, this->proc_runtime + elapsed_time);
             
             log_event("Process %d sending packet to process %d", em_id, network.get_em_id(packet.get_dest_addr()));
+            // process(packet.get_buffer(), packet.get_size());
 
             if (network.get_em_id(packet.get_dest_addr()) == em_id) {
                 // Packet sent to my own listening socket, receive immidietly

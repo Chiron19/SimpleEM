@@ -61,6 +61,8 @@ private:
         const struct udphdr* udp, const char* data, size_t data_len) const;
     uint16_t tcp_checksum(const struct iphdr *ip, 
         const struct tcphdr *tcp, const char *data, size_t data_len) const;
+
+    bool has_transport_layer_hdr() const;
 };
 
 Packet::Packet(const char* buf, size_t size, struct timespec ts): 
@@ -146,14 +148,17 @@ void Packet::set_source_addr(const std::string& addr) {
 
     ip->saddr = inet_addr(addr.c_str());
     ip->check = htons(ip4_checksum(ip));
-    udp->check = udp_checksum(ip, udp, get_data(), get_data_len());
 
     for (size_t i = 0; i < ip->ihl * sizeof(uint32_t); ++i) {
 		buffer[i] = *(((uint8_t*) ip) + i);
 	}
-    for (size_t i = 0; i < sizeof(*udp); ++i) {
-		buffer[ip->ihl * sizeof(uint32_t) + i] = *(((uint8_t*)udp) + i);
-	}
+
+    if (has_transport_layer_hdr()) {
+        udp->check = udp_checksum(ip, udp, get_data(), get_data_len());
+        for (size_t i = 0; i < sizeof(*udp); ++i) {
+            buffer[ip->ihl * sizeof(uint32_t) + i] = *(((uint8_t*)udp) + i);
+        }
+    }
 }
 
 void Packet::set_dest_addr(const std::string& addr) {
@@ -162,14 +167,17 @@ void Packet::set_dest_addr(const std::string& addr) {
 
     ip->daddr = inet_addr(addr.c_str());
     ip->check = htons(ip4_checksum(ip));
-    udp->check = udp_checksum(ip, udp, get_data(), get_data_len());
 
     for (size_t i = 0; i < ip->ihl * sizeof(uint32_t); ++i) {
 		buffer[i] = *(((uint8_t*) ip) + i);
 	}
-    for (size_t i = 0; i < sizeof(*udp); ++i) {
-		buffer[ip->ihl * sizeof(uint32_t) + i] = *(((uint8_t*)udp) + i);
-	}
+
+    if (has_transport_layer_hdr()) {
+        udp->check = udp_checksum(ip, udp, get_data(), get_data_len());
+        for (size_t i = 0; i < sizeof(*udp); ++i) {
+            buffer[ip->ihl * sizeof(uint32_t) + i] = *(((uint8_t*)udp) + i);
+        }
+    }
 }
 
 void Packet::increase_ts(struct timespec other_ts) {
@@ -258,4 +266,11 @@ uint16_t Packet::tcp_checksum(const struct iphdr *ip,
                               const struct tcphdr *tcp,
                               const char *data, size_t data_len) const {
     return 0; // TODO
+}
+
+// Can be improved, I assume that if ipheader has non-zero fragment offset, then 
+// transport layer header is not here
+bool Packet::has_transport_layer_hdr() const {
+    struct iphdr *ip = get_iphdr();
+    return (ntohs(ip->frag_off) % (1<<13)) == 0;
 }

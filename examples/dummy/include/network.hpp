@@ -20,7 +20,7 @@ public:
     int send_fd, recv_fd;
     std::vector<std::pair<std::string, int>> addresses;
 
-    Network(int em_id, std::string config_file): em_id(em_id) {
+    Network(int em_id, const std::string& config_file): em_id(em_id) {
         std::ifstream config(config_file);
         std::string address;
         int port;
@@ -33,7 +33,7 @@ public:
         setup_send_socket();
     }
 
-    void send(int target_em_id, std::string message) {
+    void send(int target_em_id, const std::string& message) {
         struct sockaddr_in recvaddr;
         memset(&recvaddr, 0, sizeof(recvaddr));
         recvaddr.sin_family = AF_INET;
@@ -73,7 +73,7 @@ public:
         }
         buffer[n] = '\0';
         
-        if (em_id == 1) log_event_proc_cpu_time("Received: %ld", n);
+        // if (em_id == 1) log_event_proc_cpu_time("Received: %ld", n);
 
         for (sender_id = 0; sender_id < procs; ++sender_id) {
             if (inet_addr(addresses[sender_id].first.c_str()) == 

@@ -13,7 +13,8 @@
 #include <string>
 
 #include "network.hpp"
-#include "algorithms/algorithms.hpp"
+#include "algorithms/single-message.hpp"
+#include "algorithms/byzantine-reliable-broadcast.hpp"
 
 #include "utils.hpp"
 
@@ -25,21 +26,18 @@ int main(int argc, char* argv[]) {
     
     int em_id = std::stoi(std::string(argv[1]));
     Network net = Network(em_id, std::string(argv[2]));
-
     log_event_proc_cpu_time("Start of %d", getpid());
 
-    // PingPong pp(em_id, net);
-    // pp.start(std::to_string(getpid()), 5);
 
-    // Broadcast broadcast(em_id, net);
-    // broadcast.start(std::to_string(getpid()));
+    // std::string message;
+    // for (int i = 0; i < 2500; ++i)
+    //     message.push_back('a');
 
-    std::string message;
-    for (int i = 0; i < 2500; ++i)
-        message.push_back('a');
+    // SingleMessage sm(em_id, net);
+    // sm.start(message);
 
-    SingleMessage sm(em_id, net);
-    sm.start(message);
+    ByzantineReliableBroadcast sm(em_id, net);
+    sm.start("Hello!");
 
 
     while(true) {}

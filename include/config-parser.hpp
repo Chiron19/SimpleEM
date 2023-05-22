@@ -1,0 +1,96 @@
+#pragma once
+
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+
+#include "utils.hpp"
+
+
+const std::string CONFIG_PATH("../configs/config4.txt");
+const int STEPS = 100; /* Number of times emulator awakes a process */
+
+
+class ConfigParser {
+
+public:
+
+    /** \brief Reads config from the config file ( \p config_path )
+     *
+     * Config layout is as follows:
+     * - First line consists of three words split by whitespace, tun device name,
+     *   tun interface address, and tun interface address mask, to be used in
+     *   setting up the tun interface.
+     * - Second line consists of one number - procs - num of procs to simulate
+     * - Next procs lines consists of a string and int each, 
+     *   i-th line means the address and port on which i-th proc is listening
+     * - Next procs lines consists of procs numbers each, i-th number in
+     *   j-th line means the latency from i-th to j-th proc in miliseconds
+     *   (i-th number in i-th column should be 0)
+     * - Next procs lines consist of at least two words each, i-th line 
+     *   starts with the path to i-th program, then the name of the i-th program
+     *   and then whitespace-split args to the i-th program.
+     * 
+     */
+    ConfigParser(const std::string& config_path);
+
+    std::string tun_dev_name, tun_addr, tun_mask;
+    int procs;
+    std::vector<std::vector<int>> latency;
+    std::vector<std::pair<std::string, int>> addresses;
+    std::vector<std::string> program_paths;
+    std::vector<std::string> program_names;
+    std::vector<std::vector<std::string>> program_args;
+
+};
+
+
+ConfigParser::ConfigParser(const std::string& config_path) {
+    std::ifstream config(config_path);
+    std::istringstream args_stream;
+    std::string address, program_path, program_name, args_line, arg;
+    int port, lat;
+
+    config >> tun_dev_name >> tun_addr >> tun_mask;
+    config >> procs;
+
+    for (int i = 0; i < procs; ++i) {
+        config >> address >> port;
+        addresses.push_back(std::make_pair(address, port));
+    }
+
+    for (int i = 0; i < procs; ++i) {
+        latency.push_back(std::vector<int>());
+
+        for (int j = 0; j < procs; ++j) {
+            config >> lat;
+            if (i == j && lat != 0) {
+                std::cout << "NETWORK CONFIG NON-ZERO AT DIAGONAL" << std::endl;
+                exit(1);
+            }
+            latency.back().push_back(lat * MILLISECOND); // latency is given in miliseconds
+        }
+    }
+
+    std::getline(config, args_line); // Read emptyline 
+
+    for (int i = 0; i < procs; ++i) {
+        std::getline(config, args_line);
+        args_stream = std::istringstream(args_line);
+        program_args.push_back(std::vector<std::string>());
+        std::cout << "LINE: " << args_line << std::endl;
+
+        args_stream >> program_path >> program_name;
+        program_paths.push_back(program_path);
+        program_names.push_back(program_name);
+
+
+        while (args_stream) {
+            args_stream >> arg;
+            program_args.back().push_back(arg);
+        }
+    }
+
+}

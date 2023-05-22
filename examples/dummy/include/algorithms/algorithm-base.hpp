@@ -3,20 +3,18 @@
 #include <string>
 #include <sstream>
 
-#include "network.hpp"
+#include "network-helper.hpp"
 
 class AlgorithmBase {
 
 protected:
 
     int em_id;
-    Network& net;
+    NetworkHelper& net;
 
 public:
 
-    AlgorithmBase(int em_id, Network& net): em_id(em_id), net(net) {}
-
-    virtual void start(const std::string& message) = 0;
+    AlgorithmBase(int em_id, NetworkHelper& net): em_id(em_id), net(net) {}
 
     void broadcast(const std::string& message);
 

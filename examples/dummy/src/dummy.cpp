@@ -12,7 +12,8 @@
 
 #include <string>
 
-#include "network.hpp"
+#include "network-helper.hpp"
+#include "algorithms/loop-network.hpp"
 #include "algorithms/single-message.hpp"
 #include "algorithms/byzantine-reliable-broadcast.hpp"
 
@@ -25,20 +26,13 @@ int main(int argc, char* argv[]) {
     signal(SIGINT, sigint_handler);
     
     int em_id = std::stoi(std::string(argv[1]));
-    Network net = Network(em_id, std::string(argv[2]));
+    NetworkHelper net = NetworkHelper(em_id, std::string(argv[2]));
     log_event_proc_cpu_time("Start of %d", getpid());
 
-
-    // std::string message;
-    // for (int i = 0; i < 2500; ++i)
-    //     message.push_back('a');
-
-    // SingleMessage sm(em_id, net);
-    // sm.start(message);
-
-    ByzantineReliableBroadcast sm(em_id, net);
-    sm.start("Hello!");
-
+    // LoopNetwork ln = LoopNetwork(em_id, net);
+    // ln.start("Hello!", 1);
+    SingleMessage sm = SingleMessage(em_id, net);
+    sm.start("Hello man!");
 
     while(true) {}
     return 0;

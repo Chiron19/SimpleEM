@@ -1,41 +1,30 @@
 #pragma once
 
-#include <string>
-#include <assert.h>
+#include <unistd.h>
 
-#include "network.hpp"
-#include "algorithms/algorithm_base.hpp"
+#include "network-helper.hpp"
+#include "algorithms/algorithm-base.hpp"
+
 
 class SingleMessage: public AlgorithmBase {
 
-public:
+public: 
 
     using AlgorithmBase::AlgorithmBase;
 
-    /** \brief 0 -> 0 , rest nothing
-     *  
+    /** \brief 0->1
      */
-    void start(const std::string& message) override {
+    void start(const std::string& message) {
+        
 
-        log_event_proc_cpu_time("Starting");
         if (em_id == 0)
             net.send(1, message);
-        if (em_id == 1) {
-            while(true) {
-                // Just send acknowledgement
-                message_t mes = net.receive();
-                if (mes.first >= 0) {
-                    log_event_proc_cpu_time("Got from %d message: %s", mes.first, mes.second.c_str());
-                    break;  
-                }
-                struct timespec req = (struct timespec){0, 10000};
-                nanosleep(&req, nullptr);
-            }
-        }
 
-        log_event_proc_cpu_time("Broadcast finished");
+        // if (em_id == 1) {
+        //     message_t mes = force_receive();
+        //     std::cout << "GOT FROM " << mes.first << " MESSAGE: " << mes.second << std::endl;
+        // }
+
     }
 
 };
-
-

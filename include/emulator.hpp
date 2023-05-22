@@ -5,7 +5,7 @@
 #include <string>
 
 #include "utils.hpp"
-#include "config.hpp"
+#include "config-parser.hpp"
 
 #include "network/network.hpp"
 
@@ -21,8 +21,7 @@ class Emulator {
 
 public:
 
-    Emulator(Network& network, const char* program_path, 
-        const char* program_config_path);
+    Emulator(Network& network, const ConfigParser& cp);
 
     void start_emulation(int steps);
 
@@ -34,11 +33,12 @@ public:
      * just before they do, they raise(SIGSTOP). Their
      * process ids are saved in pids array
      */
-    void fork_stop_run(int* pids, const char* program_path, 
-        const char* program_config_path);
+    void fork_stop_run(int* pids, const ConfigParser& cp);
 
-    void child_init(int em_pid, const char* program_path, 
-        const char* program_config_path);
+    void child_init( 
+        const std::string& program_path,
+        const std::string& program_name, 
+        const std::vector<std::string>& program_args);
 
 private:
     em_id_t choose_next_proc() const;
@@ -59,12 +59,11 @@ private:
 
 };
 
-Emulator::Emulator(Network& network, const char* program_path, 
-        const char* program_config_path): network(network) {
+Emulator::Emulator(Network& network, const ConfigParser& cp): network(network) {
     procs = network.get_procs();   
 
     int children_pids[procs];
-    fork_stop_run(children_pids, program_path, program_config_path); 
+    fork_stop_run(children_pids, cp); 
 
     for (em_id_t em_id = 0; em_id < procs; ++em_id) {
         emprocs.push_back(EMProc(em_id, children_pids[em_id]));
@@ -133,8 +132,7 @@ void Emulator::schedule_sent_packets(em_id_t em_id) {
     }
 }
 
-void Emulator::fork_stop_run(int* pids, const char* program_path, 
-        const char* program_config_path) {
+void Emulator::fork_stop_run(int* pids, const ConfigParser& cp) {
     int status;
 
     for (int i = 0; i < procs; ++i) {
@@ -145,7 +143,10 @@ void Emulator::fork_stop_run(int* pids, const char* program_path,
 			exit(1);
 		}
 		else if (status == 0) { /* This is a child process */
-			child_init(i, program_path, program_config_path);
+			child_init(
+                cp.program_paths[i],
+                cp.program_names[i],
+                cp.program_args[i]);
 		}
 		else { /* This is a parent process, new_id is set to child's pid */
 			pids[i] = status;
@@ -153,21 +154,23 @@ void Emulator::fork_stop_run(int* pids, const char* program_path,
 	}
 }
 
-void Emulator::child_init(int em_pid, const char* program_path, 
-		const char* program_config_path) {
+void Emulator::child_init(
+        const std::string& program_path,
+        const std::string& program_name, 
+        const std::vector<std::string>& program_args) {
 	int status;
-	const char *program_argv[] = {
-		"dummy", 
-		std::to_string(em_pid).c_str(),
-		program_config_path,
-		NULL
-	};
+	const char *program_argv[program_args.size() + 2];
+    program_argv[0] = program_name.c_str();
+    for (int i = 0; i < program_args.size(); ++i) {
+        program_argv[i + 1] = program_args[i].c_str();
+    }
+    program_argv[program_args.size() + 1] = nullptr;
 
 	if ((status = raise(SIGSTOP)) != 0) {
 		printf("[TINYEM] Process %d couldnt SIGSTOP itself\n", getpid());
 		return;
 	}
-	if ((status = execve(program_path, (char * const*)program_argv, NULL)) == -1) {
+	if ((status = execve(program_path.c_str(), (char * const*)program_argv, NULL)) == -1) {
 		printf("[TINYEM] Process %d couldnt execute program\n", getpid());
 		return;
 	}

@@ -2,6 +2,11 @@
 
 #include <netinet/in.h>
 #include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+#include <arpa/inet.h>
+
+
 #include <vector>
 #include <fstream>
 #include <iostream>
@@ -14,13 +19,13 @@ void sigint_handler(int signum);
 
 typedef std::pair<int, std::string> message_t; // sender em_id + message
 
-class Network {
+class NetworkHelper {
 public:
     int em_id, procs;
     int send_fd, recv_fd;
     std::vector<std::pair<std::string, int>> addresses;
 
-    Network(int em_id, const std::string& config_file): em_id(em_id) {
+    NetworkHelper(int em_id, const std::string& config_file): em_id(em_id) {
         std::ifstream config(config_file);
         std::string address;
         int port;

@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include "config.hpp"
+#include "config-parser.hpp"
 
 #include "utils.hpp"
 
@@ -22,8 +22,9 @@ void sigint_handler(int signum);
 int main() {
 	logging_fptr = open_logging("tinyem", false);
 
-	Network network(CONFIG_PATH, TUN_DEV_NAME, TUN_ADDR, TUN_MASK);
-	em_ptr = new Emulator(network, PROGRAM_PATH, PROGRAM_CONFIG_PATH);
+	ConfigParser cp(CONFIG_PATH);
+	Network network(cp);
+	em_ptr = new Emulator(network, cp);
 	
 	real_sleep(10 * MILLISECOND); /* Give some time */
 

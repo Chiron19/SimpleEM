@@ -12,14 +12,16 @@
 #include <iostream>
 
 #include "packet.hpp"
+#include "config-parser.hpp"
 
 class Network {
 
-    int procs, tun_fd;
-    std::vector<std::vector<int>> latency;
-    std::vector<std::pair<std::string, int>> addresses;
+    int tun_fd;
+    const ConfigParser& cp;
+    // std::vector<std::vector<int>> latency;
+    // std::vector<std::pair<std::string, int>> addresses;
     struct timespec max_latency;
-    const std::string interface, inter_addr, inter_mask;
+    // const std::string interface, inter_addr, inter_mask;
 
 public:
 
@@ -37,8 +39,7 @@ public:
      * node in miliseconds. Values on diagonal of the matrix have 
      * to be equal to 0.
      */
-    Network(std::string config_path, std::string interface,
-        std::string inter_addr, std::string inter_mask);
+    Network(const ConfigParser& cp);
 
     struct timespec get_latency(int em_id1, int em_id2) const;
 
@@ -61,41 +62,21 @@ private:
 
 };
 
-Network::Network(std::string config_path, std::string interface,
-        std::string inter_addr, std::string inter_mask): 
-        interface(interface), inter_addr(inter_addr), inter_mask(inter_mask) {
+Network::Network(const ConfigParser& cp): cp(cp) {
     create_tun();
 
-    std::ifstream config(config_path);
-    std::string line, address;
-    int port, lat;
     max_latency = timespec{0, 0};
 
-    config >> procs;
-
-    for (int i = 0; i < procs; ++i) {
-        config >> address >> port;
-        addresses.push_back(std::make_pair(address, port));
-    }
-
-    for (int i = 0; i < procs; ++i) {
-        latency.push_back(std::vector<int>());
-
-        for (int j = 0; j < procs; ++j) {
-            config >> lat;
-            if (i == j && lat != 0) {
-                std::cout << "NETWORK CONFIG NON-ZERO AT DIAGONAL" << std::endl;
-                exit(1);
-            }
-            latency.back().push_back(lat * MILLISECOND); // latency is given in miliseconds
-            if (ts_from_nano(latency.back().back()) > max_latency)
-                max_latency = ts_from_nano(latency.back().back());
+    for (int i = 0; i < cp.procs; ++i) {
+        for (int j = 0; j < cp.procs; ++j) {
+            if (ts_from_nano(cp.latency[i][j]) > max_latency) 
+                max_latency = ts_from_nano(cp.latency[i][j]);
         }
     }
 }
 
 struct timespec Network::get_latency(int em_id1, int em_id2) const {
-    return ts_from_nano(latency[em_id1][em_id2]);
+    return ts_from_nano(cp.latency[em_id1][em_id2]);
 }
 
 struct timespec Network::get_max_latency() const {
@@ -103,22 +84,22 @@ struct timespec Network::get_max_latency() const {
 }
 
 int Network::get_procs() const {
-    return procs;
+    return cp.procs;
 }
 
 int Network::get_em_id(const std::string& address) const {
-    for (int em_id = 0; em_id < procs; ++em_id) {
-        if (address == addresses[em_id].first)
+    for (int em_id = 0; em_id < cp.procs; ++em_id) {
+        if (address == cp.addresses[em_id].first)
             return em_id;
     }
     return -1; // address unavailable
 }
 
 std::string Network::get_addr(int em_id) const {
-    return addresses[em_id].first;
+    return cp.addresses[em_id].first;
 }
 std::string Network::get_inter_addr() const {
-    return inter_addr;
+    return cp.tun_addr;
 }
 
 
@@ -153,7 +134,7 @@ void Network::create_tun() {
 	struct ifreq ifr;
 	int ifd;
     char inter[IFNAMSIZ];
-    strcpy(inter, interface.c_str());
+    strcpy(inter, cp.tun_dev_name.c_str());
 
 	tun_fd = open(clonedev, O_RDWR);
 	if (tun_fd < 0)
@@ -181,7 +162,7 @@ void Network::create_tun() {
 		panic("ioctl(SIOCSIFFLAGS)");
 
 	sin.sin_family = AF_INET;
-	inet_pton(AF_INET, inter_addr.c_str(), &sin.sin_addr);
+	inet_pton(AF_INET, cp.tun_addr.c_str(), &sin.sin_addr);
 	memset(&ifr, 0, sizeof (ifr));
 	strncpy(ifr.ifr_name, inter, IFNAMSIZ);
 	ifr.ifr_addr = *(struct sockaddr *) &sin;
@@ -190,7 +171,7 @@ void Network::create_tun() {
 		panic("ioctl(SIOCSIFADDR)");
 
 	sin.sin_family = AF_INET;
-	inet_pton(AF_INET, inter_mask.c_str(), &sin.sin_addr);
+	inet_pton(AF_INET, cp.tun_mask.c_str(), &sin.sin_addr);
 	memset(&ifr, 0, sizeof (ifr));
 	strncpy(ifr.ifr_name, inter, IFNAMSIZ);
 	ifr.ifr_netmask = *(struct sockaddr *) &sin;

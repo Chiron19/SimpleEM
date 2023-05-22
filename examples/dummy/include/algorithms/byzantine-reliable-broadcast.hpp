@@ -1,7 +1,7 @@
 #pragma once
 
-#include "network.hpp"
-#include "algorithm_base.hpp"
+#include "network-helper.hpp"
+#include "algorithms/algorithm-base.hpp"
 
 
 class ByzantineReliableBroadcast: public AlgorithmBase {
@@ -19,7 +19,7 @@ public:
 
     /** \brief 0 broadcasts, but is also part of senders
      */
-    void start(const std::string& message) override {
+    void start(const std::string& message) {
         int f = (net.procs - 1) / 3;
         message_t mes_received;
         std::string mes_type, mes_value;
@@ -39,7 +39,7 @@ public:
             mes_type = get_mes_type(mes_received.second);
             mes_value = get_mes_value(mes_received.second);
 
-            if (mes_type == type_send && !sentecho) {
+            if (mes_type == type_send && !sentecho && mes_received.first == 0) {
                 // should we force mes_received.first==0?
                 // for now we do not do this.
                 sentecho = true;

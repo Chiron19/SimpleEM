@@ -5,17 +5,14 @@ project (tinyem)
 
 # Create a sources variable with a link to all cpp files to compile
 set(SOURCES_TINYEM
-    src/tinyem.cpp
-
-    src/utils/time.cpp
-
-    src/em/proc_frame.cpp
+    src/src/tinyem.cpp
+    src/src/time.cpp
+    src/src/proc_frame.cpp
 )
 
 set(SOURCES_DUMMY
     examples/dummy/src/dummy.cpp
-
-    src/utils/time.cpp
+    src/src/time.cpp
 )
 
 add_executable(tinyem ${SOURCES_TINYEM})
@@ -28,10 +25,10 @@ add_executable(dummy ${SOURCES_DUMMY})
 # when running g++ these will be included as -I/directory/path/
 target_include_directories(tinyem
     PRIVATE 
-        ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/src/include
 )
 target_include_directories(dummy
     PRIVATE 
-        ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/src/include
         ${PROJECT_SOURCE_DIR}/examples/dummy/include
 )

@@ -7,7 +7,6 @@ project (tinyem)
 set(SOURCES_TINYEM
     src/tinyem.cpp
 
-    src/utils/report.cpp
     src/utils/time.cpp
 
     src/em/proc_frame.cpp
@@ -16,7 +15,6 @@ set(SOURCES_TINYEM
 set(SOURCES_DUMMY
     examples/dummy/src/dummy.cpp
 
-    src/utils/report.cpp
     src/utils/time.cpp
 )
 

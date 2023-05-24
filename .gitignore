@@ -2,3 +2,4 @@ build/*
 !build/.gitkeep
 
 .vscode
+TODO.log

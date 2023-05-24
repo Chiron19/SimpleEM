@@ -74,7 +74,8 @@ public:
             }
             if (readied > 2 * f && !delivered) {
                 delivered = true;
-                log_event_proc_cpu_time("DELIVERING MESSAGE: %s", mes_value.c_str());
+                logger_ptr->log_event(CLOCK_PROCESS_CPUTIME_ID,
+                    "DELIVERING MESSAGE: %s", mes_value.c_str());
             }
 
         }

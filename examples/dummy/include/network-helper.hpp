@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "utils.hpp"
+#include "logger.hpp"
 
 #define MAXLINE 10000
 
@@ -49,7 +50,8 @@ public:
                (const struct sockaddr *) &recvaddr, sizeof(recvaddr)) == -1) {
             printf("[DUMMY] sendto error: %d\n", errno);
         }
-        log_event_proc_cpu_time("Send packet to proc %d (%s), message: %s", 
+        logger_ptr->log_event(CLOCK_PROCESS_CPUTIME_ID, 
+            "Send packet to proc %d (%s), message: %s", 
             target_em_id, addresses[target_em_id].first.c_str(), message.c_str());
     }
 
@@ -62,12 +64,8 @@ public:
         int sender_id = -1;
         memset(&sender_addr, 0, sizeof(sender_addr));
         socklen_t len = sizeof(sender_addr);
-        
-        // if (em_id == 1) log_event_proc_cpu_time("Before receiving");
 
         ssize_t n = recvfrom(recv_fd, (char *)buffer, MAXLINE, MSG_DONTWAIT, (struct sockaddr*) &sender_addr, &len);
-
-        // if (em_id == 1) log_event_proc_cpu_time("After receiving");
 
         if (n < 0) {
             if (errno == EAGAIN || errno == EWOULDBLOCK)
@@ -77,8 +75,6 @@ public:
 
         }
         buffer[n] = '\0';
-        
-        // if (em_id == 1) log_event_proc_cpu_time("Received: %ld", n);
 
         for (sender_id = 0; sender_id < procs; ++sender_id) {
             if (inet_addr(addresses[sender_id].first.c_str()) == 
@@ -91,7 +87,8 @@ public:
             exit(1);
         }
 
-        log_event_proc_cpu_time("Received packet from proc %d (%s), message: %s",
+        logger_ptr->log_event(CLOCK_PROCESS_CPUTIME_ID,
+            "Received packet from proc %d (%s), message: %s",
             sender_id, addresses[sender_id].first.c_str(), buffer);
         return {sender_id, buffer};
     }

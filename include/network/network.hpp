@@ -13,15 +13,13 @@
 
 #include "packet.hpp"
 #include "config-parser.hpp"
+#include "logger.hpp"
 
 class Network {
 
     int tun_fd;
     const ConfigParser& cp;
-    // std::vector<std::vector<int>> latency;
-    // std::vector<std::pair<std::string, int>> addresses;
     struct timespec max_latency;
-    // const std::string interface, inter_addr, inter_mask;
 
 public:
 
@@ -116,7 +114,7 @@ void Network::send(const Packet& packet) const {
 		to_send -= (size_t) ssize;
 	}
 
-    log_event("Packet send from %s.%d to %s.%d", 
+    logger_ptr->log_event("Packet send from %s.%d to %s.%d", 
         packet.get_source_addr().c_str(), packet.get_source_port(), 
         packet.get_dest_addr().c_str(), packet.get_dest_port());
 }

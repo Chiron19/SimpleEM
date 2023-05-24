@@ -80,7 +80,6 @@ ConfigParser::ConfigParser(const std::string& config_path) {
         std::getline(config, args_line);
         args_stream = std::istringstream(args_line);
         program_args.push_back(std::vector<std::string>());
-        std::cout << "LINE: " << args_line << std::endl;
 
         args_stream >> program_path >> program_name;
         program_paths.push_back(program_path);

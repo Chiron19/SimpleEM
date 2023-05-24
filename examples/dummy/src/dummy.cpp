@@ -17,17 +17,18 @@
 #include "algorithms/single-message.hpp"
 #include "algorithms/byzantine-reliable-broadcast.hpp"
 
+#include "logger.hpp"
 #include "utils.hpp"
 
-FILE *logging_fptr;
+Logger* logger_ptr = nullptr;
 
 int main(int argc, char* argv[]) {
-    logging_fptr = open_logging("dummy", true);
+    int em_id = std::stoi(std::string(argv[1]));
+    logger_ptr = new Logger("logging_dummy_" + std::to_string(em_id) + ".txt");
     signal(SIGINT, sigint_handler);
     
-    int em_id = std::stoi(std::string(argv[1]));
     NetworkHelper net = NetworkHelper(em_id, std::string(argv[2]));
-    log_event_proc_cpu_time("Start of %d", getpid());
+    logger_ptr->log_event(CLOCK_PROCESS_CPUTIME_ID, "Start of %d", getpid());
 
     // LoopNetwork ln = LoopNetwork(em_id, net);
     // ln.start("Hello!", 1);
@@ -39,17 +40,17 @@ int main(int argc, char* argv[]) {
 }
 
 void sigint_handler(int signum) {
-    fclose(logging_fptr);
+    delete logger_ptr;
 
     char buf[BUF_SIZE];
     size_t offset = 0;
 
-    offset += push_to_buffer_string(buf + offset, "[DUMMY][SIGINT]");
-    offset += push_to_buffer_time(buf + offset, CLOCK_PROCESS_CPUTIME_ID);
-    offset += push_to_buffer_string(buf + offset, "[");
-    offset += push_to_buffer_int(buf + offset, getpid());
-    offset += push_to_buffer_string(buf + offset, "]");
-    offset += push_to_buffer_string(buf + offset, "\n");
+    offset += Logger::push_to_buffer_string(buf + offset, "[DUMMY][SIGINT]");
+    offset += Logger::push_to_buffer_time(buf + offset, CLOCK_PROCESS_CPUTIME_ID);
+    offset += Logger::push_to_buffer_string(buf + offset, "[");
+    offset += Logger::push_to_buffer_int(buf + offset, getpid());
+    offset += Logger::push_to_buffer_string(buf + offset, "]");
+    offset += Logger::push_to_buffer_string(buf + offset, "\n");
 
     /* Write to IO FD */
     write(STDOUT_FILENO, buf, offset);

@@ -10,17 +10,18 @@
 #include "config-parser.hpp"
 
 #include "utils.hpp"
+#include "logger.hpp"
 
 #include "network/network.hpp"
 #include "emulator.hpp"
 
-FILE* logging_fptr;
+Logger* logger_ptr = nullptr;
 Emulator* em_ptr = nullptr;
 
 void sigint_handler(int signum);
 
 int main() {
-	logging_fptr = open_logging("tinyem", false);
+	logger_ptr = new Logger("logging_tinyem.txt");
 
 	ConfigParser cp(CONFIG_PATH);
 	Network network(cp);
@@ -34,6 +35,7 @@ int main() {
 	real_sleep(10 * MILLISECOND); /* Give some time */
 
 	em_ptr->kill_emulation();
+	delete logger_ptr;
 
 	return 0;
 }
@@ -42,17 +44,17 @@ int main() {
 void sigint_handler(int signum) {
 	if (em_ptr)
 		em_ptr->kill_emulation();
-	fclose(logging_fptr);
+	delete logger_ptr;
 
 	char buf[BUF_SIZE];
     size_t offset = 0;
 
-    offset += push_to_buffer_string(buf + offset, "[TINYEM][SIGINT]");
-    offset += push_to_buffer_time(buf + offset, CLOCK_MONOTONIC);
-	offset += push_to_buffer_string(buf + offset, "[");
-    offset += push_to_buffer_int(buf + offset, getpid());
-    offset += push_to_buffer_string(buf + offset, "]");
-    offset += push_to_buffer_string(buf + offset, "\n");
+    offset += Logger::push_to_buffer_string(buf + offset, "[TINYEM][SIGINT]");
+    offset += Logger::push_to_buffer_time(buf + offset, CLOCK_MONOTONIC);
+	offset += Logger::push_to_buffer_string(buf + offset, "[");
+    offset += Logger::push_to_buffer_int(buf + offset, getpid());
+    offset += Logger::push_to_buffer_string(buf + offset, "]");
+    offset += Logger::push_to_buffer_string(buf + offset, "\n");
 
     /* Write to IO FD */
     write(STDOUT_FILENO, buf, offset);

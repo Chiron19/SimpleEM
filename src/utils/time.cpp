@@ -83,18 +83,18 @@ struct timespec get_time_since(struct timespec ts1) {
     return curr_time - ts1;
 }
 
-long get_sec(struct timespec t) {
+int get_sec(struct timespec t) {
     return t.tv_sec;
 }
 
-long get_msec(struct timespec t) {
+int get_msec(struct timespec t) {
     return t.tv_nsec / MILLISECOND;
 }
 
-long get_micsec(struct timespec t) {
+int get_micsec(struct timespec t) {
     return t.tv_nsec / MICROSECOND % MICROSECOND;
 }
 
-long get_nsec(struct timespec t) {
+int get_nsec(struct timespec t) {
     return t.tv_nsec / NANOSECOND % MILLISECOND;
 }

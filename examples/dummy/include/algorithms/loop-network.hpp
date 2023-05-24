@@ -30,6 +30,11 @@ public:
 
         }
 
+        if (em_id == 0) {
+            message_t mes = force_receive();
+            std::cout << getpid() << " received from " << mes.first << std::endl;
+        }
+
     }
 
 };

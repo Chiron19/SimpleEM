@@ -1,17 +1,90 @@
-#include <stdio.h>
-#include <string.h>
+#pragma once
+
+#include <stdlib.h>
 #include <time.h>
 #include <stdarg.h>
-#include <unistd.h>
-#include <stdint.h>
-#include <stdbool.h>
+#include <time.h>
+#include <string.h>
 
-#include <iostream>
 #include <string>
 
 #include "utils.hpp"
 
-size_t push_to_buffer_time(char* buf, clockid_t clk_id) {
+
+class Logger {
+
+    FILE* file_ptr;
+
+public:
+
+    Logger(const std::string& file_path);
+    ~Logger();
+
+    void log_event(clockid_t clock_type, const char* format, va_list args);
+    void log_event(clockid_t clock_type, const char* format, ...);
+    void log_event(const char* format, ...);
+
+    /** \brief Appends current time to buffer (async-signal-safe)
+     */
+    static size_t push_to_buffer_time(char* buf, clockid_t clk_id); 
+    static size_t push_to_buffer_string(char* buf, const char* expr);
+    static size_t push_to_buffer_int(char* buf, int expr);
+    static void dump(const char *buf, size_t len);
+
+private:
+
+    void log_time(clockid_t clock_type); // Logs without endline after
+
+};
+
+/* Gloabal logger */
+extern Logger* logger_ptr;
+
+
+Logger::Logger(const std::string& file_path) {
+    file_ptr = fopen(file_path.c_str(), "w");
+}
+
+Logger::~Logger() {
+    fclose(file_ptr);
+}
+
+void Logger::log_event(clockid_t clock_type, const char* format, va_list args) {
+    log_time(clock_type);
+    vfprintf(file_ptr, format, args);
+    fprintf(file_ptr, "\n");
+}
+
+void Logger::log_event(clockid_t clock_type, const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    log_time(clock_type);
+    vfprintf(file_ptr, format, args);
+    fprintf(file_ptr, "\n");
+    
+    va_end(args);
+}
+
+void Logger::log_event(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    log_event(CLOCK_MONOTONIC, format, args);
+    va_end(args);
+}
+
+void Logger::log_time(clockid_t clock_type) {
+    struct timespec res;
+    clock_gettime(clock_type, &res);
+
+    fprintf(file_ptr,
+        "[sec: %06d msec: %03d micsec: %03d]",
+        get_sec(res), 
+        get_msec(res), 
+        get_micsec(res));
+}
+
+size_t Logger::push_to_buffer_time(char* buf, clockid_t clk_id) {
     size_t offset = 0;
     struct timespec res;
     const char 
@@ -47,13 +120,13 @@ size_t push_to_buffer_time(char* buf, clockid_t clk_id) {
     return offset;
 }
 
-size_t push_to_buffer_string(char* buf, const char* expr) {
+size_t Logger::push_to_buffer_string(char* buf, const char* expr) {
     size_t len = strlen(expr);
     strncpy(buf, expr, len);
     return len;
 }
 
-size_t push_to_buffer_int(char* buf, int expr) {
+size_t Logger::push_to_buffer_int(char* buf, int expr) {
     if (expr == 0) {
         buf[0] = '0';
         return 1;
@@ -77,54 +150,7 @@ size_t push_to_buffer_int(char* buf, int expr) {
     return offset;
 }
 
-FILE* open_logging(const std::string& prog_name, bool pid_in_name) {
-    std::string file_name = 
-        "logging_" + prog_name;
-    if (pid_in_name)
-        file_name += "_pid_" + std::to_string(getpid());
-    file_name += ".txt";
-
-    std::cout << "[LOGGING] Logging file created: " << file_name << std::endl;
-    return fopen(file_name.c_str(), "w");
-}
-
-void log_event(const char* format, ...) {
-    FILE *fptr = logging_fptr;
-
-    va_list args;
-    va_start (args, format);
-
-    char buf[BUF_SIZE];
-    buf[push_to_buffer_time(buf, CLOCK_MONOTONIC)] = '\0';
-    fprintf(fptr, "%s", buf);
-    fprintf(fptr, "\t\t");
-    vfprintf(fptr, format, args);
-    fprintf(fptr, "\n");
-    
-    va_end(args);
-}
-
-void log_event_proc_cpu_time(const char* format, ...) {
-    FILE *fptr = logging_fptr;
-
-    va_list args;
-    va_start (args, format);
-
-    char buf[BUF_SIZE];
-    size_t offset = 0;
-
-    offset += push_to_buffer_string(buf, "[CPU TIME]");
-    offset += push_to_buffer_time(buf + offset, CLOCK_PROCESS_CPUTIME_ID);
-    buf[offset] = '\0';
-    fprintf(fptr, "%s", buf);
-    fprintf(fptr, "\t\t");
-    vfprintf(fptr, format, args);
-    fprintf(fptr, "\n");
-
-    va_end(args);
-}
-
-void dump(const char *buf, size_t len) {
+void Logger::dump(const char *buf, size_t len) {
 	size_t i, j;
 
 	for (i = 0; i < len; i++) {

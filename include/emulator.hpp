@@ -5,6 +5,7 @@
 #include <string>
 
 #include "utils.hpp"
+#include "logger.hpp"
 #include "config-parser.hpp"
 
 #include "network/network.hpp"
@@ -69,7 +70,7 @@ Emulator::Emulator(Network& network, const ConfigParser& cp): network(network) {
         emprocs.push_back(EMProc(em_id, children_pids[em_id]));
     }
 
-    log_event("Emulator created with %d processes", procs);                  
+    logger_ptr->log_event("Emulator created with %d processes", procs);                  
 }
 
 void Emulator::start_emulation(int steps) {
@@ -90,7 +91,7 @@ void Emulator::kill_emulation() {
         kill(emproc.pid, SIGCONT);
         kill(emproc.pid, SIGINT);
 	}
-	log_event("Emulation killed.");
+	logger_ptr->log_event("Emulation killed.");
 }
 
 em_id_t Emulator::choose_next_proc() const {

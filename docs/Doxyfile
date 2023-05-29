@@ -1,0 +1,5 @@
+PROJECT_NAME           = "SimpleEM"
+INPUT                  = src
+OUTPUT_DIRECTORY       = build
+RECURSIVE              = YES
+EXTRACT_PRIVATE        = YES

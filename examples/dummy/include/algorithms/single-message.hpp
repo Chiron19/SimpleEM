@@ -20,10 +20,11 @@ public:
         if (em_id == 0)
             net.send(1, message);
 
-        // if (em_id == 1) {
-        //     message_t mes = force_receive();
-        //     std::cout << "GOT FROM " << mes.first << " MESSAGE: " << mes.second << std::endl;
-        // }
+        if (em_id == 1) {
+            message_t mes = force_receive();
+            Logger::print_string_safe(
+                "GOT FROM " + std::to_string(mes.first) + " MESSAGE: " + mes.second + "\n");
+        }
 
     }
 

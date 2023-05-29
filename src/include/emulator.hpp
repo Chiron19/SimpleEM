@@ -16,48 +16,112 @@
 
 #include "proc_frame.hpp"
 
+/** @brief Class encapsulating the main logic of the emulator.
+ * 
+ * Class responsible for overall control of the emulation. It creates
+ * specified number of new processes and runs the emulated program on them.
+ * It controls the state of those processes (whether they are stopped or
+ * running), and decides which one should be awaken (scheduled) next and
+ * for how lond. At last, it is responsible for the cleanup after the
+ * emulation is finished.
+ */
 class Emulator {
 
-    int procs;
-    std::vector<EMProc> emprocs;
-    Network& network;
+    int procs; ///< Number of processes being emulated.
+    std::vector<EMProc> emprocs; ///< States of each process
+    Network& network; ///< Specifies network on which the emulation is being run
 
 public:
 
+    /** @brief Creates an emulation and spawns specified number of new processes.
+     * 
+     * Creates the emulation by forking the process @ref procs times. 
+     * Every newly created process immediately stops itself by the 
+     * \code{} raise(SIGSTOP) \endcode call. Objects corresponding to
+     * newly created processes are stored in the @ref emprocs vector.
+     * 
+     * @param network The network on which the emulator runs
+     * @param cp Configuration of the emulation
+     */
     Emulator(Network& network, const ConfigParser& cp);
 
+    /** @brief Starts the emulation by iteratively scheduling processes.
+     * 
+     * Performs @ref steps times the loop of choosing the next process to 
+     * schedule, calculating for what time it should run, awakening it
+     * for that time, and later sorting packets sent by it to appropriate  
+     * queues.
+     * 
+     * @param steps Number of awakenings to perform
+     */
     void start_emulation(int steps);
 
+    /** @brief Kills all spawned processes 
+     * 
+     * Kills all spawned processes, effectively ending the emulation.
+     */
     void kill_emulation();
 
-    /*
-     * Creates procs_num new processes that want to run
-     * the program specified in the 'config.h' file, but
-     * just before they do, they raise(SIGSTOP). Their
-     * process ids are saved in pids array
+private:
+
+    /** @brief Forks the process and initializes child processes
+     * 
+     * Creates @ref procs_num new processes that execute
+     * the @ref child_init function. Saves process ids of newly
+     * created processes in the @ref pids array.
+     * 
+     * @param pids Array in which to store process ids of new processes
+     * @param cp Configuration to be used for new processes initialization
      */
     void fork_stop_run(int* pids, const ConfigParser& cp);
 
+    /** @brief Initialize the child process.
+     * 
+     * Start by doing the \code{} raise(SIGSTOP) \endcode call. After the
+     * process is awaken (using the \code{} SIGCONT \endcode signal), it
+     * executes the program specified by @ref program_path.
+     * 
+     * @param program_path Path to the program to be executed on this process
+     * @param program_name Name of the program to be executed on this process
+     * @param program_args Arguments to be passes to the program
+     */
     void child_init( 
         const std::string& program_path,
         const std::string& program_name, 
         const std::vector<std::string>& program_args);
 
-private:
+    /** @brief Chooses next process to be scheduled for awakening
+     * 
+     * Loops through all te processes and choses the one which was executed
+     * for the least amount of time.
+     * 
+     * @return Id of the process to be scheduled next
+     */
     em_id_t choose_next_proc() const;
 
-    /** \brief Returns the longest time \p em_id can run 
+    /** @brief Returns the longest time @p em_id can run 
      *         without violating correctness
      *
      * Every process has its 'proc_runtime' saved, returns 
-     * minimum (over all processes p != \p em_id ) of 
+     * minimum (over all processes p != @p em_id ) of 
      * p->proc_runtime - em_id ->proc_runtime + network.get_latency(p, em_id)
      * 
-     * \param em_id Process which will be run
-     * \return The maximum possible time to run
+     * @param em_id Process which will be run
+     * @return The maximum possible time to run
      */
     struct timespec get_time_interval(em_id_t em_id) const;
 
+    /** @brief Moves packets sent by @ref em_id to appropriate in queues of 
+     *         receiving processes.
+     * 
+     * For every packet sent by the @ref process, this function moves it to 
+     * a queue of packets awaiting to be received by appropriate other process.
+     * The function increases the timestamp of the packet by the pairwise
+     * latency between those two processes - so that the packet will be 
+     * received at proper time.
+     * 
+     * @param em_id Id of the process whose out packets need to be moved
+     */
     void schedule_sent_packets(em_id_t em_id);
 
 };

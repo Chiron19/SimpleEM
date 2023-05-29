@@ -26,10 +26,17 @@ public:
 
     /** \brief Appends current time to buffer (async-signal-safe)
      */
-    static size_t push_to_buffer_time(char* buf, clockid_t clk_id); 
-    static size_t push_to_buffer_string(char* buf, const char* expr);
-    static size_t push_to_buffer_int(char* buf, int expr);
+    static size_t push_to_buffer_time_safe(char* buf, clockid_t clk_id); 
+    static size_t push_to_buffer_string_safe(char* buf, const char* expr);
+    static size_t push_to_buffer_int_safe(char* buf, int expr);
     static void dump(const char *buf, size_t len);
+
+    /** \brief Print to STDOUT (acync-signal-safe) 
+     */
+    static void print_string_safe(const std::string& expr);
+    static void print_int_safe(int expr);
+    static void print_time_safe(clockid_t clk_id);
+
 
 private:
 
@@ -84,7 +91,7 @@ void Logger::log_time(clockid_t clock_type) {
         get_micsec(res));
 }
 
-size_t Logger::push_to_buffer_time(char* buf, clockid_t clk_id) {
+size_t Logger::push_to_buffer_time_safe(char* buf, clockid_t clk_id) {
     size_t offset = 0;
     struct timespec res;
     const char 
@@ -102,17 +109,17 @@ size_t Logger::push_to_buffer_time(char* buf, clockid_t clk_id) {
     strcpy(buf + offset, sec_indicator);
     offset += strlen(sec_indicator);
 
-    offset += push_to_buffer_int(buf + offset, (int)get_sec(res));
+    offset += push_to_buffer_int_safe(buf + offset, (int)get_sec(res));
 
     strcpy(buf + offset, msec_indicator);
     offset += strlen(msec_indicator);
 
-    offset += push_to_buffer_int(buf + offset, get_msec(res));
+    offset += push_to_buffer_int_safe(buf + offset, get_msec(res));
 
     strcpy(buf + offset, micsec_indicator);
     offset += strlen(micsec_indicator);
 
-    offset += push_to_buffer_int(buf + offset, get_micsec(res));
+    offset += push_to_buffer_int_safe(buf + offset, get_micsec(res));
 
     strcpy(buf + offset, time_suff_indicator);
     offset += strlen(time_suff_indicator);
@@ -120,13 +127,13 @@ size_t Logger::push_to_buffer_time(char* buf, clockid_t clk_id) {
     return offset;
 }
 
-size_t Logger::push_to_buffer_string(char* buf, const char* expr) {
+size_t Logger::push_to_buffer_string_safe(char* buf, const char* expr) {
     size_t len = strlen(expr);
     strncpy(buf, expr, len);
     return len;
 }
 
-size_t Logger::push_to_buffer_int(char* buf, int expr) {
+size_t Logger::push_to_buffer_int_safe(char* buf, int expr) {
     if (expr == 0) {
         buf[0] = '0';
         return 1;
@@ -148,6 +155,22 @@ size_t Logger::push_to_buffer_int(char* buf, int expr) {
     }
 
     return offset;
+}
+
+void Logger::print_string_safe(const std::string& expr) {
+    write(STDOUT_FILENO, expr.c_str(), expr.size());
+}
+
+void Logger::print_int_safe(int expr) {
+    char buf[BUF_SIZE];
+    size_t len = Logger::push_to_buffer_int_safe(buf, expr);
+    write(STDOUT_FILENO, buf, len);
+}   
+
+void Logger::print_time_safe(clockid_t clk_id) {
+    char buf[BUF_SIZE];
+    size_t len = Logger::push_to_buffer_time_safe(buf, clk_id);
+    write(STDOUT_FILENO, buf, len);
 }
 
 void Logger::dump(const char *buf, size_t len) {

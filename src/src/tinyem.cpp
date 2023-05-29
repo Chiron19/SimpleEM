@@ -18,7 +18,7 @@
 Logger* logger_ptr = nullptr;
 Emulator* em_ptr = nullptr;
 
-void sigint_handler(int signum);
+void signal_handler(int signum);
 
 int main() {
 	logger_ptr = new Logger("logging_tinyem.txt");
@@ -29,11 +29,11 @@ int main() {
 	
 	real_sleep(10 * MILLISECOND); /* Give some time */
 
-	signal(SIGINT, sigint_handler);
+	signal(SIGINT, signal_handler);
+	signal(SIGSEGV, signal_handler);
 	em_ptr->start_emulation(STEPS);
 
-	real_sleep(10 * MILLISECOND); /* Give some time */
-
+	Logger::print_string_safe("EMULATION FINISHED\n");
 	em_ptr->kill_emulation();
 	delete logger_ptr;
 
@@ -41,23 +41,37 @@ int main() {
 }
 
 
-void sigint_handler(int signum) {
-	if (em_ptr)
-		em_ptr->kill_emulation();
-	delete logger_ptr;
+void signal_handler(int signum) {
 
 	char buf[BUF_SIZE];
     size_t offset = 0;
 
-    offset += Logger::push_to_buffer_string(buf + offset, "[TINYEM][SIGINT]");
-    offset += Logger::push_to_buffer_time(buf + offset, CLOCK_MONOTONIC);
-	offset += Logger::push_to_buffer_string(buf + offset, "[");
-    offset += Logger::push_to_buffer_int(buf + offset, getpid());
-    offset += Logger::push_to_buffer_string(buf + offset, "]");
-    offset += Logger::push_to_buffer_string(buf + offset, "\n");
+    offset += Logger::push_to_buffer_string_safe(buf + offset, "[TINYEM]");
+
+	switch (signum) {
+    case SIGINT:
+        offset += Logger::push_to_buffer_string_safe(buf + offset, "[SIGINT]");
+        break;
+    case SIGSEGV:
+        offset += Logger::push_to_buffer_string_safe(buf + offset, "[SIGSEGV]");
+        break;
+    default:
+        offset += Logger::push_to_buffer_string_safe(buf + offset, "[UNEXPECTED SIGNAL]");
+        break;
+    }
+
+    offset += Logger::push_to_buffer_time_safe(buf + offset, CLOCK_MONOTONIC);
+	offset += Logger::push_to_buffer_string_safe(buf + offset, "[");
+    offset += Logger::push_to_buffer_int_safe(buf + offset, getpid());
+    offset += Logger::push_to_buffer_string_safe(buf + offset, "]");
+    offset += Logger::push_to_buffer_string_safe(buf + offset, "\n");
 
     /* Write to IO FD */
     write(STDOUT_FILENO, buf, offset);
+
+	if (em_ptr)
+		em_ptr->kill_emulation();
+	delete logger_ptr;
 
 	_exit(signum);
 }

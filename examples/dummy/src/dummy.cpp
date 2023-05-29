@@ -20,15 +20,18 @@
 #include "logger.hpp"
 #include "utils.hpp"
 
+void signal_handler(int signum);
+
 Logger* logger_ptr = nullptr;
+int em_id;
 
 int main(int argc, char* argv[]) {
-    int em_id = std::stoi(std::string(argv[1]));
+    em_id = std::stoi(std::string(argv[1]));
     logger_ptr = new Logger("logging_dummy_" + std::to_string(em_id) + ".txt");
-    signal(SIGINT, sigint_handler);
+    signal(SIGINT, signal_handler);
     
     NetworkHelper net = NetworkHelper(em_id, std::string(argv[2]));
-    logger_ptr->log_event(CLOCK_PROCESS_CPUTIME_ID, "Start of %d", getpid());
+    logger_ptr->log_event(CLOCK_PROCESS_CPUTIME_ID, "Start of %d", em_id);
 
     // LoopNetwork ln = LoopNetwork(em_id, net);
     // ln.start("Hello!", 1);
@@ -39,18 +42,30 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-void sigint_handler(int signum) {
+void signal_handler(int signum) {
     delete logger_ptr;
 
     char buf[BUF_SIZE];
     size_t offset = 0;
 
-    offset += Logger::push_to_buffer_string(buf + offset, "[DUMMY][SIGINT]");
-    offset += Logger::push_to_buffer_time(buf + offset, CLOCK_PROCESS_CPUTIME_ID);
-    offset += Logger::push_to_buffer_string(buf + offset, "[");
-    offset += Logger::push_to_buffer_int(buf + offset, getpid());
-    offset += Logger::push_to_buffer_string(buf + offset, "]");
-    offset += Logger::push_to_buffer_string(buf + offset, "\n");
+    offset += Logger::push_to_buffer_string_safe(buf + offset, "[DUMMY ");
+    offset += Logger::push_to_buffer_int_safe(buf + offset, em_id);
+    offset += Logger::push_to_buffer_string_safe(buf + offset, "]");
+
+    switch (signum) {
+    case SIGINT:
+        offset += Logger::push_to_buffer_string_safe(buf + offset, "[SIGINT]");
+        break;
+    case SIGSEGV:
+        offset += Logger::push_to_buffer_string_safe(buf + offset, "[SIGSEGV]");
+        break;
+    default:
+        offset += Logger::push_to_buffer_string_safe(buf + offset, "[SIGINT]");
+        break;
+    }
+
+    offset += Logger::push_to_buffer_time_safe(buf + offset, CLOCK_PROCESS_CPUTIME_ID);
+    offset += Logger::push_to_buffer_string_safe(buf + offset, "\n");
 
     /* Write to IO FD */
     write(STDOUT_FILENO, buf, offset);

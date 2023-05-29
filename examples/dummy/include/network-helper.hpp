@@ -16,8 +16,6 @@
 
 #define MAXLINE 10000
 
-void sigint_handler(int signum);
-
 typedef std::pair<int, std::string> message_t; // sender em_id + message
 
 class NetworkHelper {

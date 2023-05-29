@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sys/wait.h>
+
 #include <vector>
 #include <iostream>
 #include <string>
@@ -87,11 +89,17 @@ void Emulator::start_emulation(int steps) {
 }
 
 void Emulator::kill_emulation() {
+    int wstatus;
+
+    Logger::print_string_safe("KILLING EMULATION\n");
     for (auto& emproc: emprocs) {
         kill(emproc.pid, SIGCONT);
         kill(emproc.pid, SIGINT);
+        if (waitpid(emproc.pid, &wstatus, 0) == -1) {
+            Logger::print_string_safe("WAITPID FAILED!\n");
+        }
 	}
-	logger_ptr->log_event("Emulation killed.");
+	Logger::print_string_safe("EMULATION KILLED\n");
 }
 
 em_id_t Emulator::choose_next_proc() const {

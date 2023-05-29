@@ -49,7 +49,7 @@ int get_msec(struct timespec t);
 int get_micsec(struct timespec t);
 int get_nsec(struct timespec t);
 
-#define BUF_SIZE 160
+#define BUF_SIZE 320
 
 #define panic(_str) do { perror(_str); abort(); } while (0)
 

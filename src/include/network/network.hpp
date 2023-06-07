@@ -15,47 +15,87 @@
 #include "config-parser.hpp"
 #include "logger.hpp"
 
+/** @brief Class responsible for all network control and communication
+ * 
+ * Class builds and interacts with TUN interface. It sets all necessary 
+ * interface settings and allows to send and receive packets through 
+ * TUN file descriptor. This class also allows translation between emulator's
+ * internal process id and process address and port in the TUN subnetwork. 
+ * Additionally the pairwise processes latencies can be read through
+ * the functionality provided by this class.
+*/
 class Network {
 
-    int tun_fd;
-    const ConfigParser& cp;
-    struct timespec max_latency;
+    int tun_fd; ///< FD of the TUN interface
+    const ConfigParser& cp; ///< Configuration read from the file by emulator
+    struct timespec max_latency; ///< Calculated max pairwise latency
 
 public:
 
-    /** \brief Load network configuration from config file
+    /** @brief Build TUN interface and set necessary constants
      * 
-     * Load network configuration from file \p config_path
-     * The expected file format is as follows:
-     * - first line consists of single number 'procs' - number of processes
-     * to emulate
-     * - next 'procs' lines consist of two entries, i-th line consists of 
-     * the address under which the i-th process receives packets (in number 
-     * dot form) and the port.
-     * - next 'procs' lines consist of 'procs' numbers each. The j-th number
-     * in i-th line is the latency, when sending packet from i-th node to j-th
-     * node in miliseconds. Values on diagonal of the matrix have 
-     * to be equal to 0.
+     * @param cp Emulator's configuration read from a file 
      */
     Network(const ConfigParser& cp);
 
+    /** @brief Get latency between process @p em_id1 and process @p em_id2 
+     * 
+     * @param em_id1 First process
+     * @param em_id2 Second process
+     * @return Pairwise latency between those two processes
+     */
     struct timespec get_latency(int em_id1, int em_id2) const;
 
+    /** @brief Get maximum pairwise latency in the network
+     * 
+     * @return Maximum pairwise latency
+     */
     struct timespec get_max_latency() const;
 
+    /** @brief Get number of processes in the network
+     * 
+     * @return Number of processes in the network
+     */
     int get_procs() const;
 
+    /** @brief Get emulator's internal id of process with given address
+     * 
+     * @param address The address (in number/dot form) on which to query
+     * @return Internal id of process associated with this address (-1 if none)
+     */
     int get_em_id(const std::string& address) const;
 
+    /** @brief Get address of a process with given internal id
+     * 
+     * @param em_id The id on which to query
+     * @return Address (in number/dot form) associated with this internal id
+     */
     std::string get_addr(int em_id) const;
+
+    /** @brief Get address of TUN interface
+     * 
+     * @return Address (in number/dot form) of the TUN interface
+     */
     std::string get_inter_addr() const;
 
+    /** @brief Send the buffer of @p packet object through TUN FD
+     * 
+     * @param packet Packet which will be sent
+     */
     void send(const Packet& packet) const;
 
+    /** @brief Receive data through TUN FD
+     * 
+     * @param buffer Placeholder to which received data will be copied
+     * @param buffer_size Available place for new data
+     * @return Number of received bytes (0 if none)
+     */
     ssize_t receive(char* buffer, size_t buffer_size) const;
 
 private:
 
+    /** @brief Creates and customizes the TUN interface and its subnetwork
+     */
     void create_tun();
 
 };
@@ -99,7 +139,6 @@ std::string Network::get_addr(int em_id) const {
 std::string Network::get_inter_addr() const {
     return cp.tun_addr;
 }
-
 
 void Network::send(const Packet& packet) const {
     ssize_t ssize;

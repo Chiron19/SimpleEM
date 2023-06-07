@@ -47,7 +47,7 @@ public:
 
     /** @brief Starts the emulation by iteratively scheduling processes.
      * 
-     * Performs @ref steps times the loop of choosing the next process to 
+     * Performs @p steps times the loop of choosing the next process to 
      * schedule, calculating for what time it should run, awakening it
      * for that time, and later sorting packets sent by it to appropriate  
      * queues.
@@ -66,9 +66,9 @@ private:
 
     /** @brief Forks the process and initializes child processes
      * 
-     * Creates @ref procs_num new processes that execute
+     * Creates @ref procs new processes that execute
      * the @ref child_init function. Saves process ids of newly
-     * created processes in the @ref pids array.
+     * created processes in the @p pids array.
      * 
      * @param pids Array in which to store process ids of new processes
      * @param cp Configuration to be used for new processes initialization
@@ -79,7 +79,7 @@ private:
      * 
      * Start by doing the \code{} raise(SIGSTOP) \endcode call. After the
      * process is awaken (using the \code{} SIGCONT \endcode signal), it
-     * executes the program specified by @ref program_path.
+     * executes the program specified by @p program_path.
      * 
      * @param program_path Path to the program to be executed on this process
      * @param program_name Name of the program to be executed on this process
@@ -111,10 +111,10 @@ private:
      */
     struct timespec get_time_interval(em_id_t em_id) const;
 
-    /** @brief Moves packets sent by @ref em_id to appropriate in queues of 
+    /** @brief Moves packets sent by @p em_id to appropriate in queues of 
      *         receiving processes.
      * 
-     * For every packet sent by the @ref process, this function moves it to 
+     * For every packet sent by the @p em_id, this function moves it to 
      * a queue of packets awaiting to be received by appropriate other process.
      * The function increases the timestamp of the packet by the pairwise
      * latency between those two processes - so that the packet will be 

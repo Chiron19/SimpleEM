@@ -21,17 +21,65 @@
 
 #define MTU 1500
 
+/** @brief Class encapsulating single ip frame sent through TUN interface
+ * 
+ * Instances of this class are moved around the emulator system to keep track
+ * of which process messaged which process and at what time. As those instances
+ * would be put to different priority_queue all types of constructors need to be
+ * implemented. Packets would be sorted on the @ref ts parameter (signifying 
+ * virtual clock value of the sending process). 
+ * 
+ * It's worth noting, that in the current form packet code works ONLY for 
+ * IPv4 and UDP protocol.
+ */
 class Packet {
 
 public:
 
+    /** @brief Main packet constructor from data read from TUN FD
+     * 
+     * Constructors copies data from the @p buf to newly allocated 
+     * @ref buffer which is freed in destructor 
+     * 
+     * @param buf Char buffer read from TUN FD
+     * @param size Number of bytes read
+     * @param ts Virtual clock value of the sending process
+     */
     Packet(const char* buf, size_t size, struct timespec ts);
+
+    /** @brief Copy constructor
+     * 
+     * @param other Packet to copy from
+     */
     Packet(const Packet &other);
+    
+    /** @brief Move constructor
+     * 
+     * @param other Packet which insides will be moved here
+     */
     Packet(Packet&& other);
+
+    /** @brief Assignment operator
+     * 
+     * @param other Original packet
+     */
     Packet& operator=(const Packet& other);
+
+    /** @brief Comparison operator (comparison based on timestamp)
+     * 
+     * @param other Packet to compare this on with
+     */
     bool operator<(const Packet& other) const;
     ~Packet();
 
+    /** @brief Get packet IPv version (4/6)
+     * 
+     * Its worth noting that some of packets functionalities don't work for 
+     * IPv6. Especially setting source or destination addresses are specifically
+     * implemented for IPv4
+     * 
+     * @return Packet IPv version (4/6)
+     */
     int get_version() const;
     size_t get_size() const;
     char* get_buffer() const;
@@ -41,15 +89,37 @@ public:
     int get_source_port() const;
     int get_dest_port() const;
 
+    /** @brief Set a new source address for the packet
+     * 
+     * Changes packets buffer value so that the source address is updated.
+     * This requires the IPv4 checksum to be updated, as well as the
+     * UDP checksum in udphdr to be updated.
+     * 
+     * @param addr New source address (in number/dot form)
+     */
     void set_source_addr(const std::string& addr);
+    
+    /** @brief Set a new destination address for the packet
+     * 
+     * Changes packets buffer value so that the destination address is updated.
+     * This requires the IPv4 checksum to be updated, as well as the
+     * UDP checksum in udphdr to be updated.
+     * 
+     * @param addr New destination address (in number/dot form)
+     */
     void set_dest_addr(const std::string& addr);
+    
+    /** @brief Increase packet's @ref ts value by @p other_ts 
+     * 
+     * @param other_ts Time by which to increate packet's @ref ts value
+     */
     void increase_ts(struct timespec other_ts);
 
 private:
 
-    char* buffer;
-    size_t size;
-    struct timespec ts;
+    char* buffer; ///< Buffer in which raw data is stored
+    size_t size; ///< Size of data stored in the packet
+    struct timespec ts; ///< Packets timestamp
 
     struct iphdr* get_iphdr() const;
     struct udphdr* get_udp() const;

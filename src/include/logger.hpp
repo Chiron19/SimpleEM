@@ -10,42 +10,107 @@
 
 #include "utils.hpp"
 
-
+/** @brief Utility class for logging in the system
+ * 
+ * Logger is used by the emulator for logging all recorded events in 
+ * a structured manner. 
+ */
 class Logger {
 
-    FILE* file_ptr;
+    FILE* file_ptr; ///< Pointer to FILE object to which to write
 
 public:
 
+    /** @brief Initializes logger and opens specified file
+     * 
+     * @param file_path Path to file to which to log to
+     */
     Logger(const std::string& file_path);
     ~Logger();
 
+    /** @brief Log specified formatted string (printf style) with time of given clock
+     * 
+     * @param clock_type Type of clock which will be used to log
+     * @param format Format string (printf style)
+     * @param args Arguments for the format string
+     */
     void log_event(clockid_t clock_type, const char* format, va_list args);
+
+    /** @brief Log specified formatted string (printf style) with time of given clock
+     * 
+     * @param clock_type Type of clock which will be used to log
+     * @param format Format string (printf style)
+     */
     void log_event(clockid_t clock_type, const char* format, ...);
+
+    /** @brief Log specified formatted string (printf style) with CLOCK_MONOTONIC
+     * @param format Format string (printf style)
+     */
     void log_event(const char* format, ...);
 
-    /** \brief Appends current time to buffer (async-signal-safe)
+    /** @brief Print given buffer to stdout in hex and bin
+     * 
+     * @param buf Buffer to print
+     * @param len Length to print (in buffer)
      */
-    static size_t push_to_buffer_time_safe(char* buf, clockid_t clk_id); 
-    static size_t push_to_buffer_string_safe(char* buf, const char* expr);
-    static size_t push_to_buffer_int_safe(char* buf, int expr);
     static void dump(const char *buf, size_t len);
 
-    /** \brief Print to STDOUT (acync-signal-safe) 
+    /* async-signal-safe functions */
+
+    /** @brief Appends current time to buffer (async-signal-safe)
+     * 
+     * @param buf Buffer to which to push to
+     * @param clk_id Clock to be used
+     * @return Number of bytes written
+     */
+    static size_t push_to_buffer_time_safe(char* buf, clockid_t clk_id); 
+
+    /** @brief Appends string to buffer (async-signal-safe)
+     * 
+     * @param buf Buffer to which to push to
+     * @param expr String to be appended
+     * @return Number of bytes written
+     */
+    static size_t push_to_buffer_string_safe(char* buf, const char* expr);
+
+    /** @brief Appends int to buffer (async-signal-safe)
+     * 
+     * @param buf Buffer to which to push to
+     * @param expr Integer to be appended
+     * @return Number of bytes written
+     */
+    static size_t push_to_buffer_int_safe(char* buf, int expr);
+
+    /** @brief Prints string to STDOUT (async-signal-safe)
+     * 
+     * @param expr String to be printed
      */
     static void print_string_safe(const std::string& expr);
+
+    /** @brief Prints int to STDOUT (async-signal-safe)
+     * 
+     * @param expr Integer to be printed
+     */
     static void print_int_safe(int expr);
+
+    /** @brief Prints time to STDOUT (async-signal-safe)
+     * 
+     * @param clk_id Clock to be used
+     */
     static void print_time_safe(clockid_t clk_id);
 
 
 private:
 
-    void log_time(clockid_t clock_type); // Logs without endline after
+    /** @brief Appends time to logging file (without adding endline after)
+     * 
+     * @param clock_type Clock to be used
+     */
+    void log_time(clockid_t clock_type);
 
 };
 
-/* Gloabal logger */
-extern Logger* logger_ptr;
+extern Logger* logger_ptr; ///< Pointer to global logger object
 
 
 Logger::Logger(const std::string& file_path) {

@@ -9,10 +9,11 @@
 #include "utils.hpp"
 
 
-const std::string CONFIG_PATH("../configs/config4.txt");
-const int STEPS = 100; /* Number of times emulator awakes a process */
+const std::string CONFIG_PATH("../configs/config4.txt"); ///< Path to configuration file
+const int STEPS = 100; ///< Number of times emulator awakens some process
 
-
+/** @brief Class parsing and saving the configuration from a file
+ */
 class ConfigParser {
 
 public:
@@ -36,13 +37,15 @@ public:
      */
     ConfigParser(const std::string& config_path);
 
-    std::string tun_dev_name, tun_addr, tun_mask;
-    int procs;
-    std::vector<std::vector<int>> latency;
-    std::vector<std::pair<std::string, int>> addresses;
-    std::vector<std::string> program_paths;
-    std::vector<std::string> program_names;
-    std::vector<std::vector<std::string>> program_args;
+    std::string tun_dev_name; ///< Device name for new TUN interface
+    std::string tun_addr; ///< Address of the TUN interface
+    std::string tun_mask; ///< Mask of the TUN interface subnetwork
+    int procs; ///< Number of processes to be emulated by the emulator
+    std::vector<std::vector<int>> latency; ///< Matrix of pairwise latencies
+    std::vector<std::pair<std::string, int>> addresses; ///< Addresses (in number/dot format) and ports of processes
+    std::vector<std::string> program_paths; ///< Paths to programs to be run on every process
+    std::vector<std::string> program_names; ///< Names of programs to be run on every process
+    std::vector<std::vector<std::string>> program_args; ///< Arguments to be passed to every process
 
 };
 

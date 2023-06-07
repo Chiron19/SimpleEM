@@ -173,7 +173,7 @@ void Emulator::fork_stop_run(int* pids, const ConfigParser& cp) {
 		status = fork();
 
 		if (status == -1) {
-			printf("[TINYEM][ERROR] Forking error, exiting\n");
+            Logger::print_string_safe("[ERROR] Forking error!");
 			exit(1);
 		}
 		else if (status == 0) { /* This is a child process */
@@ -201,16 +201,13 @@ void Emulator::child_init(
     program_argv[program_args.size() + 1] = nullptr;
 
 	if ((status = raise(SIGSTOP)) != 0) {
-		printf("[TINYEM] Process %d couldnt SIGSTOP itself\n", getpid());
+        Logger::print_string_safe("[ERROR] raise(SIGSTOP) failed!");
 		return;
 	}
 	if ((status = execve(program_path.c_str(), (char * const*)program_argv, NULL)) == -1) {
-		printf("[TINYEM] Process %d couldnt execute program\n", getpid());
+        Logger::print_string_safe("[ERROR] execve() failed!");
 		return;
 	}
-
-	printf("[TINYEM] Process %d finished all the work\n", getpid());
-	return;
 }
 
 em_id_t Emulator::choose_next_proc() const {

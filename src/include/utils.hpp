@@ -23,7 +23,6 @@
  * ensuring sleep of proper time.
  */
 void real_sleep(long long nsecs);
-void full_sleep(struct timespec ts);
 
 long long nano_from_ts(struct timespec ts);
 struct timespec ts_from_nano(long long nsecs);

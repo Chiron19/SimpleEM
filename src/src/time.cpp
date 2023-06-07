@@ -13,22 +13,6 @@ void real_sleep(long long nsecs) {
             break;
         }
         else {
-            printf("RESUMING SLEEP\n");
-            /* 'rem' holds remeining required time */
-            req = rem;
-        }
-    }
-}
-
-void full_sleep(struct timespec ts) {
-    struct timespec rem, req = ts;
-
-    while(1) {
-        if (nanosleep(&req, &rem) == 0) {
-            /* Full sleep performed, return */
-            break;
-        }
-        else {
             /* 'rem' holds remeining required time */
             req = rem;
         }

@@ -17,42 +17,51 @@
 #include "network/packet.hpp"
 #include "network/network.hpp"
 
-#define SIG_LATENCY_UPPERBOUND 50000000 // in nanoseconds
-
-/* 
- * Type of processes ids inside emulator, numbered from 0 up.
- */
+/** Type of emulator's internal process id  */
 typedef int em_id_t; 
 
-/*
- * Information about an emulated process
- */
+/** @brief Controller of a single process inside an emulation
+ * 
+ * Class responsible for the state and awakening of a single process 
+ * in an emulation. It holds the queues of packets that were sent from the
+ * process as well as the queue of packets that should be delivered to the
+ * process. It keeps track of process virtual clock.
+ * All the inside-awakening logic is kept in this class. 
+ * 
+*/
 class EMProc {
 
 public:
 
-    em_id_t em_id;                              ///< Internal id of emulated process
-    int pid;                                    ///< pid of emulated process
-    struct timespec proc_runtime;               ///< Time that the process was awake
-    std::priority_queue<Packet> out_packets;    ///< Buffer of packets sent by process
-    std::priority_queue<Packet> in_packets;     ///< Buffer of packets to be received by process
+    em_id_t em_id; ///< Internal id of emulated process
+    int pid; ///< pid of emulated process
+    struct timespec virtual_clock; ///< Time that the process was awake
+    std::priority_queue<Packet> out_packets; ///< Buffer of packets sent by process
+    std::priority_queue<Packet> in_packets; ///< Buffer of packets to be received by process
 
-    EMProc(em_id_t em_id, int pid): em_id(em_id), pid(pid), 
-                                    proc_runtime({0, 0}) {}
-
-    /** \brief Awake emulated process and let him run for
-     *         spefified amount of time, intercepting packets sent by it.
+    /** @brief Class main constructor
      * 
-     * Awakes emulated process for amount of time specified by \p ts .
+     * Sets process' virtual clock to 0. 
+     * 
+     * @param em_id Emulator's internal process id of this process
+     * @param pid Operating systems pid of process associated with this emulated process
+    */
+    EMProc(em_id_t em_id, int pid): em_id(em_id), pid(pid), 
+                                    virtual_clock({0, 0}) {}
+
+    /** @brief Awake emulated process and let him run for
+     *         specified amount of time, intercepting packets sent by it.
+     * 
+     * Awakes emulated process for amount of time specified by @p ts .
      * All packets sent by this process to addresses in the subnetwork 
-     * of TUN interface specified by \p tun_fd will be intercepted and stored
+     * of TUN interface specified by @p tun_fd will be intercepted and stored
      * in out_packets.
      * 
-     * Function sends SIGCONT signal to specified process, then after \p ts time
+     * Function sends SIGCONT signal to specified process, then after @p ts time
      * it sends the SIGSTOP signal. During the time that the process is running
      * all packets sent by it will be intercepted. Also, in appropriate times,
      * packets from in_packets will be sent to the process using 
-     * the TUN interface with \p tun_fd . proc_runtime is updated 
+     * the TUN interface with @p tun_fd . virtual_clock is updated 
      * inside this function. It is guaranteed that when the function
      * returns, the specified process has already stopped.
      * 
@@ -77,8 +86,6 @@ private:
 };
 
 void EMProc::awake(struct timespec ts, const Network& network) {
-    // logger_ptr->log_event("Process %d awaken, in_packets: %d, out_packets: %d", 
-    //     em_id, in_packets.size(), out_packets.size());
     struct timespec start_time, elapsed_time;
     ssize_t ssize;
     char buf[MTU];
@@ -96,11 +103,11 @@ void EMProc::awake(struct timespec ts, const Network& network) {
         elapsed_time = get_time_since(start_time);
 
         if (elapsed_time > ts)
-            break; /* Apropriate time run */
+            break; /* Appropriate time run */
         
         /* If anything should be sent to this process in this loop, send it */
-        while (to_receive_before(proc_runtime + elapsed_time)) {
-            logger_ptr->log_event("Sending something at proc time: %ld", nano_from_ts(proc_runtime + elapsed_time));
+        while (to_receive_before(virtual_clock + elapsed_time)) {
+            logger_ptr->log_event("Sending something at proc time: %ld", nano_from_ts(virtual_clock + elapsed_time));
             network.send(in_packets.top());
             this->in_packets.pop();
         }
@@ -110,7 +117,7 @@ void EMProc::awake(struct timespec ts, const Network& network) {
         if (ssize <= 0)
             continue; /* Nothing received*/
 
-        Packet packet(buf, ssize, this->proc_runtime + elapsed_time);
+        Packet packet(buf, ssize, this->virtual_clock + elapsed_time);
         if (packet.get_version() != 4)
             continue; /* IP version not supported */
         if (network.get_em_id(packet.get_dest_addr()) < 0)
@@ -138,9 +145,7 @@ void EMProc::awake(struct timespec ts, const Network& network) {
     kill(this->pid, SIGSTOP);
     sigwait(&to_block, &sig);
 
-    this->proc_runtime = this->proc_runtime + ts;
-    // logger_ptr->log_event("Process %d run for %ld nanoseconds, in_packets: %d, out_packets: %d", 
-    //     em_id, nano_from_ts(ts), in_packets.size(), out_packets.size());
+    this->virtual_clock = this->virtual_clock + ts;
 }
 
 bool EMProc::to_receive_before(struct timespec ts) {

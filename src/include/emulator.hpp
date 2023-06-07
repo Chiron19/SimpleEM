@@ -102,9 +102,9 @@ private:
     /** @brief Returns the longest time @p em_id can run 
      *         without violating correctness
      *
-     * Every process has its 'proc_runtime' saved, returns 
+     * Every process has its virtual clock saved, returns 
      * minimum (over all processes p != @p em_id ) of 
-     * p->proc_runtime - em_id ->proc_runtime + network.get_latency(p, em_id)
+     * p->virtual_clock - em_id ->virtual_clock + network.get_latency(p, em_id)
      * 
      * @param em_id Process which will be run
      * @return The maximum possible time to run
@@ -213,7 +213,7 @@ void Emulator::child_init(
 em_id_t Emulator::choose_next_proc() const {
     em_id_t earliest_emproc = 0;
     for (em_id_t em_id = 1; em_id < procs; ++em_id) {
-        if (emprocs[em_id].proc_runtime < emprocs[earliest_emproc].proc_runtime)
+        if (emprocs[em_id].virtual_clock < emprocs[earliest_emproc].virtual_clock)
             earliest_emproc = em_id;
     }
     return earliest_emproc;
@@ -225,8 +225,8 @@ struct timespec Emulator::get_time_interval(em_id_t em_id) const {
     for (em_id_t other_proc = 0; other_proc < procs; ++other_proc) {
         if (other_proc == em_id)
             continue;
-        result_ts = std::min(result_ts, emprocs[other_proc].proc_runtime - 
-            emprocs[em_id].proc_runtime + network.get_latency(other_proc, em_id));
+        result_ts = std::min(result_ts, emprocs[other_proc].virtual_clock - 
+            emprocs[em_id].virtual_clock + network.get_latency(other_proc, em_id));
     }
     return result_ts;
 }

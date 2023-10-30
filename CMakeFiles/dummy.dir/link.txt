@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/dummy.dir/examples/dummy/src/dummy.cpp.o CMakeFiles/dummy.dir/src/src/time.cpp.o -o dummy 

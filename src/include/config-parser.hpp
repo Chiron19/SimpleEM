@@ -8,9 +8,8 @@
 
 #include "utils.hpp"
 
-
-const std::string CONFIG_PATH("../configs/config4.txt"); ///< Path to configuration file
-const int STEPS = 100; ///< Number of times emulator awakens some process
+const std::string CONFIG_PATH("./configs/config7.txt"); ///< Path to configuration file
+const int STEPS = 10000; ///< Number of times emulator awakens some process
 
 /** @brief Class parsing and saving the configuration from a file
  */
@@ -53,7 +52,7 @@ public:
 ConfigParser::ConfigParser(const std::string& config_path) {
     std::ifstream config(config_path);
     std::istringstream args_stream;
-    std::string address, program_path, program_name, args_line, arg;
+    std::string address, program_path, args_line, arg;
     int port, lat;
 
     config >> tun_dev_name >> tun_addr >> tun_mask;
@@ -79,20 +78,24 @@ ConfigParser::ConfigParser(const std::string& config_path) {
 
     std::getline(config, args_line); // Read emptyline 
 
-    for (int i = 0; i < procs; ++i) {
+    for (int i = 0; i < procs*2; ++i) {
         std::getline(config, args_line);
         args_stream = std::istringstream(args_line);
         program_args.push_back(std::vector<std::string>());
 
-        args_stream >> program_path >> program_name;
+        args_stream >> program_path;
         program_paths.push_back(program_path);
-        program_names.push_back(program_name);
+        // program_names.push_back(program_name);
 
-
-        while (args_stream) {
-            args_stream >> arg;
+        while (args_stream >> arg) {
+            // args_stream >> arg;
+            // std::cout << arg << std::endl;
             program_args.back().push_back(arg);
         }
+
+        // std::cout << args_stream.str() << std::endl;
+        // std::cout << "Num of args: " << program_args[i].size() << std::endl;
+        // std::cout << "[config-parser.hpp]" << std::endl;
     }
 
 }

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+void dump(const char *buf, size_t len);
 void process(const char *buf, size_t len);
 void process_ip6(const char *buf, size_t len);
 void process_ip4(const char *buf, size_t len);

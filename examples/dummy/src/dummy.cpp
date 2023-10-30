@@ -30,13 +30,21 @@ int main(int argc, char* argv[]) {
     logger_ptr = new Logger("logging_dummy_" + std::to_string(em_id) + ".txt");
     signal(SIGINT, signal_handler);
     
-    NetworkHelper net = NetworkHelper(em_id, std::string(argv[2]));
+    // NetworkHelper net = NetworkHelper(em_id, std::string(argv[2]));
     logger_ptr->log_event(CLOCK_PROCESS_CPUTIME_ID, "Start of %d", em_id);
 
+    std::cout << "[dummy] em_id: " << em_id << std::endl;
+    // for (int i = 0; i < net.addresses.size(); i++) {
+    //     std::cout << net.addresses[i].first << " " << net.addresses[i].second << std::endl;
+    // }
+    // printf("[dummy] Ready\n");
+
+    // ByzantineReliableBroadcast brb = ByzantineReliableBroadcast(em_id, net);
+    // brb.start("This is a broadcast!");
     // LoopNetwork ln = LoopNetwork(em_id, net);
-    // ln.start("Hello!", 1);
-    SingleMessage sm = SingleMessage(em_id, net);
-    sm.start("Hello man!");
+    // ln.start("Hello!", 2);
+    // SingleMessage sm = SingleMessage(em_id, net);
+    // sm.start("Hello man!");
 
     while(true) {}
     return 0;

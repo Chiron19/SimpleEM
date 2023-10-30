@@ -51,4 +51,3 @@ int get_nsec(struct timespec t);
 #define BUF_SIZE 320
 
 #define panic(_str) do { perror(_str); abort(); } while (0)
-

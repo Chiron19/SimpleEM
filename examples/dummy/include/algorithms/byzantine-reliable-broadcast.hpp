@@ -32,30 +32,61 @@ public:
         
 
         if (em_id == 0)
-            broadcast(type_send + " " + message);
+        {
+            broadcast(em_id, type_send + " " + message);
+        }   
+
+        // Logger::print_string_safe("[byzantine] It is here.\n");
 
         while(true) {
+            if (em_id == 0 && !sentecho) {
+                sentecho = true;
+                echos[em_id] = true;
+                std::cout << "[byzantine] " << ": 000" << std::endl;
+                broadcast(em_id, type_echo + " " + message);
+                std::cout << "[byzantine] " << em_id << ": echo\n" << std::endl;
+            }
+            std::cout << "[byzantine] " << em_id << " recv status:";
+            if (sentecho)  std::cout << " " << "sentecho"; 
+            if (sentready) std::cout << " " << "sentready"; 
+            std::cout << std::endl;
+            // std::cout << "[byzantine] " << "echo :" ;
+            // for (int other_id = 0; other_id < net.procs; ++other_id) 
+            //     printf(echos[other_id] ? "#" : "-");
+            // printf("\n");
+            // std::cout << "[byzantine] " << "ready:" ;
+            // for (int other_id = 0; other_id < net.procs; ++other_id) 
+            //     printf(readys[other_id] ? "#" : "-");
+            // printf("\n");
+
+            printf("------%d receive begin\n", em_id);
+            // mes_received = net.receive_tcp();
             mes_received = force_receive();
             mes_type = get_mes_type(mes_received.second);
             mes_value = get_mes_value(mes_received.second);
+            printf("------%d receive finish\n", em_id);
 
             if (mes_type == type_send && !sentecho && mes_received.first == 0) {
                 // should we force mes_received.first==0?
-                // for now we do not do this.
+                // fix the initial sender as em_id == 0
                 sentecho = true;
-                broadcast(type_echo + " " + mes_value);
-            }
-            else if (mes_type == type_echo) {
-                if (!echos[mes_received.first])
+                echos[em_id] = true;
+                std::cout << "[byzantine] " << ": 000" << std::endl;
+                broadcast(em_id, type_echo + " " + mes_value);
+            }    
+            if (mes_type == type_echo) {
+                if (!echos[mes_received.first]) 
                     echoed++;
                 echos[mes_received.first] = true;
+                std::cout << "[byzantine] " << em_id << ": has echoed " << echoed << std::endl;
             }
-            else if (mes_type == type_ready) {
+            if (mes_type == type_send) {
                 if (!readys[mes_received.first])
                     readied++;
                 readys[mes_received.first] = true;
+                std::cout << "[byzantine] " << em_id << ": has readied " << readied << std::endl;
             }
-            else {
+            if (mes_type != type_send && mes_type != type_echo && mes_type != type_ready) {
                 std::cout << "UNIDENTIFIED MESSAGE TYPE: " << mes_type 
                           << " MESSAGE VALUE: " << mes_value
                           << " SENDER ID: " << mes_received.first
@@ -64,18 +95,40 @@ public:
                 raise(SIGSTOP);
             }
 
-            if (echoed > (net.procs + f) / 2 && !sentready) {
+            if (echoed >= (net.procs + f) / 2 && !sentecho) {
+                sentecho = true;
+                echos[em_id] = true;
+                std::cout << "[byzantine] " << ": 111" << std::endl;
+                broadcast(em_id, type_echo + " " + mes_value);
+                continue;
+            }
+            if (readied > f && !sentecho) {
+                sentecho = true;
+                echos[em_id] = true;
+                std::cout << "[byzantine] " << ": 222" << std::endl;
+                broadcast(em_id, type_echo + " " + mes_value);
+                continue;
+            }
+            if (echoed >= (net.procs + f) / 2 && !sentready) {
                 sentready = true;
-                broadcast(type_ready + " " + mes_value);
+                readys[em_id] = true;
+                std::cout << "[byzantine] " << ": 333" << std::endl;
+                broadcast(em_id, type_ready + " " + mes_value);
+                continue;
             }
             if (readied > f && !sentready) {
                 sentready = true;
-                broadcast(type_ready + " " + mes_value);
+                readys[em_id] = true;
+                std::cout << "[byzantine] " << ": 444" << std::endl;
+                broadcast(em_id, type_ready + " " + mes_value);
+                continue;
             }
             if (readied > 2 * f && !delivered) {
                 delivered = true;
                 logger_ptr->log_event(CLOCK_PROCESS_CPUTIME_ID,
                     "DELIVERING MESSAGE: %s", mes_value.c_str());
+                std::cout << "[byzantine] " << em_id << " DELIVERING MESSAGE:" << mes_value << std::endl;
+                // raise(SIGSTOP);
             }
 
         }

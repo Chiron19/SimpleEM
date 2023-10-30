@@ -16,7 +16,7 @@ public:
 
     AlgorithmBase(int em_id, NetworkHelper& net): em_id(em_id), net(net) {}
 
-    void broadcast(const std::string& message);
+    void broadcast(int em_id, const std::string& message);
 
     message_t force_receive();
 
@@ -27,17 +27,33 @@ protected:
 
 };
 
-void AlgorithmBase::broadcast(const std::string& message) {
+void AlgorithmBase::broadcast(int em_id, const std::string& message) {
     for (int other_id = 0; other_id < net.procs; ++other_id) {
-        net.send(other_id, message);
+        // net.send(other_id, message);
+        if (em_id == other_id) continue;
+        if (net.send_tcp(other_id, message) < 0) {
+            // 
+            std::cout << "[algorithm-base] " << em_id << "->" << other_id << " FAIL" << std::endl;
+        }
+        else 
+        std::cout << "[algorithm-base] " << em_id << "->" << other_id << " (" << message << ")" << std::endl;
     }
 }
 
 message_t AlgorithmBase::force_receive() {
     while(true) {
-        message_t mes = net.receive();
-        if (mes.first >= 0)
+        // message_t mes = net.receive();
+        message_t mes = net.receive_tcp();
+
+        
+        if (mes.first >= 0) {
+            std::cout << "[algorithm-base] recv from " << mes.first << " : " << mes.second << std::endl;
             return mes;
+        }
+        else {
+            std::cout << "[algorithm-base] recv fail " << std::endl;
+        }
+            
     }
 }
 

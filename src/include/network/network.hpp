@@ -111,6 +111,10 @@ Network::Network(const ConfigParser& cp): cp(cp) {
                 max_latency = ts_from_nano(cp.latency[i][j]);
         }
     }
+
+    // for (int i = 0; i < cp.procs; ++i) {
+    //     printf("[Network.hpp] em_id: %d, addr: %s\n", i, get_addr(i).c_str());
+    // }
 }
 
 struct timespec Network::get_latency(int em_id1, int em_id2) const {
@@ -154,11 +158,15 @@ void Network::send(const Packet& packet) const {
 	}
 
     logger_ptr->log_event("Packet send from %s.%d to %s.%d", 
-        packet.get_source_addr().c_str(), packet.get_source_port(), 
-        packet.get_dest_addr().c_str(), packet.get_dest_port());
+        packet.get_source_addr().c_str(), packet.get_source_port_tcp(), 
+        packet.get_dest_addr().c_str(), packet.get_dest_port_tcp());
+    // printf("Packet send from %s.%d to %s.%d\n", 
+    //     packet.get_source_addr().c_str(), packet.get_source_port_tcp(), 
+    //     packet.get_dest_addr().c_str(), packet.get_dest_port_tcp());
 }
 
 ssize_t Network::receive(char* buffer, size_t buffer_size) const {
+    // printf("[network.hpp]Buffer: %s\n", buffer);
     ssize_t ssize = read(tun_fd, buffer, buffer_size);
     if (ssize < 0 && errno != EAGAIN)
         panic("read");

@@ -19,13 +19,13 @@ public:
         
         for (int i = 0; i < loops; ++i) {
             if (em_id == 0 && i == 0) {
-                net.send(1, message);
+                net.send_(1, message);
                 continue;
             }
 
             message_t mes = force_receive();
             std::cout << getpid() << " received from " << mes.first << std::endl;
-            net.send((em_id + 1) % net.procs, mes.second);
+            net.send_((em_id + 1) % net.procs, mes.second);
             std::cout << getpid() << " sent to " << (em_id + 1) % net.procs << std::endl;
 
         }

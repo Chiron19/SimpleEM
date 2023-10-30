@@ -1,0 +1,1 @@
+[sec: 006315 msec: 678 micsec: 546]Emulator created with 2 processes

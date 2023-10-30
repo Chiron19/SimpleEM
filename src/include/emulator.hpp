@@ -87,7 +87,7 @@ private:
      */
     void child_init( 
         const std::string& program_path,
-        const std::string& program_name, 
+        // const std::string& program_name, 
         const std::vector<std::string>& program_args);
 
     /** @brief Chooses next process to be scheduled for awakening
@@ -147,6 +147,7 @@ void Emulator::start_emulation(int steps) {
         em_id = choose_next_proc();
         ts = get_time_interval(em_id);
         emprocs[em_id].awake(ts, network);
+        // printf("[emulator.hpp]em_id : %d\n", em_id);
         schedule_sent_packets(em_id);
 	}
 
@@ -159,9 +160,12 @@ void Emulator::kill_emulation() {
     for (auto& emproc: emprocs) {
         kill(emproc.pid, SIGCONT);
         kill(emproc.pid, SIGINT);
+        // kill(emproc.pid, SIGKILL);
+        printf("KILLING %d\n", emproc.pid);
         if (waitpid(emproc.pid, &wstatus, 0) == -1) {
             Logger::print_string_safe("WAITPID FAILED!\n");
         }
+        // kill(emproc.pid, SIGTERM);
 	}
 	Logger::print_string_safe("EMULATION KILLED\n");
 }
@@ -179,7 +183,7 @@ void Emulator::fork_stop_run(int* pids, const ConfigParser& cp) {
 		else if (status == 0) { /* This is a child process */
 			child_init(
                 cp.program_paths[i],
-                cp.program_names[i],
+                // cp.program_names[i],
                 cp.program_args[i]);
 		}
 		else { /* This is a parent process, new_id is set to child's pid */
@@ -190,15 +194,17 @@ void Emulator::fork_stop_run(int* pids, const ConfigParser& cp) {
 
 void Emulator::child_init(
         const std::string& program_path,
-        const std::string& program_name, 
+        // const std::string& program_name, 
         const std::vector<std::string>& program_args) {
 	int status;
 	const char *program_argv[program_args.size() + 2];
-    program_argv[0] = program_name.c_str();
+    program_argv[0] = program_path.c_str();
     for (int i = 0; i < program_args.size(); ++i) {
         program_argv[i + 1] = program_args[i].c_str();
+        // ::printf("[emulator] args[%d] = %s\n", i + 1, program_args[i].c_str());
     }
     program_argv[program_args.size() + 1] = nullptr;
+    // ::printf("%s %s %s %lu\n", program_path.c_str(), program_name.c_str(), program_args[0].c_str(), program_args.size() + 2);
 
 	if ((status = raise(SIGSTOP)) != 0) {
         Logger::print_string_safe("[ERROR] raise(SIGSTOP) failed!");
@@ -234,6 +240,9 @@ struct timespec Emulator::get_time_interval(em_id_t em_id) const {
 void Emulator::schedule_sent_packets(em_id_t em_id) {
     while(!emprocs[em_id].out_packets.empty()) {
         Packet packet = emprocs[em_id].out_packets.top();
+
+        // printf("[emulator.hpp] Out_packets: ------- em_id: %d\n", em_id);
+
         emprocs[em_id].out_packets.pop();
 
         if (packet.get_version() != 4)
@@ -242,8 +251,27 @@ void Emulator::schedule_sent_packets(em_id_t em_id) {
         em_id_t dest_em_id = network.get_em_id(packet.get_dest_addr());
         packet.increase_ts(network.get_latency(em_id, dest_em_id));
 
-        packet.set_dest_addr(network.get_inter_addr());
-        packet.set_source_addr(network.get_addr(em_id));
+    // printf("[emulator.hpp] packet        :  %s (%d) -> %s (%d)\n", packet.get_source_addr().c_str(), em_id, packet.get_dest_addr().c_str(), dest_em_id); 
+    // dump(packet.get_buffer(), packet.get_size());
+
+        // packet.set_dest_addr(network.get_inter_addr());
+        // packet.set_source_addr(network.get_addr(em_id));
+
+        /* Modified from UDP to TCP */
+        // printf("network inter addr: %s\n", network.get_inter_addr().c_str());
+        // printf("network addr 0: %s\n", network.get_addr(0).c_str());
+        // printf("network addr 1: %s\n", network.get_addr(1).c_str());
+        // printf("network addr 2: %s\n", network.get_addr(2).c_str());
+        
+        // std::cout << "packet size  :" << packet.get_size() << std::endl;
+        // std::cout << "packet buffer:" << packet.get_buffer() << std::endl;
+        // std::cout << "Emulator here" << std::endl;
+        packet.set_dest_addr_tcp(network.get_inter_addr());
+        // std::cout << "Emulator here 2" << std::endl;
+        packet.set_source_addr_tcp(network.get_addr(em_id));
+
+    // printf("[emulator.hpp] packet MODIFIED: %s (%d) -> %s (%d)\n", packet.get_source_addr().c_str(), em_id, packet.get_dest_addr().c_str(), dest_em_id); 
+    // dump(packet.get_buffer(), packet.get_size());
 
         emprocs[dest_em_id].in_packets.push(packet);
     }

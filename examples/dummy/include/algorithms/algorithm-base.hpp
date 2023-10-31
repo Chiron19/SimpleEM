@@ -14,7 +14,9 @@ protected:
 
 public:
 
-    AlgorithmBase(int em_id, NetworkHelper& net): em_id(em_id), net(net) {}
+    AlgorithmBase(int em_id, NetworkHelper& net): em_id(em_id), net(net) {
+        std::cout << "[algorithm-base] init " << net.procs << ' ' << net.em_id << std::endl;
+    }
 
     void broadcast(int em_id, const std::string& message);
 
@@ -43,8 +45,10 @@ void AlgorithmBase::broadcast(int em_id, const std::string& message) {
 message_t AlgorithmBase::force_receive() {
     while(true) {
         // message_t mes = net.receive();
+        std::cout << "[algorithm-base] recv ing " << std::endl;
+        std::cout << "ERROR OCCURS" << net.procs << ' ' << net.em_id << std::endl;
         message_t mes = net.receive_tcp();
-
+        std::cout << "[algorithm-base] recv mes: " << mes.first << " " << mes.second << std::endl;
         
         if (mes.first >= 0) {
             std::cout << "[algorithm-base] recv from " << mes.first << " : " << mes.second << std::endl;
@@ -53,7 +57,6 @@ message_t AlgorithmBase::force_receive() {
         else {
             std::cout << "[algorithm-base] recv fail " << std::endl;
         }
-            
     }
 }
 

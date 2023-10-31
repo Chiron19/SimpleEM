@@ -36,7 +36,7 @@ add_executable(tcp_server ${SOURCES_TCP_SERVER})
 add_executable(tcp_client ${SOURCES_TCP_CLIENT})
 
 # SET(GCC_MULTITHREADING_FLAG "-pthread")
-# SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} ${GCC_MULTITHREADING_FLAG}")
+SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -g3 ${GCC_MULTITHREADING_FLAG}")
 
 # Set the directories that should be included in the build command for this target
 # when running g++ these will be included as -I/directory/path/

@@ -27,9 +27,9 @@ public:
     std::vector<std::pair<std::string, int>> addresses;
     std::vector<std::stack<message_t>> inbox;
     
-    NetworkHelper(int em_id, const std::string& config_file): em_id(em_id) {  
+    NetworkHelper(int em_id, const std::string& config_path): em_id(em_id) {  
         // General Setup: read config
-        std::ifstream config(config_file);
+        std::ifstream config(config_path);
         std::string address;
         int port;
         while(config >> address >> port) {
@@ -140,11 +140,14 @@ public:
     }
 
     message_t receive_tcp() {
+        std::cout << "[network-helper] in receive_tcp" << std::endl;
         char buffer[MAXLINE];
+        std::cout << "[network-helper] buffer" << std::endl;
         struct sockaddr_in sender_addr;
         int sender_id = -1;
         memset(&sender_addr, 0, sizeof(sender_addr));
         socklen_t len = sizeof(sender_addr);
+        std::cout << "[network-helper] sender_sock" << std::endl;
 
         // Listen for connections
         if (listen(recv_fd, 0) == -1) {

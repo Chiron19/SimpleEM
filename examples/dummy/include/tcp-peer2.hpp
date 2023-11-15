@@ -25,13 +25,16 @@ public:
 
     std::vector<message_t> received_messages;
     pthread_mutex_t mutex;
-    pthread_cond_t cond;
+    pthread_mutex_t mutex1;
+    pthread_mutex_t mutex2;
 
     // create thread for both sender and receiver
-    void tcp_thread(TCPpeer* obj) {
+    void tcp_thread() {
         
         // Initialize the mutex for thread synchronization
         pthread_mutex_init(&mutex, nullptr);
+        pthread_mutex_init(&mutex1, nullptr);
+        pthread_mutex_init(&mutex2, nullptr);
 
         std::cout << "[tcp-peer] pthread_mutex_init" << std::endl;
 
@@ -40,10 +43,10 @@ public:
         std::cout << "[tcp-peer] received_messages:" << received_messages.size() << std::endl;
 
         // Create the send and receive threads
-        pthread_create(&sendThread, nullptr, send_thread_wrapper, obj);
+        pthread_create(&sendThread, nullptr, send_thread_wrapper, nullptr);
         std::cout << "[tcp-peer] pthread_create sendThread" << std::endl;
 
-        pthread_create(&recvThread, nullptr, recv_thread_wrapper, obj);
+        pthread_create(&recvThread, nullptr, recv_thread_wrapper, nullptr);
         std::cout << "[tcp-peer] pthread_create recvThread" << std::endl;
 
         // Wait for the threads to finish (you can implement a termination condition)
@@ -56,6 +59,8 @@ public:
 
         // Cleanup
         pthread_mutex_destroy(&mutex);
+        pthread_mutex_destroy(&mutex1);
+        pthread_mutex_destroy(&mutex2);
     }
 
     void broadcast(int em_id, const std::string& message) {
@@ -63,6 +68,7 @@ public:
             // net.send(other_id, message);
             if (em_id == other_id) continue;
             if (net_send.send_tcp(other_id, message) < 0) {
+                // 
                 std::cout << "[tcp-peer] " << em_id << "->" << other_id << " FAIL" << std::endl;
             }
             else 
@@ -94,12 +100,14 @@ private:
 
     // Static wrapper function to call the member function
     static void* send_thread_wrapper(void* obj) {
-        return static_cast<TCPpeer*>(obj)->send_thread(nullptr);
+        TCPpeer* peer = static_cast<TCPpeer*>(obj);
+        return peer->send_thread(nullptr);
     }
 
     // Static wrapper function to call the member function
     static void* recv_thread_wrapper(void* obj) {
-        return static_cast<TCPpeer*>(obj)->recv_thread(nullptr);
+        TCPpeer* peer = static_cast<TCPpeer*>(obj);
+        return peer->recv_thread(nullptr);
     }
 
     void* send_thread(void* arg) {
@@ -107,13 +115,14 @@ private:
         int *result = static_cast<int*>(malloc(sizeof(int)));
         *result = 0;
         
+        std::cout << "[tcp-peer] send_thread result created" << std::endl;
         // Lock the mutex to safely access received_messages
         pthread_mutex_lock(&mutex);
+        std::cout << "[tcp-peer] send_thread mutex locked" << std::endl;
         std::cout << "[tcp-peer] send_thread received_messages:" << received_messages.size() << std::endl;
         if (!received_messages.empty()) {
             message_t mes = received_messages.back();
             received_messages.pop_back();
-            pthread_cond_wait(&cond, &mutex);
             pthread_mutex_unlock(&mutex); // Unlock the mutex
 
             int target_em_id = mes.first;
@@ -125,8 +134,10 @@ private:
 
                 std::cout << "[tcp-peer] send_thread sending:" << target_em_id << " " << message << std::endl;
 
+                pthread_mutex_lock(&mutex2);
                 // Send the message
                 while (net_send.send_tcp(target_em_id, message) < 0);
+                pthread_mutex_unlock(&mutex2);
             }
 
             *result = 1;
@@ -141,8 +152,11 @@ private:
 
     void* recv_thread(void* arg) {
         std::cout << "[tcp-peer] recv_thread" << std::endl;
-                message_t mes = force_receive();
-        std::cout << "[tcp-peer] " << em_id << " GOT FROM " << mes.first << " MESSAGE: " << mes.second << std::endl;
+        // pthread_mutex_lock(&mutex1);
+        message_t mes = force_receive();
+        // pthread_mutex_unlock(&mutex1);
+        Logger::print_string_safe(
+            std::to_string(em_id) + " GOT FROM " + std::to_string(mes.first) + " MESSAGE: " + mes.second + "\n");
 
         // Lock the mutex to safely access received_messages
         pthread_mutex_lock(&mutex);

@@ -255,6 +255,8 @@ CMakeFiles/dummy.dir/examples/dummy/src/dummy.cpp.o: examples/dummy/src/dummy.cp
   src/include/utils.hpp \
   src/include/logger.hpp \
   examples/dummy/include/tcp-peer.hpp \
+  examples/dummy/include/test.hpp \
+  examples/dummy/include/test2.hpp \
   examples/dummy/include/algorithms/loop-network.hpp \
   examples/dummy/include/algorithms/algorithm-base.hpp \
   /usr/include/c++/11/sstream \
@@ -422,6 +424,10 @@ src/src/time.cpp:
 examples/dummy/include/algorithms/byzantine-reliable-broadcast.hpp:
 
 examples/dummy/include/algorithms/single-message.hpp:
+
+/usr/include/c++/11/sstream:
+
+examples/dummy/include/algorithms/algorithm-base.hpp:
 
 /usr/include/c++/11/iostream:
 
@@ -763,8 +769,6 @@ examples/dummy/src/dummy.cpp:
 
 /usr/include/c++/11/cstdint:
 
-examples/dummy/include/algorithms/algorithm-base.hpp:
-
 /usr/include/c++/11/bits/localefwd.h:
 
 /usr/include/x86_64-linux-gnu/bits/sigstack.h:
@@ -781,13 +785,15 @@ examples/dummy/include/tcp-peer.hpp:
 
 /usr/include/ctype.h:
 
+/usr/include/x86_64-linux-gnu/c++/11/bits/gthr.h:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/gthr-default.h:
+
 /usr/include/x86_64-linux-gnu/bits/types/siginfo_t.h:
 
 /usr/include/c++/11/bits/ios_base.h:
 
-/usr/include/x86_64-linux-gnu/c++/11/bits/gthr.h:
-
-/usr/include/x86_64-linux-gnu/c++/11/bits/gthr-default.h:
+examples/dummy/include/test2.hpp:
 
 /usr/include/x86_64-linux-gnu/asm/posix_types_64.h:
 
@@ -889,6 +895,8 @@ examples/dummy/include/tcp-peer.hpp:
 
 /usr/include/c++/11/stdexcept:
 
+examples/dummy/include/test.hpp:
+
 /usr/include/string.h:
 
 /usr/include/c++/11/bits/streambuf.tcc:
@@ -936,5 +944,3 @@ src/include/utils.hpp:
 /usr/include/x86_64-linux-gnu/bits/socket.h:
 
 src/include/logger.hpp:
-
-/usr/include/c++/11/sstream:

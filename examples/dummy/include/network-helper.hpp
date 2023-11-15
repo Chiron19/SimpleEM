@@ -39,6 +39,12 @@ public:
         }
         procs = addresses.size();
 
+        for (int i = 0; i < procs; i++)
+        {
+            std::cout << "[network-helper] " << addresses[i].first.c_str() << ' ' << addresses[i].second <<  std::endl;
+        }
+        
+
         // For em_id: setup socket
         setup_recv_socket();
         setup_send_socket();
@@ -64,7 +70,12 @@ public:
         struct sockaddr_in recvaddr;
         memset(&recvaddr, 0, sizeof(recvaddr));
         if (procs <= target_em_id) return -1;
+         std::cout << "[network-helper] send tcp here " <<  std::endl;
         if (inet_pton(AF_INET, addresses[target_em_id].first.c_str(), &(recvaddr.sin_addr)) != 1) {
+            for (int i = 0; i < procs; i++)
+            {
+                std::cout << "[network-helper] " << addresses[i].first.c_str() << ' ' << addresses[i].second <<  std::endl;
+            }
             std::cerr << "Invalid des IP address: " << addresses[target_em_id].first.c_str() << std::endl;
             return -1;
         }
@@ -77,16 +88,17 @@ public:
         if (connect(send_fd, (struct sockaddr*)&recvaddr, sizeof(recvaddr)) == -1) {    
             std::cout<< "[network-helper] sender: Fail to connect server socket" << std::endl;
             // sleep(1);
-            return -1;
+            // return -1;
             // // Trying to re-setup
-            // close(send_fd);
-            // setup_send_socket();
+            close(send_fd);
+            setup_send_socket();
+            return -1;
             // continue;
         }
         std::cout<< "[network-helper] sender: socket connected" << std::endl;
 
         // Send packet to server
-        std::cout << "[network-helper] message:" << message.c_str() << std::endl;
+        std::cout << "[network-helper] message: " << message.c_str() << std::endl;
         // std::cout << "[network-helper] length :" << message.size() << std::endl;
         if (send(send_fd, message.c_str(), message.size(), 0) == -1) {
             printf("[DUMMY] sendto error: %d\n", errno);
@@ -98,6 +110,8 @@ public:
             target_em_id, addresses[target_em_id].first.c_str(), message.c_str());
 
         // close(send_fd);
+        close(send_fd);
+        setup_send_socket();
         return 0;
     }
 
@@ -140,18 +154,18 @@ public:
     }
 
     message_t receive_tcp() {
-        std::cout << "[network-helper] in receive_tcp" << std::endl;
+        // std::cout << "[network-helper] in receive_tcp" << std::endl;
         char buffer[MAXLINE];
-        std::cout << "[network-helper] buffer" << std::endl;
+        // std::cout << "[network-helper] buffer" << std::endl;
         struct sockaddr_in sender_addr;
         int sender_id = -1;
         memset(&sender_addr, 0, sizeof(sender_addr));
         socklen_t len = sizeof(sender_addr);
-        std::cout << "[network-helper] sender_sock" << std::endl;
+        // std::cout << "[network-helper] sender_sock" << std::endl;
 
         // Listen for connections
         if (listen(recv_fd, 0) == -1) {
-            std::cout << "[network-helper] Error Listening, Retry!" << std::endl;
+            // std::cout << "[network-helper] Error Listening, Retry!" << std::endl;
             // exit(1);
             return {-1, ""};
         }

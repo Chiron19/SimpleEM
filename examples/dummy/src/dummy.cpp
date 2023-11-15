@@ -15,6 +15,8 @@
 
 #include "network-helper.hpp"
 #include "tcp-peer.hpp"
+#include "test.hpp"
+#include "test2.hpp"
 #include "algorithms/loop-network.hpp"
 #include "algorithms/single-message.hpp"
 #include "algorithms/byzantine-reliable-broadcast.hpp"
@@ -43,6 +45,8 @@ int main(int argc, char* argv[]) {
         std::cout << "File does not exist at path: " << configPath << std::endl;
         return 0;
     }
+
+    // Create 2 instances for send/recv
     NetworkHelper net_send = NetworkHelper(em_id, std::string(argv[2]));
     NetworkHelper net_recv = NetworkHelper(em_id, std::string(argv[2]));
     logger_ptr->log_event(CLOCK_PROCESS_CPUTIME_ID, "Start of %d", em_id);
@@ -59,12 +63,20 @@ int main(int argc, char* argv[]) {
     // ln.start("Hello!", 2);
     // SingleMessage sm = SingleMessage(em_id, net);
     // sm.start("Hello man!");
+    // std::cout << "[dummy] " << net_send.procs << ' ' << net_send.em_id << std::endl;
+    // TCPpeer tcp_peer = TCPpeer(em_id, net_send, net_recv);
+
+    // std::cout << "[dummy] tcp_peer created" << std::endl;
+    // tcp_peer.tcp_thread();
+
     std::cout << "[dummy] " << net_send.procs << ' ' << net_send.em_id << std::endl;
-    TCPpeer tcp_peer = TCPpeer(em_id, net_send, net_recv);
+    // Test test_instance = Test(em_id, net_send, net_recv); // Test.hpp
+    // test_init(em_id, net_send, net_recv); // Test2.hpp
 
     std::cout << "[dummy] tcp_peer created" << std::endl;
-    tcp_peer.tcp_thread();
-
+    // test_instance.tcp_thread(&test_instance); // Test.hpp
+    // tcp_thread(net_send, net_recv); // Test2.hpp
+    
     while(true) {}
     return 0;
 }

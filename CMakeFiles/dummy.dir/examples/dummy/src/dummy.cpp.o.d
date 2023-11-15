@@ -211,6 +211,8 @@ CMakeFiles/dummy.dir/examples/dummy/src/dummy.cpp.o: \
  /mnt/c/Users/Admin/Documents/SimpleEM/src/include/utils.hpp \
  /mnt/c/Users/Admin/Documents/SimpleEM/src/include/logger.hpp \
  /mnt/c/Users/Admin/Documents/SimpleEM/examples/dummy/include/tcp-peer.hpp \
+ /mnt/c/Users/Admin/Documents/SimpleEM/examples/dummy/include/test.hpp \
+ /mnt/c/Users/Admin/Documents/SimpleEM/examples/dummy/include/test2.hpp \
  /mnt/c/Users/Admin/Documents/SimpleEM/examples/dummy/include/algorithms/loop-network.hpp \
  /mnt/c/Users/Admin/Documents/SimpleEM/examples/dummy/include/algorithms/algorithm-base.hpp \
  /usr/include/c++/11/sstream /usr/include/c++/11/bits/sstream.tcc \

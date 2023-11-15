@@ -8,7 +8,7 @@
 
 #include "utils.hpp"
 
-const std::string CONFIG_PATH("./configs/config7.txt"); ///< Path to configuration file
+const std::string CONFIG_PATH("./configs/config2.txt"); ///< Path to configuration file
 const int STEPS = 10000; ///< Number of times emulator awakens some process
 
 /** @brief Class parsing and saving the configuration from a file

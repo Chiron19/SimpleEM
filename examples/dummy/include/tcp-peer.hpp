@@ -32,26 +32,28 @@ public:
         
         // Initialize the mutex for thread synchronization
         pthread_mutex_init(&mutex, nullptr);
+        pthread_cond_init(&cond, nullptr);
 
-        std::cout << "[tcp-peer] pthread_mutex_init" << std::endl;
+        // std::cout << "[tcp-peer] pthread_mutex_init" << std::endl;
 
         if (em_id == 0) received_messages.push_back({1, "pong"});
-        std::cout << "[tcp-peer] received_messages.push_back({1, 'pong'})" << std::endl;
-        std::cout << "[tcp-peer] received_messages:" << received_messages.size() << std::endl;
 
-        // Create the send and receive threads
-        pthread_create(&sendThread, nullptr, send_thread_wrapper, obj);
-        std::cout << "[tcp-peer] pthread_create sendThread" << std::endl;
+        // std::cout << "[tcp-peer] received_messages.size(): " << received_messages.size() << std::endl;
 
-        pthread_create(&recvThread, nullptr, recv_thread_wrapper, obj);
-        std::cout << "[tcp-peer] pthread_create recvThread" << std::endl;
+        while (true) {
+            // Create the send and receive threads
+            pthread_create(&sendThread, nullptr, send_thread_wrapper, obj);
+            std::cout << "[tcp-peer] pthread_create sendThread" << std::endl;
 
-        // Wait for the threads to finish (you can implement a termination condition)
-        pthread_join(sendThread, &sendThread_return);
-        std::cout << "[tcp-peer] pthread_join(sendThread, &sendThread_return);" << std::endl;
-        pthread_join(recvThread, &recvThread_return);
-        std::cout << "[tcp-peer] pthread_join(recvThread, &recvThread_return);" << std::endl;
+            pthread_create(&recvThread, nullptr, recv_thread_wrapper, obj);
+            std::cout << "[tcp-peer] pthread_create recvThread" << std::endl;
 
+            // Wait for the threads to finish (you can implement a termination condition)
+            pthread_join(sendThread, &sendThread_return);
+            std::cout << "[tcp-peer] pthread_join(sendThread, &sendThread_return);" << std::endl;
+            pthread_join(recvThread, &recvThread_return);
+            std::cout << "[tcp-peer] pthread_join(recvThread, &recvThread_return);" << std::endl;
+        }
         // int result = *(int *)sendThread_return;
 
         // Cleanup
@@ -72,10 +74,9 @@ public:
 
     message_t force_receive() {
         while(true) {
-            std::cout << "[tcp-peer] recv ing " << std::endl;
-            std::cout << "ERROR OCCURS" << net_recv.procs << ' ' << net_recv.em_id << std::endl;
+            // std::cout << "[tcp-peer] recving " << std::endl;
             message_t mes = net_recv.receive_tcp();
-            std::cout << "[tcp-peer] recv mes: " << mes.first << " " << mes.second << std::endl;
+            // std::cout << "[tcp-peer] recv mes: " << mes.first << " " << mes.second << std::endl;
             
             if (mes.first >= 0) {
                 std::cout << "[tcp-peer] recv from " << mes.first << " : " << mes.second << std::endl;
@@ -103,58 +104,54 @@ private:
     }
 
     void* send_thread(void* arg) {
-        std::cout << "[tcp-peer] send_thread" << std::endl;
+        // std::cout << "[tcp-peer] send_thread" << std::endl;
         int *result = static_cast<int*>(malloc(sizeof(int)));
         *result = 0;
         
         // Lock the mutex to safely access received_messages
         pthread_mutex_lock(&mutex);
-        std::cout << "[tcp-peer] send_thread received_messages:" << received_messages.size() << std::endl;
-        if (!received_messages.empty()) {
-            message_t mes = received_messages.back();
-            received_messages.pop_back();
+        // std::cout << "[tcp-peer] send_thread received_messages:" << received_messages.size() << std::endl;
+        while (received_messages.empty()) {
             pthread_cond_wait(&cond, &mutex);
-            pthread_mutex_unlock(&mutex); // Unlock the mutex
-
-            int target_em_id = mes.first;
-            std::string message = mes.second;
-
-            if (target_em_id >= 0) {
-                if (message == "ping") message = "pong";
-                else message = "ping";
-
-                std::cout << "[tcp-peer] send_thread sending:" << target_em_id << " " << message << std::endl;
-
-                // Send the message
-                while (net_send.send_tcp(target_em_id, message) < 0);
-            }
-
-            *result = 1;
-        } else {
-            // If received_messages is empty, unlock the mutex
-            pthread_mutex_unlock(&mutex);
         }
-        
-        std::cout << "[tcp-peer] send_thread return " << *result << std::endl;
+        message_t mes = received_messages.back();
+        received_messages.pop_back();
+        pthread_mutex_unlock(&mutex); // Unlock the mutex
+
+        int target_em_id = mes.first;
+        std::string message = mes.second;
+
+        if (target_em_id >= 0) {
+            if (message == "ping") message = "pong";
+            else message = "ping";
+
+            std::cout << "[tcp-peer] send_thread sending:" << em_id << "->" << target_em_id << " " << message << std::endl;
+
+            // Send the message
+            while (net_send.send_tcp(target_em_id, message) < 0);
+        }
+
+        sleep(1);
+        *result = 1;
+        // std::cout << "[tcp-peer] send_thread return " << *result << std::endl;
         return result;
     }
 
     void* recv_thread(void* arg) {
-        std::cout << "[tcp-peer] recv_thread" << std::endl;
-                message_t mes = force_receive();
-        std::cout << "[tcp-peer] " << em_id << " GOT FROM " << mes.first << " MESSAGE: " << mes.second << std::endl;
+        // std::cout << "[tcp-peer] recv_thread" << std::endl;
+        message_t mes = force_receive();
+        // std::cout << "[tcp-peer] " << em_id << " GOT FROM " << mes.first << " MESSAGE: " << mes.second << std::endl;
 
         // Lock the mutex to safely access received_messages
         pthread_mutex_lock(&mutex);
-        std::cout << "[tcp-peer] recv_thread mutex locked" << std::endl;
         received_messages.push_back(mes);
-
-        // Unlock the mutex after adding the message to received_messages
+        pthread_cond_broadcast(&cond);
         pthread_mutex_unlock(&mutex);
 
+        sleep(1);
         int *result = static_cast<int*>(malloc(sizeof(int)));
         *result = 1;
-        std::cout << "[tcp-peer] recv_thread return " << *result << std::endl;
+        // std::cout << "[tcp-peer] recv_thread return " << *result << std::endl;
         return result;
     }
 };

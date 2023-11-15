@@ -26,11 +26,13 @@ void hexStringToCharArray(const std::string& hexString, char* buffer) {
 
 int main()
 {
-    std::string hexString = "45000028000040004006e2acac100002ac10000115b3b9dc000000008345188250140000bb550000";
+    std::string hexString = 
+    // "45000028000040004006e2acac100002ac10000115b3b9dc000000008345188250140000bb550000";
+    "4500003cd123400040061175ac100002ac1000019d9615b403925a6e00000000a002faf0a9590000020405b40402080a4e0cec380000000001030307";
     std::cout << hexString << std::endl;
     char buf[256];
     hexStringToCharArray(hexString, buf);
-    for (int i=0; i < 256; ++i) printf("%d ", buf[i]);
+    for (int i=0; i < 256; ++i) printf("%d ", (unsigned char)buf[i]);
     putchar(10); 
     size_t ssize = hexString.length() / 2;
     printf("length : %ld\n", ssize);

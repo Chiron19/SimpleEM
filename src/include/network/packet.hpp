@@ -498,7 +498,7 @@ uint16_t Packet::udp_checksum(const struct iphdr *ip,
     return ~((uint16_t)sum);
 }
 
-uint16_t Packet::tcp_checksum(const struct iphdr *ip,
+uint16_t Packet::tcp_checksum3(const struct iphdr *ip,
                               const struct tcphdr *tcp,
                               const char *data, size_t data_len) const {
     uint32_t sum = 0;
@@ -543,7 +543,7 @@ uint16_t Packet::tcp_checksum(const struct iphdr *ip,
     return ~(uint16_t)(sum);
 }
 
-uint16_t Packet::tcp_checksum3(const struct iphdr *ip, const struct tcphdr *tcp, const char *data, size_t data_len) const
+uint16_t Packet::tcp_checksum(const struct iphdr *ip, const struct tcphdr *tcp, const char *data, size_t data_len) const
 {
 	const uint16_t *ptr = reinterpret_cast<uint16_t *>(buffer + sizeof(uint32_t) * ip->ihl);
     data_len = size - sizeof(uint32_t) * ip->ihl;

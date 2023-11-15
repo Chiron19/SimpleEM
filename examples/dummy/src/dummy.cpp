@@ -63,19 +63,19 @@ int main(int argc, char* argv[]) {
     // ln.start("Hello!", 2);
     // SingleMessage sm = SingleMessage(em_id, net);
     // sm.start("Hello man!");
-    // std::cout << "[dummy] " << net_send.procs << ' ' << net_send.em_id << std::endl;
-    // TCPpeer tcp_peer = TCPpeer(em_id, net_send, net_recv);
-
-    // std::cout << "[dummy] tcp_peer created" << std::endl;
-    // tcp_peer.tcp_thread();
-
     std::cout << "[dummy] " << net_send.procs << ' ' << net_send.em_id << std::endl;
-    // Test test_instance = Test(em_id, net_send, net_recv); // Test.hpp
-    // test_init(em_id, net_send, net_recv); // Test2.hpp
+    TCPpeer tcp_peer = TCPpeer(em_id, net_send, net_recv);
 
     std::cout << "[dummy] tcp_peer created" << std::endl;
-    // test_instance.tcp_thread(&test_instance); // Test.hpp
-    // tcp_thread(net_send, net_recv); // Test2.hpp
+    tcp_peer.tcp_thread(&tcp_peer);
+
+    // std::cout << "[dummy] " << net_send.procs << ' ' << net_send.em_id << std::endl;
+    // // Test test_instance = Test(em_id, net_send, net_recv); // Test.hpp
+    // // test_init(em_id, net_send, net_recv); // Test2.hpp
+
+    // std::cout << "[dummy] tcp_peer created" << std::endl;
+    // // test_instance.tcp_thread(&test_instance); // Test.hpp
+    // // tcp_thread(net_send, net_recv); // Test2.hpp
     
     while(true) {}
     return 0;

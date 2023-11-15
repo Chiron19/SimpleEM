@@ -39,11 +39,10 @@ public:
         }
         procs = addresses.size();
 
-        for (int i = 0; i < procs; i++)
-        {
-            std::cout << "[network-helper] " << addresses[i].first.c_str() << ' ' << addresses[i].second <<  std::endl;
-        }
-        
+        // for (int i = 0; i < procs; i++)
+        // {
+        //     std::cout << "[network-helper] " << addresses[i].first.c_str() << ' ' << addresses[i].second <<  std::endl;
+        // }
 
         // For em_id: setup socket
         setup_recv_socket();
@@ -72,17 +71,17 @@ public:
         if (procs <= target_em_id) return -1;
          std::cout << "[network-helper] send tcp here " <<  std::endl;
         if (inet_pton(AF_INET, addresses[target_em_id].first.c_str(), &(recvaddr.sin_addr)) != 1) {
-            for (int i = 0; i < procs; i++)
-            {
-                std::cout << "[network-helper] " << addresses[i].first.c_str() << ' ' << addresses[i].second <<  std::endl;
-            }
+            // for (int i = 0; i < procs; i++)
+            // {
+            //     std::cout << "[network-helper] " << addresses[i].first.c_str() << ' ' << addresses[i].second <<  std::endl;
+            // }
             std::cerr << "Invalid des IP address: " << addresses[target_em_id].first.c_str() << std::endl;
             return -1;
         }
         recvaddr.sin_family = AF_INET;
         recvaddr.sin_port = htons(addresses[target_em_id].second);
         
-        std::cout << "[network-helper] Src: " << em_id << ", Des: " << target_em_id << " " <<  inet_ntoa(recvaddr.sin_addr) << " " << ntohs(recvaddr.sin_port) <<  std::endl;
+        std::cout << "[network-helper] Src: " << em_id << ", Des: " << target_em_id << " " <<  inet_ntoa(recvaddr.sin_addr) << ":" << ntohs(recvaddr.sin_port) <<  std::endl;
 
         // Connect to server
         if (connect(send_fd, (struct sockaddr*)&recvaddr, sizeof(recvaddr)) == -1) {    
@@ -169,7 +168,7 @@ public:
             // exit(1);
             return {-1, ""};
         }
-        std::cout << "[network-helper] Server1, Listening" << std::endl;
+        std::cout << "[network-helper] " << em_id << " Listening on " << addresses[em_id].first << ":" << addresses[em_id].second << std::endl;
 
         // Accept client connection
         int newSocket_fd;
@@ -181,7 +180,7 @@ public:
             // setup_recv_socket();
             // listen(recv_fd, 0);
         }
-        std::cout << "[network-helper] Socket on server1, Accepted" << std::endl;
+        std::cout << "[network-helper] " << em_id << " Socket on server, Accepted" << std::endl;
 
         // Receive and print received data
         // ssize_t n = recvfrom(newSocket_fd, (char *)buffer, MAXLINE, MSG_DONTWAIT, (struct sockaddr*) &sender_addr, &len);
@@ -276,7 +275,9 @@ private:
 
         if (bind(recv_fd, (const struct sockaddr *)&servaddr, 
                 sizeof(servaddr)) < 0) {
-            printf("Socket binding failed...\n");
+            printf("FAIL %d ", em_id);
+            perror("Socket binding failed");
+            printf("Value of errno: %d\n", errno); // this will print the error code to stdout
             exit(0);
         }
     }

@@ -35,8 +35,9 @@ add_executable(dummy_duplex ${SOURCES_DUMMY_DUPLEX})
 add_executable(tcp_server ${SOURCES_TCP_SERVER})
 add_executable(tcp_client ${SOURCES_TCP_CLIENT})
 
-# SET(GCC_MULTITHREADING_FLAG "-pthread")
+SET(GCC_MULTITHREADING_FLAG "-pthread")
 SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -g3 ${GCC_MULTITHREADING_FLAG}")
+SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
 
 # Set the directories that should be included in the build command for this target
 # when running g++ these will be included as -I/directory/path/

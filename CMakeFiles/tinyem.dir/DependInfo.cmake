@@ -1,16 +1,18 @@
-
-# Consider dependencies only in project.
-set(CMAKE_DEPENDS_IN_PROJECT_ONLY OFF)
-
 # The set of languages for which implicit dependencies are needed:
 set(CMAKE_DEPENDS_LANGUAGES
+  "CXX"
   )
+# The set of files for implicit dependencies of each language:
+set(CMAKE_DEPENDS_CHECK_CXX
+  "/workspaces/SimpleEM/src/src/proc_frame.cpp" "/workspaces/SimpleEM/CMakeFiles/tinyem.dir/src/src/proc_frame.cpp.o"
+  "/workspaces/SimpleEM/src/src/time.cpp" "/workspaces/SimpleEM/CMakeFiles/tinyem.dir/src/src/time.cpp.o"
+  "/workspaces/SimpleEM/src/src/tinyem.cpp" "/workspaces/SimpleEM/CMakeFiles/tinyem.dir/src/src/tinyem.cpp.o"
+  )
+set(CMAKE_CXX_COMPILER_ID "GNU")
 
-# The set of dependency files which are needed:
-set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/mnt/c/Users/Admin/Documents/SimpleEM/src/src/proc_frame.cpp" "CMakeFiles/tinyem.dir/src/src/proc_frame.cpp.o" "gcc" "CMakeFiles/tinyem.dir/src/src/proc_frame.cpp.o.d"
-  "/mnt/c/Users/Admin/Documents/SimpleEM/src/src/time.cpp" "CMakeFiles/tinyem.dir/src/src/time.cpp.o" "gcc" "CMakeFiles/tinyem.dir/src/src/time.cpp.o.d"
-  "/mnt/c/Users/Admin/Documents/SimpleEM/src/src/tinyem.cpp" "CMakeFiles/tinyem.dir/src/src/tinyem.cpp.o" "gcc" "CMakeFiles/tinyem.dir/src/src/tinyem.cpp.o.d"
+# The include file search paths:
+set(CMAKE_CXX_TARGET_INCLUDE_PATH
+  "src/include"
   )
 
 # Targets to which this target links.

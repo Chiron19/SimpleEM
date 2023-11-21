@@ -1,1 +1,1 @@
-/usr/bin/c++ CMakeFiles/tcp_client.dir/src/src/tcp_client.cpp.o -o tcp_client 
+/usr/bin/c++     -pthread CMakeFiles/tcp_client.dir/src/src/tcp_client.cpp.o  -o tcp_client 

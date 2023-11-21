@@ -1,20 +1,2 @@
-[sec: 000000 msec: 045 micsec: 426]Start of 0
-[sec: 000000 msec: 047 micsec: 359]Send packet to proc 1 (172.16.0.3), message: ping
-[sec: 000000 msec: 048 micsec: 068]Received packet from proc 1 (172.16.0.3), message: pong
-[sec: 000000 msec: 060 micsec: 411]Send packet to proc 1 (172.16.0.3), message: ping
-[sec: 000000 msec: 061 micsec: 222]Received packet from proc 1 (172.16.0.3), message: pong
-[sec: 000000 msec: 073 micsec: 774]Send packet to proc 1 (172.16.0.3), message: ping
-[sec: 000000 msec: 076 micsec: 744]Received packet from proc 1 (172.16.0.3), message: pong
-[sec: 000000 msec: 087 micsec: 258]Send packet to proc 1 (172.16.0.3), message: ping
-[sec: 000000 msec: 090 micsec: 343]Received packet from proc 1 (172.16.0.3), message: pong
-[sec: 000000 msec: 095 micsec: 466]Send packet to proc 1 (172.16.0.3), message: ping
-[sec: 000000 msec: 112 micsec: 746]Received packet from proc 1 (172.16.0.3), message: pong
-[sec: 000000 msec: 119 micsec: 097]Send packet to proc 1 (172.16.0.3), message: ping
-[sec: 000000 msec: 119 micsec: 735]Received packet from proc 1 (172.16.0.3), message: pong
-[sec: 000000 msec: 132 micsec: 933]Send packet to proc 1 (172.16.0.3), message: ping
-[sec: 000000 msec: 134 micsec: 306]Received packet from proc 1 (172.16.0.3), message: pong
-[sec: 000000 msec: 144 micsec: 590]Send packet to proc 1 (172.16.0.3), message: ping
-[sec: 000000 msec: 145 micsec: 382]Received packet from proc 1 (172.16.0.3), message: pong
-[sec: 000000 msec: 163 micsec: 978]Send packet to proc 1 (172.16.0.3), message: ping
-[sec: 000000 msec: 164 micsec: 791]Received packet from proc 1 (172.16.0.3), message: pong
-[sec: 000000 msec: 220 micsec: 961]Send packet to proc 1 (172.16.0.3), message: ping
+[sec: 000000 msec: 002 micsec: 200]Start of 0
+[sec: 000000 msec: 003 micsec: 568]Send file to proc 1 (172.16.0.3), size: 113166

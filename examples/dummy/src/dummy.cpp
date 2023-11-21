@@ -15,8 +15,6 @@
 
 #include "network-helper.hpp"
 #include "tcp-peer.hpp"
-#include "test.hpp"
-#include "test2.hpp"
 #include "algorithms/loop-network.hpp"
 #include "algorithms/single-message.hpp"
 #include "algorithms/byzantine-reliable-broadcast.hpp"
@@ -36,6 +34,7 @@ bool fileExists(const std::string& filePath) {
 
 int main(int argc, char* argv[]) {
     // arguements: em_id configPath
+    if (argc != 3) std::cout << "[dummy] usage: em_id configPath" << std::endl;
     em_id = std::stoi(std::string(argv[1]));
     logger_ptr = new Logger("logging_dummy_" + std::to_string(em_id) + ".txt");
     signal(SIGINT, signal_handler);
@@ -63,7 +62,7 @@ int main(int argc, char* argv[]) {
     // ln.start("Hello!", 2);
     // SingleMessage sm = SingleMessage(em_id, net);
     // sm.start("Hello man!");
-    std::cout << "[dummy] " << net_send.procs << ' ' << net_send.em_id << std::endl;
+    std::cout << "[dummy] " << net_send.em_id << '/' << net_send.procs << std::endl;
     TCPpeer tcp_peer = TCPpeer(em_id, net_send, net_recv);
 
     std::cout << "[dummy] tcp_peer created" << std::endl;

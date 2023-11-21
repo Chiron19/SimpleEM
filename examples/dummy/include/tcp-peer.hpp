@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <pthread.h>
 #include <string>
@@ -19,8 +21,8 @@ protected:
 public: 
 
     TCPpeer(int em_id, NetworkHelper& net_send, NetworkHelper& net_recv): em_id(em_id), net_send(net_send), net_recv(net_recv) {
-        std::cout << "[tcp-peer] init net_send " << net_send.procs << ' ' << net_send.em_id << std::endl;
-        std::cout << "[tcp-peer] init net_recv " << net_recv.procs << ' ' << net_recv.em_id << std::endl;
+        std::cout << "[tcp-peer] init net_send " << net_send.em_id << '/' << net_send.procs << std::endl;
+        std::cout << "[tcp-peer] init net_recv " << net_send.em_id << '/' << net_send.procs << std::endl;
     }
 
     std::vector<message_t> received_messages;
@@ -36,7 +38,8 @@ public:
 
         // std::cout << "[tcp-peer] pthread_mutex_init" << std::endl;
 
-        if (em_id == 0) received_messages.push_back({1, "pong"});
+        // if (em_id == 0) received_messages.push_back({1, "pong"}); // For buffer string test
+        if (em_id == 0) received_messages.push_back({1, "test_file.pdf"}); // For large file test
 
         // std::cout << "[tcp-peer] received_messages.size(): " << received_messages.size() << std::endl;
 
@@ -122,16 +125,22 @@ private:
         std::string message = mes.second;
 
         if (target_em_id >= 0) {
-            if (message == "ping") message = "pong";
-            else message = "ping";
+            // // For sending message string test
+            // if (message == "ping") message = "pong"; else message = "ping";
 
+            // std::cout << "[tcp-peer] send_thread sending:" << em_id << "->" << target_em_id << " " << message << std::endl;
+
+            // // Send the message
+            // while (net_send.send_tcp(target_em_id, message) < 0);
+
+            // For sending large file test
             std::cout << "[tcp-peer] send_thread sending:" << em_id << "->" << target_em_id << " " << message << std::endl;
 
             // Send the message
-            while (net_send.send_tcp(target_em_id, message) < 0);
+            while (net_send.send_tcp(target_em_id, message, 1) < 0);
         }
 
-        sleep(1);
+        sleep(1); 
         *result = 1;
         // std::cout << "[tcp-peer] send_thread return " << *result << std::endl;
         return result;
@@ -139,7 +148,8 @@ private:
 
     void* recv_thread(void* arg) {
         // std::cout << "[tcp-peer] recv_thread" << std::endl;
-        message_t mes = force_receive();
+        // message_t mes = force_receive(); // For receiving text
+        message_t mes = net_recv.receive_tcp(1, net_recv.getLocalTime()+".pdf"); // For receiving large file
         // std::cout << "[tcp-peer] " << em_id << " GOT FROM " << mes.first << " MESSAGE: " << mes.second << std::endl;
 
         // Lock the mutex to safely access received_messages

@@ -6,6 +6,12 @@
 #include "network/packet.hpp"
 #include "time.cpp"
 
+/* 
+Add fowllowing arg of include path to g++ compiler:
+    "-I${workspaceFolder}/src/include",
+    "-I${workspaceFolder}/src/src",
+*/
+
 // Function to convert a hex char to an integer value
 unsigned char hexCharToByte(unsigned char c) {
     if (c >= '0' && c <= '9') return c - '0';
@@ -32,8 +38,10 @@ int main()
     std::cout << hexString << std::endl;
     char buf[256];
     hexStringToCharArray(hexString, buf);
-    for (int i=0; i < 256; ++i) printf("%d ", (unsigned char)buf[i]);
-    putchar(10); 
+    for (int i = 0; i < 256; ) {
+        printf("%4d", (unsigned char)buf[i]);
+        if (! ((++i) % 16)) putchar(10); 
+    }
     size_t ssize = hexString.length() / 2;
     printf("length : %ld\n", ssize);
     struct timespec ts = {0, 0};

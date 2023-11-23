@@ -1,2 +1,1 @@
-[sec: 000000 msec: 002 micsec: 200]Start of 0
-[sec: 000000 msec: 003 micsec: 568]Send file to proc 1 (172.16.0.3), size: 113166
+[sec: 000000 msec: 001 micsec: 970]Start of 0

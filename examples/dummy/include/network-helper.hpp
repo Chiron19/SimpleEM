@@ -152,14 +152,14 @@ public:
     /*
         Recieves data in to buffer until bufferSize value is met
     */
-    int recvBuffer(int socketFd, char* buffer, int bufferSize, int chunkSize = 16 * 1024) {
+    int recvBuffer(int socketFd, char* buffer, int bufferSize, int chunkSize = 65536) {
         int i = 0;
         while (i < bufferSize) {
             // std::cout << "receiving buffer at " << i << ", length: " << std::min(chunkSize, bufferSize - i) << std::endl;
             const int l = recv(socketFd, &buffer[i], std::min(chunkSize, bufferSize - i), 0);
             // printf("received %d\n", i);
             if (l < 0) { 
-                std::cout << "recv() error at: " << i << std::endl;
+                std::cout << "recv() error at: " << i << "/" << bufferSize << std::endl;
                 return l;
             } // this is an error
             if (l == 0) {
@@ -175,7 +175,7 @@ public:
         Sends data in buffer until bufferSize value is met
         return size being sent
     */
-    int sendBuffer(int socketFd, const char* buffer, int bufferSize, int chunkSize = 64 * 1024) {
+    int sendBuffer(int socketFd, const char* buffer, int bufferSize, int chunkSize = 65536) {
         int i = 0;
         while (i < bufferSize) {
             // printf("sending buffer at %d\n", i);
@@ -191,28 +191,39 @@ public:
 
      /*  
         Sends a file
-        returns size of file if success
+        returns <bytes sent, error code>
         returns -1 if file couldn't be opened for input
         returns -2 if couldn't send file length properly
-        returns -3 if file couldn't be sent properly
+        returns -3 if couldn't send file properly
     */    
-    int64_t sendFile(int socketFd, const std::string& filePath, int chunkSize = 32 * 1024) {
+    std::pair<int64_t, int64_t> sendFile(int socketFd, const std::string& filePath, const std::streampos read_byte = 0, const int chunkSize = 32768) {
 
         const int64_t fileSize = getFileSize(filePath);
-        std::cout << "File: " << filePath << ", Filesize: " << fileSize << std::endl;
-        if (fileSize < 0) { return -1; }
+        std::cout << "[sendFile] File: " << filePath << ", Filesize: " << fileSize << std::endl;
+        if (fileSize < 0) { return {0, -1}; }
 
         std::ifstream file(filePath, std::ifstream::binary);
-        if (file.fail()) { return -1; }
+        if (file.fail()) { return {0, -1}; }
 
-        if (sendBuffer(socketFd, reinterpret_cast<const char*>(&fileSize),
-            sizeof(fileSize)) != sizeof(fileSize)) {
-            return -2;
+        // Set the position in the file
+        file.seekg(read_byte, std::ios::beg);
+
+        // Check if the seek operation was successful
+        if (!file) {
+            std::cerr << "Failed to set the position in the file." << std::endl;
+            return {0, -1};
         }
+
+        // Send file length (if reconnect, neglect)
+        if (!read_byte)
+            if (sendBuffer(socketFd, reinterpret_cast<const char*>(&fileSize),
+                sizeof(fileSize)) != sizeof(fileSize)) {
+                return {0, -2};
+            }
 
         char* buffer = new char[chunkSize];
         bool errored = false;
-        int64_t i = 0;
+        int64_t i = read_byte;
         while (i < fileSize) {
             const int64_t ssize = std::min(fileSize - i, (int64_t)chunkSize);
             // std::cout << "Sending bytes at: " << i << std::endl;
@@ -237,11 +248,13 @@ public:
             }
             int l = sendBuffer(socketFd, buffer, (int)ssize);
             // std::cout << "Sent bytes: " << i << std::endl;
-            while (l < 0) {
-                std::cout << "socket status: " << isfdtype(socketFd, S_IFSOCK) << std::endl;
-                l = sendBuffer(socketFd, buffer, (int)ssize);
-                std::cout << "Sent bytes: " << l << std::endl;
-                errored = true; break; 
+            if (l < 0) {
+                int fdtype = isfdtype(socketFd, S_IFSOCK);
+                std::string fdtype_message = fdtype == 1 ? " (FD is open on an object of the indicated type)" : (fdtype == 0 ? " (FD is closed)" : " (errors (setting errno))");
+                std::cout << "socket status: " << fdtype << fdtype_message << std::endl;
+                std::cout << "Sent bytes: " << i << std::endl;
+                errored = true;
+                break;
             }
             i += l;
             std::cout << "Sent bytes: " << i << std::endl;
@@ -250,40 +263,54 @@ public:
 
         file.close();
 
-        return errored ? -3 : fileSize;
+        return {i, errored ? -3 : 0};
     }
 
     /*    
         Receives a file
-        returns size of file if success
+        returns <bytes received, error code>
         returns -1 if file couldn't be opened for output
         returns -2 if couldn't receive file length properly
         returns -3 if couldn't receive file properly
     */    
-    int64_t recvFile(int socketFd, const std::string& filePath, int chunkSize = 64 * 1024) {
+    std::pair<int64_t, int64_t> recvFile(int socketFd, const std::string& filePath, const std::streampos write_byte = 0, const int chunkSize = 65536) {
         std::ofstream file(filePath, std::ofstream::binary);
-        if (file.fail()) { return -1; }
+        if (file.fail()) { return {0, -1}; }
 
-        int64_t fileSize;
-        if (recvBuffer(socketFd, reinterpret_cast<char*>(&fileSize),
-                sizeof(fileSize)) != sizeof(fileSize)) {
-            return -2;
+        // Set the position in the file
+        file.seekp(write_byte, std::ios::beg);
+
+        // Check if the seek operation was successful
+        if (!file) {
+            std::cerr << "Failed to set the position in the file." << std::endl;
+            return {0, -1};
         }
-        std::cout << "[Receiver] Filesize: " << fileSize << std::endl;
+
+        // Recv file length (if reconnect, neglect)
+        if (!write_byte)
+            if (recvBuffer(socketFd, reinterpret_cast<char*>(&fileSize_toRecv),
+                    sizeof(fileSize_toRecv)) != sizeof(fileSize_toRecv)) {
+                return {0, -2};
+            }
+        std::cout << "[recvFile] Filesize: " << fileSize_toRecv << std::endl;
 
         char* buffer = new char[chunkSize];
         bool errored = false;
-        int64_t i = 0;
-        while (i < fileSize) {
+        int64_t i = write_byte;
+        while (i < fileSize_toRecv) {
             // std::cout << "Receiving bytes at: " << i << std::endl;
-            int r = recvBuffer(socketFd, buffer, (int)std::min(fileSize - i, (int64_t)chunkSize));
-            if (r == 0) { errored = true; break; }
+            int r = recvBuffer(socketFd, buffer, (int)std::min(fileSize_toRecv - i, (int64_t)chunkSize));
+            if (r == 0) { 
+                std::cout << "[recvFile] recvFile nothing at " << i << "/" << fileSize_toRecv << std::endl;
+                errored = true; break;
+            }
             if ((r < 0) || !file.write(buffer, r)) { 
                 // std::cout << "Cannot Recv at: " << i << ", Retrying" << std::endl;
                 // sleep(1);
                 // continue;
+                std::cout << "[recvFile] recvFile error at " << i << "/" << fileSize_toRecv << std::endl;
                 errored = true; 
-                break; 
+                break;
             }
             i += r;
             std::cout << "Received bytes: " << i << std::endl;
@@ -292,7 +319,7 @@ public:
 
         file.close();
 
-        return errored ? -3 : fileSize;
+        return {i, errored ? -3 : 0};
     }
 
     void send_(int target_em_id, const std::string& message) {
@@ -349,21 +376,24 @@ public:
         switch (mode)
         {
             case 1: {            
-                int64_t n = sendFile(send_fd, message.c_str());
-                if (n < 0) {
+                std::pair<int64_t, int64_t> res = sendFile(send_fd, message.c_str());
+                while (res.second < 0) {
                     printf("[network-helper] Fail to send file.");
-                    switch (n)
+                    switch (res.second)
                     {
                         case -1: printf(" (file couldn't be opened for input)\n"); break;
                         case -2: printf(" (file length couldn't be sent properly)\n"); break;
                         default: printf(" (file couldn't be sent properly)\n"); break;
                     }
+                    // res = sendFile(send_fd, message.c_str(), res.first);
+                    close(send_fd);
+                    setup_send_socket();
                     return -1;
                 }
                 
                 logger_ptr->log_event(CLOCK_PROCESS_CPUTIME_ID, 
                     "Send file to proc %d (%s), size: %ld", 
-                    target_em_id, addresses[target_em_id].first.c_str(), n);
+                    target_em_id, addresses[target_em_id].first.c_str(), res.first);
                 break;
             }
         
@@ -381,6 +411,8 @@ public:
                 char errBuffer[ 256 ];
                 char * errorMsg = strerror_r( errno, errBuffer, 256 ); // GNU-specific version, Linux default
                 printf("[network-helper] Error (send) %s\n", errorMsg); // return value has to be used since buffer might not be modified
+                close(send_fd);
+                setup_send_socket();
                 return -1;
             }
 
@@ -391,8 +423,6 @@ public:
         }
 
         // close(send_fd);
-        close(send_fd);
-        setup_send_socket();
         return 0;
     }
 
@@ -460,10 +490,10 @@ public:
         int newSocket_fd;
         if ((newSocket_fd = accept(recv_fd, (struct sockaddr*)&sender_addr, &len)) == -1) {
             std::cout << "[network-helper] Error Accepting, Retry!" << std::endl;
-            return {-1, ""};
             // exit(1);
-            // close(recv_fd);
-            // setup_recv_socket();
+            close(recv_fd);
+            setup_recv_socket();
+            return {-1, ""};
             // listen(recv_fd, 0);
         }
         std::cout << "[network-helper] " << em_id << " Socket on server, Accepted" << std::endl;
@@ -471,8 +501,9 @@ public:
         switch (mode)
         {
         case 1: {
-            int64_t n = recvFile(newSocket_fd, recvfilepath);
-            if (n < 0) {
+            std::pair<int64_t, int64_t> res = recvFile(newSocket_fd, recvfilepath);
+            int n = res.second;
+            while (n < 0) {
                 printf("[network-helper] Fail to receive file.");
                 switch (n)
                 {
@@ -480,7 +511,11 @@ public:
                     case -2: printf(" (file length couldn't be received properly)\n"); break;
                     default: printf(" (file couldn't be received properly)\n"); break;
                 }
-                return {-1, ""};
+                // res = recvFile(newSocket_fd, recvfilepath, res.first);
+                // n = res.second;
+                close(recv_fd);
+                setup_recv_socket();
+                return {-1, ""}; 
             }
 
             for (sender_id = 0; sender_id < procs; ++sender_id) {
@@ -548,6 +583,8 @@ public:
     }
 
 private:
+    int64_t fileSize_toRecv;
+
     void setup_send_socket() {
         // SOCK_STREAM is for TCP socket
         // SOCK_DGRAM  is for UDP socket

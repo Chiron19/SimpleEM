@@ -39,7 +39,7 @@ public:
         // std::cout << "[tcp-peer] pthread_mutex_init" << std::endl;
 
         // if (em_id == 0) received_messages.push_back({1, "pong"}); // For buffer string test
-        if (em_id == 0) received_messages.push_back({1, "test_file.pdf"}); // For large file test
+        if (em_id == 0) received_messages.push_back({1, "test_img.png"}); // For large file test
 
         // std::cout << "[tcp-peer] received_messages.size(): " << received_messages.size() << std::endl;
 
@@ -149,7 +149,11 @@ private:
     void* recv_thread(void* arg) {
         // std::cout << "[tcp-peer] recv_thread" << std::endl;
         // message_t mes = force_receive(); // For receiving text
-        message_t mes = net_recv.receive_tcp(1, net_recv.getLocalTime()+".pdf"); // For receiving large file
+        std::string filePath = net_recv.getLocalTime()+".png";
+        message_t mes = net_recv.receive_tcp(1, filePath); // For receiving large file
+        while (mes.first < 0) {
+            mes = net_recv.receive_tcp(1, filePath);
+        }
         // std::cout << "[tcp-peer] " << em_id << " GOT FROM " << mes.first << " MESSAGE: " << mes.second << std::endl;
 
         // Lock the mutex to safely access received_messages

@@ -1,3 +1,1 @@
-[sec: 000000 msec: 002 micsec: 362]Start of 1
-[sec: 000000 msec: 004 micsec: 252]Recv file from proc 0 (172.16.0.2), size: 113166, path: 17-24-15.pdf
-[sec: 000000 msec: 005 micsec: 563]Send file to proc 0 (172.16.0.2), size: 98304
+[sec: 000000 msec: 002 micsec: 239]Start of 1

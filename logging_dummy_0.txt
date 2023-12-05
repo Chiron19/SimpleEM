@@ -1,1 +1,1 @@
-[sec: 000000 msec: 001 micsec: 970]Start of 0
+[sec: 000000 msec: 002 micsec: 104]Start of 0

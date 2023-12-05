@@ -8,7 +8,7 @@
 
 #include "utils.hpp"
 
-const std::string CONFIG_PATH("./configs/config2.txt"); ///< Path to configuration file
+std::string CONFIG_PATH("./configs/config.txt"); ///< Path to configuration file (default)
 const int STEPS = 10000; ///< Number of times emulator awakens some process
 
 /** @brief Class parsing and saving the configuration from a file
@@ -55,6 +55,10 @@ ConfigParser::ConfigParser(const std::string& config_path) {
     std::string address, program_path, args_line, arg;
     int port, lat;
 
+    if (! config.is_open()) { 
+        std::cerr << "Couldn't open config file for reading. (" << config_path << ")" << std::endl;
+        return;
+    }
     config >> tun_dev_name >> tun_addr >> tun_mask;
     config >> procs;
 

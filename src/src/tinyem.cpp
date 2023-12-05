@@ -20,10 +20,17 @@ Emulator* em_ptr = nullptr;
 
 void signal_handler(int signum);
 
-int main() {
+int main(int argc, const char** argv) {
 	logger_ptr = new Logger("logging_tinyem.txt");
 
-	ConfigParser cp(CONFIG_PATH);
+	if (argc == 2) {
+		CONFIG_PATH = "./configs/" + std::string(argv[1]);
+		// std::cout << CONFIG_PATH << std::endl;
+	}
+	if (argc > 2) {
+		Logger::print_string_safe("Usage: ./tinyem (config_file_name_with_extension)\n");
+	}
+	ConfigParser cp((const std::string) CONFIG_PATH);
 	Network network(cp);
 	em_ptr = new Emulator(network, cp);
 	

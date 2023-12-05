@@ -23,11 +23,15 @@ public:
     TCPpeer(int em_id, NetworkHelper& net_send, NetworkHelper& net_recv): em_id(em_id), net_send(net_send), net_recv(net_recv) {
         std::cout << "[tcp-peer] init net_send " << net_send.em_id << '/' << net_send.procs << std::endl;
         std::cout << "[tcp-peer] init net_recv " << net_send.em_id << '/' << net_send.procs << std::endl;
+        ack_message.assign(net_send.procs, 0);
     }
 
     std::vector<message_t> received_messages;
+    std::vector<bool> ack_message;
     pthread_mutex_t mutex;
     pthread_cond_t cond;
+    pthread_mutex_t mutex1;
+    pthread_cond_t cond1;
 
     // create thread for both sender and receiver
     void tcp_thread(TCPpeer* obj) {
@@ -136,13 +140,20 @@ private:
             // For sending large file test
             std::cout << "[tcp-peer] send_thread sending:" << em_id << "->" << target_em_id << " " << message << std::endl;
 
-            // Send the message
+            // Send the file
             while (net_send.send_tcp(target_em_id, message, 1) < 0);
+
+            pthread_mutex_lock(&mutex1);
+            while (! ack_message[target_em_id]) {
+                pthread_cond_wait(&cond1, &mutex1);
+            }
+            ack_message[target_em_id] = 0;
+            pthread_mutex_unlock(&mutex1); // Unlock the mutex
         }
 
         sleep(1); 
         *result = 1;
-        // std::cout << "[tcp-peer] send_thread return " << *result << std::endl;
+        std::cout << "[tcp-peer] send_thread return " << *result << std::endl;
         return result;
     }
 
@@ -156,11 +167,20 @@ private:
         }
         // std::cout << "[tcp-peer] " << em_id << " GOT FROM " << mes.first << " MESSAGE: " << mes.second << std::endl;
 
-        // Lock the mutex to safely access received_messages
-        pthread_mutex_lock(&mutex);
-        received_messages.push_back(mes);
-        pthread_cond_broadcast(&cond);
-        pthread_mutex_unlock(&mutex);
+        if (mes.second == "ack") {
+            // Lock the mutex to safely access ack_message
+            pthread_mutex_lock(&mutex1);
+            ack_message[mes.first] = 1;
+            pthread_cond_broadcast(&cond1);
+            pthread_mutex_unlock(&mutex1);
+        }
+        else {
+            // Lock the mutex to safely access received_messages
+            pthread_mutex_lock(&mutex);
+            received_messages.push_back(mes);
+            pthread_cond_broadcast(&cond);
+            pthread_mutex_unlock(&mutex);
+        }
 
         sleep(1);
         int *result = static_cast<int*>(malloc(sizeof(int)));

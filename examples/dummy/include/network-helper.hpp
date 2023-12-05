@@ -272,6 +272,7 @@ public:
         returns -1 if file couldn't be opened for output
         returns -2 if couldn't receive file length properly
         returns -3 if couldn't receive file properly
+        returns -4 if received ack message
     */    
     std::pair<int64_t, int64_t> recvFile(int socketFd, const std::string& filePath, const std::streampos write_byte = 0, const int chunkSize = 65536) {
         std::ofstream file(filePath, std::ofstream::binary);
@@ -286,12 +287,21 @@ public:
             return {0, -1};
         }
 
+        char buffer_file_size[MAXLINE];
         // Recv file length (if reconnect, neglect)
-        if (!write_byte)
-            if (recvBuffer(socketFd, reinterpret_cast<char*>(&fileSize_toRecv),
-                    sizeof(fileSize_toRecv)) != sizeof(fileSize_toRecv)) {
+        if (!write_byte) {
+            int n = recvBuffer(socketFd, buffer_file_size, sizeof(buffer_file_size));
+            // printf("file size: %ld\n", reinterpret_cast<int64_t>(&buffer_file_size));
+            if (n != sizeof(fileSize_toRecv)) {
+                std::string string_buffer(buffer_file_size);
+                if (string_buffer.rfind("ack", 0) == 0) {
+                    int ack_em_id = std::stoi(string_buffer);
+                    return {ack_em_id, -4};
+                }
                 return {0, -2};
             }
+            else fileSize_toRecv = reinterpret_cast<int64_t>(&buffer_file_size);
+        }
         std::cout << "[recvFile] Filesize: " << fileSize_toRecv << std::endl;
 
         char* buffer = new char[chunkSize];
@@ -504,6 +514,10 @@ public:
             std::pair<int64_t, int64_t> res = recvFile(newSocket_fd, recvfilepath);
             int n = res.second;
             while (n < 0) {
+                if (n == -4) {
+                    printf("[network-helper] ack from %ld\n", res.first);
+                    break;
+                }
                 printf("[network-helper] Fail to receive file.");
                 switch (n)
                 {
@@ -516,6 +530,12 @@ public:
                 close(recv_fd);
                 setup_recv_socket();
                 return {-1, ""}; 
+            }
+
+            if (n == -4) { 
+                sender_id = res.first; 
+                strcpy(buffer, std::string("ack").c_str());
+                break;
             }
 
             for (sender_id = 0; sender_id < procs; ++sender_id) {

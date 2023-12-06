@@ -4,7 +4,9 @@
 
 #include <vector>
 #include <iostream>
+#include <fstream>
 #include <string>
+#include <cstring>
 
 #include "utils.hpp"
 #include "logger.hpp"
@@ -74,6 +76,8 @@ private:
      * @param cp Configuration to be used for new processes initialization
      */
     void fork_stop_run(int* pids, const ConfigParser& cp);
+
+    const char* extractProgramName(const char* filePath);
 
     /** @brief Initialize the child process.
      * 
@@ -192,28 +196,61 @@ void Emulator::fork_stop_run(int* pids, const ConfigParser& cp) {
 	}
 }
 
-void Emulator::child_init(
-        const std::string& program_path,
-        // const std::string& program_name, 
-        const std::vector<std::string>& program_args) {
-	int status;
-	const char *program_argv[program_args.size() + 2];
-    program_argv[0] = program_path.c_str();
-    for (int i = 0; i < program_args.size(); ++i) {
-        program_argv[i + 1] = program_args[i].c_str();
-        // ::printf("[emulator] args[%d] = %s\n", i + 1, program_args[i].c_str());
+const char* Emulator::extractProgramName(const char* filePath) {
+    const char* fileName = std::strrchr(filePath, '/');
+
+    // If '/' is found, move one character ahead to get the file name
+    if (fileName != nullptr) {
+        return fileName + 1;
+    }
+
+    // If '/' is not found, the entire path is the file name
+    return filePath;
+}
+
+void Emulator::child_init(const std::string& program_path, const std::vector<std::string>& program_args) {
+    int status;
+    // Dynamically allocate memory for program_argv
+    char** program_argv = new char*[program_args.size() + 2];
+
+    program_argv[0] = const_cast<char*>(program_path.c_str());
+    // Logger::print_string_safe(program_path + " ");
+    for (size_t i = 0; i < program_args.size(); ++i) {
+        // Convert each string to a non-const char*
+        program_argv[i + 1] = const_cast<char*>(program_args[i].c_str());
+        // Logger::print_string_safe(program_args[i] + " ");
     }
     program_argv[program_args.size() + 1] = nullptr;
-    // ::printf("%s %s %s %lu\n", program_path.c_str(), program_name.c_str(), program_args[0].c_str(), program_args.size() + 2);
+    // Logger::print_string_safe("\n");
 
-	if ((status = raise(SIGSTOP)) != 0) {
-        Logger::print_string_safe("[ERROR] raise(SIGSTOP) failed!");
-		return;
-	}
-	if ((status = execve(program_path.c_str(), (char * const*)program_argv, NULL)) == -1) {
-        Logger::print_string_safe("[ERROR] execve() failed!");
-		return;
-	}
+    // Optional: Set the JAVA_HOME environment variable if not already set
+    putenv("JAVA_HOME=/usr/share/java");
+
+    // Optional: Add Java bin directory to the PATH if not already set
+    putenv("PATH=$PATH:/usr/share/java/bin");
+
+    std::ifstream file(program_path);
+    if (!file.good()) {
+        Logger::print_string_safe("[WARNING] File does not exist: ");
+        Logger::print_string_safe(program_path + '\n');
+    }
+
+    if ((status = raise(SIGSTOP)) != 0) {
+        Logger::print_string_safe("[ERROR] raise(SIGSTOP) failed!\n");
+        perror("");
+        delete[] program_argv; // Free the allocated memory before returning
+        return;
+    }
+
+    if ((status = execve(program_path.c_str(), program_argv, nullptr)) == -1) {
+        Logger::print_string_safe("[ERROR] execve() failed!\n");
+        perror("");
+        delete[] program_argv; // Free the allocated memory before returning
+        return;
+    }
+
+    // Free the allocated memory after execve (this code won't be reached if execve is successful)
+    delete[] program_argv;
 }
 
 em_id_t Emulator::choose_next_proc() const {

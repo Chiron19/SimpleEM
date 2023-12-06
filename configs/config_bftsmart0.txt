@@ -1,0 +1,5 @@
+tun0 127.0.0.1 255.240.0.0
+1
+127.0.0.1 11000
+0
+./library-master/build/install/SimpleEM/smartrun.sh bftsmart.demo.counter.CounterServer 0

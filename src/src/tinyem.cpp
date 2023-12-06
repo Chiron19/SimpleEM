@@ -24,7 +24,7 @@ int main(int argc, const char** argv) {
 	logger_ptr = new Logger("logging_tinyem.txt");
 
 	if (argc == 2) {
-		CONFIG_PATH = "./configs/" + std::string(argv[1]);
+		CONFIG_PATH = std::string(argv[1]);
 		// std::cout << CONFIG_PATH << std::endl;
 	}
 	if (argc > 2) {

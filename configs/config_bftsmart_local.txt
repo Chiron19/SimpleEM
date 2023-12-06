@@ -1,0 +1,17 @@
+tun0 127.0.0.1 255.240.0.0
+5
+127.0.0.1 11000
+127.0.0.1 11010
+127.0.0.1 11020
+127.0.0.1 11030
+127.0.0.1 11100
+0 10 20 30 40
+10 0 50 40 50
+20 50 0 50 60
+30 40 50 0 70
+40 50 60 70 0
+java -Djava.security.properties="./config/java.security" -Dlogback.configurationFile="./config/logback.xml" -cp "lib/*"  bftsmart.demo.counter.CounterServer 0
+java -Djava.security.properties="./config/java.security" -Dlogback.configurationFile="./config/logback.xml" -cp "lib/*"  bftsmart.demo.counter.CounterServer 1
+java -Djava.security.properties="./config/java.security" -Dlogback.configurationFile="./config/logback.xml" -cp "lib/*"  bftsmart.demo.counter.CounterServer 2
+java -Djava.security.properties="./config/java.security" -Dlogback.configurationFile="./config/logback.xml" -cp "lib/*"  bftsmart.demo.counter.CounterServer 3
+java -Djava.security.properties="./config/java.security" -Dlogback.configurationFile="./config/logback.xml" -cp "lib/*"  bftsmart.demo.counter.CounterClient 1001 1 20

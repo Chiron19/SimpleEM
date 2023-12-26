@@ -257,6 +257,6 @@ CMakeFiles/tinyem.dir/src/src/tinyem.cpp.o: \
  /usr/include/c++/11/bits/erase_if.h \
  /usr/include/c++/11/pstl/execution_defs.h \
  /mnt/c/Users/Admin/Documents/SimpleEM/src/include/emulator.hpp \
- /usr/include/x86_64-linux-gnu/sys/wait.h \
+ /usr/include/x86_64-linux-gnu/sys/wait.h /usr/include/c++/11/cstring \
  /mnt/c/Users/Admin/Documents/SimpleEM/src/include/proc_control/emproc.hpp \
  /mnt/c/Users/Admin/Documents/SimpleEM/src/include/proc_frame.hpp

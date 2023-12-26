@@ -1,1 +1,1 @@
-/usr/bin/c++     -pthread CMakeFiles/dummy.dir/examples/dummy/src/dummy.cpp.o CMakeFiles/dummy.dir/src/src/time.cpp.o  -o dummy 
+/usr/bin/c++  -pthread CMakeFiles/dummy.dir/examples/dummy/src/dummy.cpp.o CMakeFiles/dummy.dir/src/src/time.cpp.o -o dummy 

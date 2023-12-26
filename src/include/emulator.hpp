@@ -7,15 +7,13 @@
 #include <fstream>
 #include <string>
 #include <cstring>
+#include <cstdlib>
 
 #include "utils.hpp"
 #include "logger.hpp"
 #include "config-parser.hpp"
-
 #include "network/network.hpp"
-
 #include "proc_control/emproc.hpp"
-
 #include "proc_frame.hpp"
 
 /** @brief Class encapsulating the main logic of the emulator.
@@ -77,7 +75,19 @@ private:
      */
     void fork_stop_run(int* pids, const ConfigParser& cp);
 
+    /** @brief Extracts the name of the program from its path
+     * 
+     * Extracts the name of the program from its path. If the path
+     * contains '/' character, the name is everything after the last
+     * occurence of that character. Otherwise, the name is the entire
+     * path.
+     * 
+     * @param filePath Path to the program
+     * @return Name of the program
+     */
     const char* extractProgramName(const char* filePath);
+
+    void executeProgram(const std::string& program_path, const std::vector<std::string>& program_args);
 
     /** @brief Initialize the child process.
      * 
@@ -208,6 +218,22 @@ const char* Emulator::extractProgramName(const char* filePath) {
     return filePath;
 }
 
+void Emulator::executeProgram(const std::string& program_path, const std::vector<std::string>& program_args) {
+    std::ostringstream cmd;
+    cmd << program_path;
+
+    for (const auto& arg : program_args) {
+        cmd << ' ' << arg;
+    }
+
+    int result = system(cmd.str().c_str());
+    if (result == 0) {
+        // The command executed successfully
+    } else {
+        // The command failed
+    }
+}
+
 void Emulator::child_init(const std::string& program_path, const std::vector<std::string>& program_args) {
     int status;
     // Dynamically allocate memory for program_argv
@@ -223,16 +249,26 @@ void Emulator::child_init(const std::string& program_path, const std::vector<std
     program_argv[program_args.size() + 1] = nullptr;
     // Logger::print_string_safe("\n");
 
-    // Optional: Set the JAVA_HOME environment variable if not already set
-    putenv("JAVA_HOME=/usr/share/java");
-
-    // Optional: Add Java bin directory to the PATH if not already set
-    putenv("PATH=$PATH:/usr/share/java/bin");
-
     std::ifstream file(program_path);
+    if (program_path == "java") {
+        try
+        {
+            executeProgram(program_path, program_args);
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+        
+        delete[] program_argv; // Free the allocated memory after execve 
+        return;
+    }
+
     if (!file.good()) {
-        Logger::print_string_safe("[WARNING] File does not exist: ");
-        Logger::print_string_safe(program_path + '\n');
+        char buf[] = "[WARNING] File does not exist: ";
+        strcat(buf, program_path.c_str());
+        strcat(buf, "\n");
+        Logger::print_string_safe(buf);
     }
 
     if ((status = raise(SIGSTOP)) != 0) {
@@ -249,8 +285,7 @@ void Emulator::child_init(const std::string& program_path, const std::vector<std
         return;
     }
 
-    // Free the allocated memory after execve (this code won't be reached if execve is successful)
-    delete[] program_argv;
+    delete[] program_argv; // Free the allocated memory after execve 
 }
 
 em_id_t Emulator::choose_next_proc() const {

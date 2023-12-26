@@ -1,6 +1,2 @@
-[sec: 001331 msec: 374 micsec: 226]Emulator created with 5 processes
-[sec: 001331 msec: 376 micsec: 539]Emulator created with 5 processes
-[sec: 001331 msec: 397 micsec: 560]Emulator created with 5 processes
-[sec: 001331 msec: 427 micsec: 527]Emulator created with 5 processes
-[sec: 001331 msec: 467 micsec: 845]Emulator created with 5 processes
-[sec: 001331 msec: 355 micsec: 166]Emulator created with 5 processes
+[sec: 009082 msec: 423 micsec: 411]Emulator created with 1 processes
+[sec: 009080 msec: 884 micsec: 650]Emulator created with 1 processes

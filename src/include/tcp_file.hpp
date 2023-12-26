@@ -16,6 +16,12 @@
 #include <fstream>
 #include <errno.h>
 
+/**
+ * @brief Prints the buffer in hex
+ * 
+ * @param buf 
+ * @param len
+*/
 void dump(const char *buf, size_t len)
 {
 	size_t i, j;
@@ -48,6 +54,11 @@ void dump(const char *buf, size_t len)
 	}
 }
 
+/**
+ * @brief Get the Local Ip Address object
+ * 
+ * @return std::string 
+*/
 std::string getLocalIpAddress() {
     struct ifaddrs* ifAddrStruct = nullptr;
     struct ifaddrs* ifa = nullptr;
@@ -81,6 +92,11 @@ std::string getLocalIpAddress() {
     return localIp;
 }
 
+/**
+ * @brief Get the Local Time object
+ * 
+ * @return std::string 
+*/
 std::string getLocalTime() {
     auto t = std::time(nullptr);
     auto tm = *std::localtime(&t);
@@ -91,10 +107,15 @@ std::string getLocalTime() {
     return oss.str();
 }
 
-// 
-// Reference: 
-// https://stackoverflow.com/questions/63494014/sending-files-over-tcp-sockets-c-windows
-// 
+/**
+ * @brief Get the File Size object
+ * 
+ * @param fileName
+ * 
+ * @return int64_t
+ * Reference:
+ * https://stackoverflow.com/questions/63494014/sending-files-over-tcp-sockets-c-windows
+ */ 
 int64_t GetFileSize(const std::string& fileName) {
     // no idea how to get filesizes > 2.1 GB in a C++ kind-of way.
     // I will cheat and use Microsoft's C-style file API
@@ -109,9 +130,17 @@ int64_t GetFileSize(const std::string& fileName) {
     return len;
 }
 
-//
-// Recieves data in to buffer until bufferSize value is met
-//
+
+/**
+ * @brief Recieves data in to buffer until bufferSize value is met
+ * 
+ * @param socketFd 
+ * @param buffer 
+ * @param bufferSize 
+ * @param chunkSize 
+ * 
+ * @return int 
+ */
 int RecvBuffer(int socketFd, char* buffer, int bufferSize, int chunkSize = 16 * 1024) {
     int i = 0;
     while (i < bufferSize) {
@@ -135,10 +164,16 @@ int RecvBuffer(int socketFd, char* buffer, int bufferSize, int chunkSize = 16 * 
     return i;
 }
 
-//
-// Sends data in buffer until bufferSize value is met
-// return size being sent
-//
+/**
+ * @brief Sends data in buffer until bufferSize value is met, return size sent
+ * 
+ * @param socketFd 
+ * @param buffer 
+ * @param bufferSize 
+ * @param chunkSize 
+ * 
+ * @return int 
+*/
 int SendBuffer(int socketFd, const char* buffer, int bufferSize, int chunkSize = 64 * 1024) {
     int i = 0;
     while (i < bufferSize) {
@@ -161,13 +196,19 @@ int SendBuffer(int socketFd, const char* buffer, int bufferSize, int chunkSize =
     return i;
 }
 
-//
-// Sends a file
-// returns size of file if success
-// returns -1 if file couldn't be opened for input
-// returns -2 if couldn't send file length properly
-// returns -3 if file couldn't be sent properly
-//
+/**
+ * @brief Sends a file
+ * returns size of file if success
+ * returns -1 if file couldn't be opened for input
+ * returns -2 if couldn't send file length properly
+ * returns -3 if file couldn't be sent properly
+ * 
+ * @param socketFd 
+ * @param fileName 
+ * @param chunkSize 
+ * 
+ * @return int64_t
+*/
 int64_t SendFile(int socketFd, const std::string& fileName, int chunkSize = 32 * 1024) {
 
     const int64_t fileSize = GetFileSize(fileName);
@@ -223,13 +264,19 @@ int64_t SendFile(int socketFd, const std::string& fileName, int chunkSize = 32 *
     return errored ? -3 : fileSize;
 }
 
-//
-// Receives a file
-// returns size of file if success
-// returns -1 if file couldn't be opened for output
-// returns -2 if couldn't receive file length properly
-// returns -3 if couldn't receive file properly
-//
+/**
+ * @brief Receives a file
+ * returns size of file if success
+ * returns -1 if file couldn't be opened for output
+ * returns -2 if couldn't receive file length properly
+ * returns -3 if couldn't receive file properly
+ * 
+ * @param socketFd 
+ * @param fileName 
+ * @param chunkSize 
+ * 
+ * @return int64_t
+*/
 int64_t RecvFile(int socketFd, const std::string& fileName, int chunkSize = 64 * 1024) {
     std::ofstream file(fileName, std::ofstream::binary);
     if (file.fail()) { return -1; }

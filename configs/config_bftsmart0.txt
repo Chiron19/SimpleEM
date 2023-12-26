@@ -1,5 +1,5 @@
-tun0 127.0.0.1 255.240.0.0
+tun0 172.16.0.1 255.240.0.0
 1
-127.0.0.1 11000
+172.16.0.2 10000
 0
-./library-master/build/install/SimpleEM/smartrun.sh bftsmart.demo.counter.CounterServer 0
+java -Djava.security.properties="./config/java.security" -Dlogback.configurationFile="./config/logback.xml" -cp "lib/*" bftsmart.demo.counter.CounterServer 0

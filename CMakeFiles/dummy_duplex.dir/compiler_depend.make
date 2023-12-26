@@ -207,6 +207,8 @@ CMakeFiles/dummy_duplex.dir/examples/dummy/src/dummy_duplex.cpp.o: examples/dumm
   /usr/include/c++/11/bits/basic_string.tcc \
   examples/dummy/include/network-helper.hpp \
   /usr/include/c++/11/stdlib.h \
+  /usr/include/ifaddrs.h \
+  /usr/include/c++/11/ctime \
   /usr/include/c++/11/vector \
   /usr/include/c++/11/bits/stl_uninitialized.h \
   /usr/include/c++/11/bits/stl_vector.h \
@@ -218,7 +220,7 @@ CMakeFiles/dummy_duplex.dir/examples/dummy/src/dummy_duplex.cpp.o: examples/dumm
   /usr/include/c++/11/bits/deque.tcc \
   /usr/include/c++/11/bits/stl_stack.h \
   /usr/include/c++/11/bits/uses_allocator.h \
-  /usr/include/c++/11/fstream \
+  /usr/include/c++/11/sstream \
   /usr/include/c++/11/istream \
   /usr/include/c++/11/ios \
   /usr/include/c++/11/exception \
@@ -247,22 +249,16 @@ CMakeFiles/dummy_duplex.dir/examples/dummy/src/dummy_duplex.cpp.o: examples/dumm
   /usr/include/c++/11/ostream \
   /usr/include/c++/11/bits/ostream.tcc \
   /usr/include/c++/11/bits/istream.tcc \
+  /usr/include/c++/11/bits/sstream.tcc \
+  /usr/include/c++/11/fstream \
   /usr/include/c++/11/bits/codecvt.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
   /usr/include/c++/11/bits/fstream.tcc \
   /usr/include/c++/11/iostream \
-  src/include/utils.hpp \
-  src/include/logger.hpp \
-  examples/dummy/include/algorithms/loop-network.hpp \
-  examples/dummy/include/algorithms/algorithm-base.hpp \
-  /usr/include/c++/11/sstream \
-  /usr/include/c++/11/bits/sstream.tcc \
-  examples/dummy/include/algorithms/single-message-duplex.hpp \
   /usr/include/c++/11/iomanip \
   /usr/include/c++/11/locale \
   /usr/include/c++/11/bits/locale_facets_nonio.h \
-  /usr/include/c++/11/ctime \
   /usr/include/x86_64-linux-gnu/c++/11/bits/time_members.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/messages_members.h \
   /usr/include/libintl.h \
@@ -275,8 +271,6 @@ CMakeFiles/dummy_duplex.dir/examples/dummy/src/dummy_duplex.cpp.o: examples/dumm
   /usr/include/c++/11/array \
   /usr/include/c++/11/bits/invoke.h \
   /usr/include/c++/11/bits/quoted_string.h \
-  examples/dummy/include/algorithms/byzantine-reliable-broadcast.hpp \
-  src/include/tcp_file.hpp \
   /usr/include/x86_64-linux-gnu/sys/stat.h \
   /usr/include/x86_64-linux-gnu/bits/stat.h \
   /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
@@ -289,7 +283,13 @@ CMakeFiles/dummy_duplex.dir/examples/dummy/src/dummy_duplex.cpp.o: examples/dumm
   /usr/include/x86_64-linux-gnu/bits/statx-generic.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_statx_timestamp.h \
   /usr/include/x86_64-linux-gnu/bits/types/struct_statx.h \
-  /usr/include/ifaddrs.h \
+  src/include/utils.hpp \
+  src/include/logger.hpp \
+  examples/dummy/include/algorithms/loop-network.hpp \
+  examples/dummy/include/algorithms/algorithm-base.hpp \
+  examples/dummy/include/algorithms/single-message-duplex.hpp \
+  examples/dummy/include/algorithms/byzantine-reliable-broadcast.hpp \
+  src/include/tcp_file.hpp \
   /usr/include/c++/11/cstring
 
 CMakeFiles/dummy_duplex.dir/src/src/time.cpp.o: src/src/time.cpp \
@@ -449,6 +449,12 @@ CMakeFiles/dummy_duplex.dir/src/src/time.cpp.o: src/src/time.cpp \
 
 src/src/time.cpp:
 
+src/include/tcp_file.hpp:
+
+examples/dummy/include/algorithms/byzantine-reliable-broadcast.hpp:
+
+src/include/utils.hpp:
+
 /usr/include/x86_64-linux-gnu/bits/types/struct_statx.h:
 
 /usr/include/x86_64-linux-gnu/bits/statx-generic.h:
@@ -460,10 +466,6 @@ src/src/time.cpp:
 /usr/include/x86_64-linux-gnu/bits/struct_stat.h:
 
 /usr/include/x86_64-linux-gnu/sys/stat.h:
-
-src/include/tcp_file.hpp:
-
-examples/dummy/include/algorithms/byzantine-reliable-broadcast.hpp:
 
 /usr/include/c++/11/array:
 
@@ -479,9 +481,11 @@ examples/dummy/include/algorithms/byzantine-reliable-broadcast.hpp:
 
 /usr/include/libintl.h:
 
-/usr/include/x86_64-linux-gnu/c++/11/bits/time_members.h:
+examples/dummy/include/algorithms/algorithm-base.hpp:
 
-/usr/include/c++/11/ctime:
+/usr/include/x86_64-linux-gnu/c++/11/bits/messages_members.h:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/time_members.h:
 
 /usr/include/c++/11/bits/locale_facets_nonio.h:
 
@@ -524,6 +528,10 @@ examples/dummy/include/algorithms/byzantine-reliable-broadcast.hpp:
 /usr/include/x86_64-linux-gnu/bits/types/clock_t.h:
 
 /usr/include/x86_64-linux-gnu/bits/socket_type.h:
+
+src/include/logger.hpp:
+
+/usr/include/x86_64-linux-gnu/bits/socket.h:
 
 /usr/include/alloca.h:
 
@@ -655,11 +663,11 @@ examples/dummy/include/network-helper.hpp:
 
 /usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
 
-/usr/include/x86_64-linux-gnu/bits/endianness.h:
+examples/dummy/include/algorithms/loop-network.hpp:
 
 /usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
 
-examples/dummy/include/algorithms/loop-network.hpp:
+/usr/include/x86_64-linux-gnu/bits/endianness.h:
 
 /usr/include/x86_64-linux-gnu/bits/floatn-common.h:
 
@@ -674,6 +682,8 @@ examples/dummy/include/algorithms/loop-network.hpp:
 /usr/include/x86_64-linux-gnu/sys/cdefs.h:
 
 /usr/include/x86_64-linux-gnu/bits/time64.h:
+
+/usr/include/c++/11/ctime:
 
 /usr/include/c++/11/bits/basic_ios.tcc:
 
@@ -821,10 +831,6 @@ examples/dummy/src/dummy_duplex.cpp:
 
 /usr/include/c++/11/cstdint:
 
-/usr/include/x86_64-linux-gnu/c++/11/bits/messages_members.h:
-
-examples/dummy/include/algorithms/algorithm-base.hpp:
-
 /usr/include/c++/11/bits/localefwd.h:
 
 /usr/include/x86_64-linux-gnu/bits/sigstack.h:
@@ -838,10 +844,6 @@ examples/dummy/include/algorithms/algorithm-base.hpp:
 /usr/include/c++/11/iomanip:
 
 /usr/include/c++/11/cctype:
-
-/usr/include/c++/11/locale:
-
-/usr/include/ctype.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h:
 
@@ -890,6 +892,10 @@ examples/dummy/include/algorithms/algorithm-base.hpp:
 /usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h:
 
 /usr/include/linux/errno.h:
+
+/usr/include/ctype.h:
+
+/usr/include/c++/11/locale:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/atomic_word.h:
 
@@ -955,6 +961,8 @@ examples/dummy/include/algorithms/algorithm-base.hpp:
 
 /usr/include/c++/11/bits/uses_allocator.h:
 
+/usr/include/c++/11/sstream:
+
 /usr/include/c++/11/istream:
 
 /usr/include/c++/11/exception:
@@ -965,9 +973,9 @@ examples/dummy/include/algorithms/algorithm-base.hpp:
 
 /usr/include/c++/11/bits/nested_exception.h:
 
-/usr/include/ifaddrs.h:
-
 /usr/include/x86_64-linux-gnu/bits/types/siginfo_t.h:
+
+/usr/include/ifaddrs.h:
 
 /usr/include/c++/11/bits/ios_base.h:
 
@@ -1020,11 +1028,3 @@ examples/dummy/include/algorithms/single-message-duplex.hpp:
 /usr/include/asm-generic/posix_types.h:
 
 /usr/include/c++/11/bits/fstream.tcc:
-
-src/include/utils.hpp:
-
-/usr/include/x86_64-linux-gnu/bits/socket.h:
-
-src/include/logger.hpp:
-
-/usr/include/c++/11/sstream:

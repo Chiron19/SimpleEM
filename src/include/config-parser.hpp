@@ -82,7 +82,7 @@ ConfigParser::ConfigParser(const std::string& config_path) {
 
     std::getline(config, args_line); // Read emptyline 
 
-    for (int i = 0; i < procs*2; ++i) {
+    for (int i = 0; i < procs * 2; ++i) {
         std::getline(config, args_line);
         args_stream = std::istringstream(args_line);
         program_args.push_back(std::vector<std::string>());

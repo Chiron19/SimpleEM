@@ -4,14 +4,11 @@
 #include <signal.h>
 #include <time.h>
 #include <unistd.h>
-
 #include <string>
 
 #include "config-parser.hpp"
-
 #include "utils.hpp"
 #include "logger.hpp"
-
 #include "network/network.hpp"
 #include "emulator.hpp"
 
@@ -30,16 +27,20 @@ int main(int argc, const char** argv) {
 	if (argc > 2) {
 		Logger::print_string_safe("Usage: ./tinyem (config_file_name_with_extension)\n");
 	}
+
+	/* Configuration */
 	ConfigParser cp((const std::string) CONFIG_PATH);
 	Network network(cp);
 	em_ptr = new Emulator(network, cp);
 	
 	real_sleep(10 * MILLISECOND); /* Give some time */
 
+	/* Start emulation */
 	signal(SIGINT, signal_handler);
 	signal(SIGSEGV, signal_handler);
 	em_ptr->start_emulation(STEPS);
 
+	/* End emulation */
 	Logger::print_string_safe("EMULATION FINISHED\n");
 	em_ptr->kill_emulation();
 	delete logger_ptr;

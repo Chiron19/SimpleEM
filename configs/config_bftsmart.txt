@@ -1,17 +1,17 @@
 tun0 172.16.0.1 255.240.0.0
 5
-172.16.0.2 11000
-172.16.0.3 11010
-172.16.0.4 11020
-172.16.0.5 11030
+172.16.0.2 10000
+172.16.0.3 10010
+172.16.0.4 10020
+172.16.0.5 10030
 172.16.0.6 11100
 0 10 20 30 40
 10 0 50 40 50
 20 50 0 50 60
 30 40 50 0 70
 40 50 60 70 0
-./library-master/build/install/SimpleEM/smartrun.sh bftsmart.demo.counter.CounterServer 0
-./library-master/build/install/SimpleEM/smartrun.sh bftsmart.demo.counter.CounterServer 1
-./library-master/build/install/SimpleEM/smartrun.sh bftsmart.demo.counter.CounterServer 2
-./library-master/build/install/SimpleEM/smartrun.sh bftsmart.demo.counter.CounterServer 3
-./library-master/build/install/SimpleEM/smartrun.sh bftsmart.demo.counter.CounterClient 1001 1 20
+java -Djava.security.properties="./config/java.security" -Dlogback.configurationFile="./config/logback.xml" -cp "lib/*" bftsmart.demo.counter.CounterServer 0
+java -Djava.security.properties="./config/java.security" -Dlogback.configurationFile="./config/logback.xml" -cp "lib/*" bftsmart.demo.counter.CounterServer 1
+java -Djava.security.properties="./config/java.security" -Dlogback.configurationFile="./config/logback.xml" -cp "lib/*" bftsmart.demo.counter.CounterServer 2
+java -Djava.security.properties="./config/java.security" -Dlogback.configurationFile="./config/logback.xml" -cp "lib/*" bftsmart.demo.counter.CounterServer 3
+java -Djava.security.properties="./config/java.security" -Dlogback.configurationFile="./config/logback.xml" -cp "lib/*" bftsmart.demo.counter.CounterClient 1001 1 20

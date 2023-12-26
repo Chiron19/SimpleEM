@@ -241,6 +241,8 @@ CMakeFiles/dummy.dir/examples/dummy/src/dummy.cpp.o: examples/dummy/src/dummy.cp
   /usr/include/c++/11/bits/fstream.tcc \
   examples/dummy/include/network-helper.hpp \
   /usr/include/c++/11/stdlib.h \
+  /usr/include/ifaddrs.h \
+  /usr/include/c++/11/ctime \
   /usr/include/c++/11/vector \
   /usr/include/c++/11/bits/stl_uninitialized.h \
   /usr/include/c++/11/bits/stl_vector.h \
@@ -252,15 +254,40 @@ CMakeFiles/dummy.dir/examples/dummy/src/dummy.cpp.o: examples/dummy/src/dummy.cp
   /usr/include/c++/11/bits/deque.tcc \
   /usr/include/c++/11/bits/stl_stack.h \
   /usr/include/c++/11/bits/uses_allocator.h \
+  /usr/include/c++/11/sstream \
+  /usr/include/c++/11/bits/sstream.tcc \
+  /usr/include/c++/11/iomanip \
+  /usr/include/c++/11/locale \
+  /usr/include/c++/11/bits/locale_facets_nonio.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/time_members.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/messages_members.h \
+  /usr/include/libintl.h \
+  /usr/include/c++/11/bits/locale_facets_nonio.tcc \
+  /usr/include/c++/11/bits/locale_conv.h \
+  /usr/include/c++/11/bits/unique_ptr.h \
+  /usr/include/c++/11/utility \
+  /usr/include/c++/11/bits/stl_relops.h \
+  /usr/include/c++/11/tuple \
+  /usr/include/c++/11/array \
+  /usr/include/c++/11/bits/invoke.h \
+  /usr/include/c++/11/bits/quoted_string.h \
+  /usr/include/x86_64-linux-gnu/sys/stat.h \
+  /usr/include/x86_64-linux-gnu/bits/stat.h \
+  /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
+  /usr/include/x86_64-linux-gnu/bits/statx.h \
+  /usr/include/linux/stat.h \
+  /usr/include/linux/types.h \
+  /usr/include/x86_64-linux-gnu/asm/types.h \
+  /usr/include/asm-generic/types.h \
+  /usr/include/asm-generic/int-ll64.h \
+  /usr/include/x86_64-linux-gnu/bits/statx-generic.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_statx_timestamp.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_statx.h \
   src/include/utils.hpp \
   src/include/logger.hpp \
   examples/dummy/include/tcp-peer.hpp \
-  examples/dummy/include/test.hpp \
-  examples/dummy/include/test2.hpp \
   examples/dummy/include/algorithms/loop-network.hpp \
   examples/dummy/include/algorithms/algorithm-base.hpp \
-  /usr/include/c++/11/sstream \
-  /usr/include/c++/11/bits/sstream.tcc \
   examples/dummy/include/algorithms/single-message.hpp \
   examples/dummy/include/algorithms/byzantine-reliable-broadcast.hpp
 
@@ -425,9 +452,43 @@ examples/dummy/include/algorithms/byzantine-reliable-broadcast.hpp:
 
 examples/dummy/include/algorithms/single-message.hpp:
 
-/usr/include/c++/11/sstream:
+examples/dummy/include/tcp-peer.hpp:
+
+src/include/utils.hpp:
+
+/usr/include/x86_64-linux-gnu/bits/types/struct_statx.h:
+
+/usr/include/x86_64-linux-gnu/bits/statx-generic.h:
+
+/usr/include/asm-generic/int-ll64.h:
+
+/usr/include/x86_64-linux-gnu/asm/types.h:
+
+/usr/include/x86_64-linux-gnu/bits/struct_stat.h:
+
+/usr/include/x86_64-linux-gnu/sys/stat.h:
+
+/usr/include/c++/11/array:
+
+/usr/include/c++/11/tuple:
+
+/usr/include/c++/11/bits/stl_relops.h:
+
+/usr/include/c++/11/bits/unique_ptr.h:
+
+/usr/include/c++/11/bits/locale_conv.h:
+
+/usr/include/c++/11/bits/locale_facets_nonio.tcc:
+
+/usr/include/libintl.h:
 
 examples/dummy/include/algorithms/algorithm-base.hpp:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/messages_members.h:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/time_members.h:
+
+/usr/include/c++/11/bits/locale_facets_nonio.h:
 
 /usr/include/c++/11/iostream:
 
@@ -475,6 +536,10 @@ examples/dummy/include/algorithms/algorithm-base.hpp:
 
 /usr/include/x86_64-linux-gnu/bits/socket_type.h:
 
+src/include/logger.hpp:
+
+/usr/include/x86_64-linux-gnu/bits/socket.h:
+
 /usr/include/alloca.h:
 
 /usr/include/x86_64-linux-gnu/bits/uintn-identity.h:
@@ -501,6 +566,8 @@ examples/dummy/include/algorithms/algorithm-base.hpp:
 
 /usr/include/x86_64-linux-gnu/bits/siginfo-arch.h:
 
+/usr/include/x86_64-linux-gnu/bits/statx.h:
+
 /usr/include/c++/11/bits/stl_algobase.h:
 
 /usr/include/unistd.h:
@@ -516,6 +583,8 @@ examples/dummy/include/algorithms/algorithm-base.hpp:
 /usr/include/x86_64-linux-gnu/bits/wchar.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/timer_t.h:
+
+/usr/include/c++/11/bits/quoted_string.h:
 
 /usr/include/x86_64-linux-gnu/bits/signum-generic.h:
 
@@ -581,6 +650,8 @@ examples/dummy/include/algorithms/algorithm-base.hpp:
 
 /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h:
 
+/usr/include/c++/11/bits/invoke.h:
+
 /usr/include/asm-generic/socket.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h:
@@ -595,11 +666,11 @@ examples/dummy/include/network-helper.hpp:
 
 /usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
 
-/usr/include/x86_64-linux-gnu/bits/endianness.h:
+examples/dummy/include/algorithms/loop-network.hpp:
 
 /usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
 
-examples/dummy/include/algorithms/loop-network.hpp:
+/usr/include/x86_64-linux-gnu/bits/endianness.h:
 
 examples/dummy/src/dummy.cpp:
 
@@ -614,6 +685,8 @@ examples/dummy/src/dummy.cpp:
 /usr/include/c++/11/bits/basic_ios.tcc:
 
 /usr/include/c++/11/bits/codecvt.h:
+
+/usr/include/c++/11/ctime:
 
 /usr/include/c++/11/string:
 
@@ -644,6 +717,8 @@ examples/dummy/src/dummy.cpp:
 /usr/include/x86_64-linux-gnu/bits/types/struct_sigstack.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h:
+
+/usr/include/linux/stat.h:
 
 /usr/include/c++/11/deque:
 
@@ -705,6 +780,8 @@ examples/dummy/src/dummy.cpp:
 
 /usr/include/c++/11/bits/basic_string.tcc:
 
+/usr/include/x86_64-linux-gnu/bits/stat.h:
+
 /usr/include/x86_64-linux-gnu/bits/sigstksz.h:
 
 /usr/include/wchar.h:
@@ -751,6 +828,8 @@ examples/dummy/src/dummy.cpp:
 
 /usr/include/c++/11/bits/stl_iterator_base_funcs.h:
 
+/usr/include/asm-generic/types.h:
+
 /usr/include/asm-generic/bitsperlong.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h:
@@ -777,23 +856,15 @@ examples/dummy/src/dummy.cpp:
 
 /usr/include/c++/11/bits/ostream.tcc:
 
-examples/dummy/include/tcp-peer.hpp:
-
 /usr/include/x86_64-linux-gnu/bits/locale.h:
 
-/usr/include/c++/11/cctype:
+/usr/include/c++/11/iomanip:
 
-/usr/include/ctype.h:
+/usr/include/c++/11/cctype:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/gthr.h:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/gthr-default.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/siginfo_t.h:
-
-/usr/include/c++/11/bits/ios_base.h:
-
-examples/dummy/include/test2.hpp:
 
 /usr/include/x86_64-linux-gnu/asm/posix_types_64.h:
 
@@ -810,6 +881,10 @@ examples/dummy/include/test2.hpp:
 /usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h:
 
 /usr/include/linux/errno.h:
+
+/usr/include/ctype.h:
+
+/usr/include/c++/11/locale:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/atomic_word.h:
 
@@ -889,13 +964,13 @@ examples/dummy/include/test2.hpp:
 
 /usr/include/c++/11/bits/stl_vector.h:
 
+/usr/include/c++/11/utility:
+
 /usr/include/c++/11/ios:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/error_constants.h:
 
 /usr/include/c++/11/stdexcept:
-
-examples/dummy/include/test.hpp:
 
 /usr/include/string.h:
 
@@ -907,9 +982,13 @@ examples/dummy/include/test.hpp:
 
 /usr/include/c++/11/bits/locale_facets.h:
 
+/usr/include/x86_64-linux-gnu/bits/types/struct_statx_timestamp.h:
+
 /usr/include/c++/11/cwctype:
 
 /usr/include/c++/11/bits/streambuf_iterator.h:
+
+/usr/include/linux/types.h:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/ctype_inline.h:
 
@@ -931,6 +1010,12 @@ examples/dummy/include/test.hpp:
 
 /usr/include/c++/11/stdlib.h:
 
+/usr/include/x86_64-linux-gnu/bits/types/siginfo_t.h:
+
+/usr/include/c++/11/bits/ios_base.h:
+
+/usr/include/ifaddrs.h:
+
 /usr/include/c++/11/bits/stl_uninitialized.h:
 
 /usr/include/x86_64-linux-gnu/gnu/stubs.h:
@@ -939,8 +1024,4 @@ examples/dummy/include/test.hpp:
 
 /usr/include/c++/11/bits/uses_allocator.h:
 
-src/include/utils.hpp:
-
-/usr/include/x86_64-linux-gnu/bits/socket.h:
-
-src/include/logger.hpp:
+/usr/include/c++/11/sstream:

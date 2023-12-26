@@ -175,14 +175,15 @@ CMakeFiles/dummy_duplex.dir/examples/dummy/src/dummy_duplex.cpp.o: \
  /usr/include/c++/11/bits/charconv.h \
  /usr/include/c++/11/bits/basic_string.tcc \
  /mnt/c/Users/Admin/Documents/SimpleEM/examples/dummy/include/network-helper.hpp \
- /usr/include/c++/11/stdlib.h /usr/include/c++/11/vector \
+ /usr/include/c++/11/stdlib.h /usr/include/ifaddrs.h \
+ /usr/include/c++/11/ctime /usr/include/c++/11/vector \
  /usr/include/c++/11/bits/stl_uninitialized.h \
  /usr/include/c++/11/bits/stl_vector.h \
  /usr/include/c++/11/bits/stl_bvector.h \
  /usr/include/c++/11/bits/vector.tcc /usr/include/c++/11/stack \
  /usr/include/c++/11/deque /usr/include/c++/11/bits/stl_deque.h \
  /usr/include/c++/11/bits/deque.tcc /usr/include/c++/11/bits/stl_stack.h \
- /usr/include/c++/11/bits/uses_allocator.h /usr/include/c++/11/fstream \
+ /usr/include/c++/11/bits/uses_allocator.h /usr/include/c++/11/sstream \
  /usr/include/c++/11/istream /usr/include/c++/11/ios \
  /usr/include/c++/11/exception /usr/include/c++/11/bits/exception_ptr.h \
  /usr/include/c++/11/bits/cxxabi_init_exception.h \
@@ -203,18 +204,14 @@ CMakeFiles/dummy_duplex.dir/examples/dummy/src/dummy_duplex.cpp.o: \
  /usr/include/c++/11/bits/locale_facets.tcc \
  /usr/include/c++/11/bits/basic_ios.tcc /usr/include/c++/11/ostream \
  /usr/include/c++/11/bits/ostream.tcc \
- /usr/include/c++/11/bits/istream.tcc /usr/include/c++/11/bits/codecvt.h \
+ /usr/include/c++/11/bits/istream.tcc \
+ /usr/include/c++/11/bits/sstream.tcc /usr/include/c++/11/fstream \
+ /usr/include/c++/11/bits/codecvt.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
  /usr/include/c++/11/bits/fstream.tcc /usr/include/c++/11/iostream \
- /mnt/c/Users/Admin/Documents/SimpleEM/src/include/utils.hpp \
- /mnt/c/Users/Admin/Documents/SimpleEM/src/include/logger.hpp \
- /mnt/c/Users/Admin/Documents/SimpleEM/examples/dummy/include/algorithms/loop-network.hpp \
- /mnt/c/Users/Admin/Documents/SimpleEM/examples/dummy/include/algorithms/algorithm-base.hpp \
- /usr/include/c++/11/sstream /usr/include/c++/11/bits/sstream.tcc \
- /mnt/c/Users/Admin/Documents/SimpleEM/examples/dummy/include/algorithms/single-message-duplex.hpp \
  /usr/include/c++/11/iomanip /usr/include/c++/11/locale \
- /usr/include/c++/11/bits/locale_facets_nonio.h /usr/include/c++/11/ctime \
+ /usr/include/c++/11/bits/locale_facets_nonio.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/time_members.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/messages_members.h \
  /usr/include/libintl.h /usr/include/c++/11/bits/locale_facets_nonio.tcc \
@@ -223,8 +220,6 @@ CMakeFiles/dummy_duplex.dir/examples/dummy/src/dummy_duplex.cpp.o: \
  /usr/include/c++/11/bits/stl_relops.h /usr/include/c++/11/tuple \
  /usr/include/c++/11/array /usr/include/c++/11/bits/invoke.h \
  /usr/include/c++/11/bits/quoted_string.h \
- /mnt/c/Users/Admin/Documents/SimpleEM/examples/dummy/include/algorithms/byzantine-reliable-broadcast.hpp \
- /mnt/c/Users/Admin/Documents/SimpleEM/src/include/tcp_file.hpp \
  /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/stat.h \
  /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
@@ -234,4 +229,11 @@ CMakeFiles/dummy_duplex.dir/examples/dummy/src/dummy_duplex.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/statx-generic.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_statx_timestamp.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_statx.h \
- /usr/include/ifaddrs.h /usr/include/c++/11/cstring
+ /mnt/c/Users/Admin/Documents/SimpleEM/src/include/utils.hpp \
+ /mnt/c/Users/Admin/Documents/SimpleEM/src/include/logger.hpp \
+ /mnt/c/Users/Admin/Documents/SimpleEM/examples/dummy/include/algorithms/loop-network.hpp \
+ /mnt/c/Users/Admin/Documents/SimpleEM/examples/dummy/include/algorithms/algorithm-base.hpp \
+ /mnt/c/Users/Admin/Documents/SimpleEM/examples/dummy/include/algorithms/single-message-duplex.hpp \
+ /mnt/c/Users/Admin/Documents/SimpleEM/examples/dummy/include/algorithms/byzantine-reliable-broadcast.hpp \
+ /mnt/c/Users/Admin/Documents/SimpleEM/src/include/tcp_file.hpp \
+ /usr/include/c++/11/cstring

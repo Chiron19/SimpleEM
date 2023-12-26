@@ -665,6 +665,7 @@ CMakeFiles/tinyem.dir/src/src/tinyem.cpp.o: src/src/tinyem.cpp \
   /usr/include/c++/11/pstl/execution_defs.h \
   src/include/emulator.hpp \
   /usr/include/x86_64-linux-gnu/sys/wait.h \
+  /usr/include/c++/11/cstring \
   src/include/proc_control/emproc.hpp \
   src/include/proc_frame.hpp
 

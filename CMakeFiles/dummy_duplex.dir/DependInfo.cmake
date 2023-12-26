@@ -1,18 +1,15 @@
+
+# Consider dependencies only in project.
+set(CMAKE_DEPENDS_IN_PROJECT_ONLY OFF)
+
 # The set of languages for which implicit dependencies are needed:
 set(CMAKE_DEPENDS_LANGUAGES
-  "CXX"
   )
-# The set of files for implicit dependencies of each language:
-set(CMAKE_DEPENDS_CHECK_CXX
-  "/workspaces/SimpleEM/examples/dummy/src/dummy_duplex.cpp" "/workspaces/SimpleEM/CMakeFiles/dummy_duplex.dir/examples/dummy/src/dummy_duplex.cpp.o"
-  "/workspaces/SimpleEM/src/src/time.cpp" "/workspaces/SimpleEM/CMakeFiles/dummy_duplex.dir/src/src/time.cpp.o"
-  )
-set(CMAKE_CXX_COMPILER_ID "GNU")
 
-# The include file search paths:
-set(CMAKE_CXX_TARGET_INCLUDE_PATH
-  "src/include"
-  "examples/dummy/include"
+# The set of dependency files which are needed:
+set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/mnt/c/Users/Admin/Documents/SimpleEM/examples/dummy/src/dummy_duplex.cpp" "CMakeFiles/dummy_duplex.dir/examples/dummy/src/dummy_duplex.cpp.o" "gcc" "CMakeFiles/dummy_duplex.dir/examples/dummy/src/dummy_duplex.cpp.o.d"
+  "/mnt/c/Users/Admin/Documents/SimpleEM/src/src/time.cpp" "CMakeFiles/dummy_duplex.dir/src/src/time.cpp.o" "gcc" "CMakeFiles/dummy_duplex.dir/src/src/time.cpp.o.d"
   )
 
 # Targets to which this target links.

@@ -1,7 +1,7 @@
-/workspaces/SimpleEM/CMakeFiles/rebuild_cache.dir
-/workspaces/SimpleEM/CMakeFiles/edit_cache.dir
-/workspaces/SimpleEM/CMakeFiles/tcp_client.dir
-/workspaces/SimpleEM/CMakeFiles/tcp_server.dir
-/workspaces/SimpleEM/CMakeFiles/dummy_duplex.dir
-/workspaces/SimpleEM/CMakeFiles/dummy.dir
-/workspaces/SimpleEM/CMakeFiles/tinyem.dir
+/mnt/c/Users/Admin/Documents/SimpleEM/CMakeFiles/tinyem.dir
+/mnt/c/Users/Admin/Documents/SimpleEM/CMakeFiles/dummy.dir
+/mnt/c/Users/Admin/Documents/SimpleEM/CMakeFiles/dummy_duplex.dir
+/mnt/c/Users/Admin/Documents/SimpleEM/CMakeFiles/tcp_server.dir
+/mnt/c/Users/Admin/Documents/SimpleEM/CMakeFiles/tcp_client.dir
+/mnt/c/Users/Admin/Documents/SimpleEM/CMakeFiles/edit_cache.dir
+/mnt/c/Users/Admin/Documents/SimpleEM/CMakeFiles/rebuild_cache.dir

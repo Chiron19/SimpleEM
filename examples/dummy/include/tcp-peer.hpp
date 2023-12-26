@@ -58,6 +58,7 @@ public:
             // Wait for the threads to finish (you can implement a termination condition)
             pthread_join(sendThread, &sendThread_return);
             std::cout << "[tcp-peer] pthread_join(sendThread, &sendThread_return);" << std::endl;
+            
             pthread_join(recvThread, &recvThread_return);
             std::cout << "[tcp-peer] pthread_join(recvThread, &recvThread_return);" << std::endl;
         }

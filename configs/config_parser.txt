@@ -1,1 +1,0 @@
-./configs/config6.txt

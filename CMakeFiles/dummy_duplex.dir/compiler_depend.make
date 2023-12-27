@@ -287,7 +287,7 @@ CMakeFiles/dummy_duplex.dir/examples/dummy/src/dummy_duplex.cpp.o: examples/dumm
   src/include/logger.hpp \
   examples/dummy/include/algorithms/loop-network.hpp \
   examples/dummy/include/algorithms/algorithm-base.hpp \
-  examples/dummy/include/algorithms/single-message-duplex.hpp \
+  examples/dummy/include/algorithms/single-message.hpp \
   examples/dummy/include/algorithms/byzantine-reliable-broadcast.hpp \
   src/include/tcp_file.hpp \
   /usr/include/c++/11/cstring
@@ -452,6 +452,8 @@ src/src/time.cpp:
 src/include/tcp_file.hpp:
 
 examples/dummy/include/algorithms/byzantine-reliable-broadcast.hpp:
+
+examples/dummy/include/algorithms/single-message.hpp:
 
 src/include/utils.hpp:
 
@@ -978,8 +980,6 @@ examples/dummy/src/dummy_duplex.cpp:
 /usr/include/ifaddrs.h:
 
 /usr/include/c++/11/bits/ios_base.h:
-
-examples/dummy/include/algorithms/single-message-duplex.hpp:
 
 /usr/include/c++/11/bits/locale_classes.h:
 

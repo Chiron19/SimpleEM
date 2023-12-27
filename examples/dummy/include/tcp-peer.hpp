@@ -40,12 +40,8 @@ public:
         pthread_mutex_init(&mutex, nullptr);
         pthread_cond_init(&cond, nullptr);
 
-        // std::cout << "[tcp-peer] pthread_mutex_init" << std::endl;
-
         // if (em_id == 0) received_messages.push_back({1, "pong"}); // For buffer string test
         if (em_id == 0) received_messages.push_back({1, "test_img.png"}); // For large file test
-
-        // std::cout << "[tcp-peer] received_messages.size(): " << received_messages.size() << std::endl;
 
         while (true) {
             // Create the send and receive threads
@@ -58,7 +54,7 @@ public:
             // Wait for the threads to finish (you can implement a termination condition)
             pthread_join(sendThread, &sendThread_return);
             std::cout << "[tcp-peer] pthread_join(sendThread, &sendThread_return);" << std::endl;
-            
+
             pthread_join(recvThread, &recvThread_return);
             std::cout << "[tcp-peer] pthread_join(recvThread, &recvThread_return);" << std::endl;
         }
@@ -118,7 +114,7 @@ private:
         
         // Lock the mutex to safely access received_messages
         pthread_mutex_lock(&mutex);
-        // std::cout << "[tcp-peer] send_thread received_messages:" << received_messages.size() << std::endl;
+
         while (received_messages.empty()) {
             pthread_cond_wait(&cond, &mutex);
         }
@@ -143,13 +139,6 @@ private:
 
             // Send the file
             while (net_send.send_tcp(target_em_id, message, 1) < 0);
-
-            pthread_mutex_lock(&mutex1);
-            while (! ack_message[target_em_id]) {
-                pthread_cond_wait(&cond1, &mutex1);
-            }
-            ack_message[target_em_id] = 0;
-            pthread_mutex_unlock(&mutex1); // Unlock the mutex
         }
 
         sleep(1); 
@@ -160,33 +149,25 @@ private:
 
     void* recv_thread(void* arg) {
         // std::cout << "[tcp-peer] recv_thread" << std::endl;
+        int *result = static_cast<int*>(malloc(sizeof(int)));
+        
         // message_t mes = force_receive(); // For receiving text
         std::string filePath = net_recv.getLocalTime()+".png";
-        message_t mes = net_recv.receive_tcp(1, filePath); // For receiving large file
-        while (mes.first < 0) {
-            mes = net_recv.receive_tcp(1, filePath);
-        }
+        message_t mes;
+        do {
+            mes = net_recv.receive_tcp(filePath, 1); // For receiving large file
+        } while (mes.first < 0);
         // std::cout << "[tcp-peer] " << em_id << " GOT FROM " << mes.first << " MESSAGE: " << mes.second << std::endl;
 
-        if (mes.second == "ack") {
-            // Lock the mutex to safely access ack_message
-            pthread_mutex_lock(&mutex1);
-            ack_message[mes.first] = 1;
-            pthread_cond_broadcast(&cond1);
-            pthread_mutex_unlock(&mutex1);
-        }
-        else {
-            // Lock the mutex to safely access received_messages
-            pthread_mutex_lock(&mutex);
-            received_messages.push_back(mes);
-            pthread_cond_broadcast(&cond);
-            pthread_mutex_unlock(&mutex);
-        }
+        // Lock the mutex to safely access received_messages
+        pthread_mutex_lock(&mutex);
+        received_messages.push_back(mes);
+        pthread_cond_broadcast(&cond);
+        pthread_mutex_unlock(&mutex);
 
         sleep(1);
-        int *result = static_cast<int*>(malloc(sizeof(int)));
         *result = 1;
-        // std::cout << "[tcp-peer] recv_thread return " << *result << std::endl;
+        std::cout << "[tcp-peer] recv_thread return " << *result << std::endl;
         return result;
     }
 };

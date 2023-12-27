@@ -143,19 +143,6 @@ dummy/fast:
 .PHONY : dummy/fast
 
 #=============================================================================
-# Target rules for targets named dummy_duplex
-
-# Build rule for target.
-dummy_duplex: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 dummy_duplex
-.PHONY : dummy_duplex
-
-# fast build rule for target.
-dummy_duplex/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/dummy_duplex.dir/build.make CMakeFiles/dummy_duplex.dir/build
-.PHONY : dummy_duplex/fast
-
-#=============================================================================
 # Target rules for targets named tcp_server
 
 # Build rule for target.
@@ -204,30 +191,6 @@ examples/dummy/src/dummy.s: examples/dummy/src/dummy.cpp.s
 examples/dummy/src/dummy.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/dummy.dir/build.make CMakeFiles/dummy.dir/examples/dummy/src/dummy.cpp.s
 .PHONY : examples/dummy/src/dummy.cpp.s
-
-examples/dummy/src/dummy_duplex.o: examples/dummy/src/dummy_duplex.cpp.o
-.PHONY : examples/dummy/src/dummy_duplex.o
-
-# target to build an object file
-examples/dummy/src/dummy_duplex.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/dummy_duplex.dir/build.make CMakeFiles/dummy_duplex.dir/examples/dummy/src/dummy_duplex.cpp.o
-.PHONY : examples/dummy/src/dummy_duplex.cpp.o
-
-examples/dummy/src/dummy_duplex.i: examples/dummy/src/dummy_duplex.cpp.i
-.PHONY : examples/dummy/src/dummy_duplex.i
-
-# target to preprocess a source file
-examples/dummy/src/dummy_duplex.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/dummy_duplex.dir/build.make CMakeFiles/dummy_duplex.dir/examples/dummy/src/dummy_duplex.cpp.i
-.PHONY : examples/dummy/src/dummy_duplex.cpp.i
-
-examples/dummy/src/dummy_duplex.s: examples/dummy/src/dummy_duplex.cpp.s
-.PHONY : examples/dummy/src/dummy_duplex.s
-
-# target to generate assembly for a file
-examples/dummy/src/dummy_duplex.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/dummy_duplex.dir/build.make CMakeFiles/dummy_duplex.dir/examples/dummy/src/dummy_duplex.cpp.s
-.PHONY : examples/dummy/src/dummy_duplex.cpp.s
 
 src/src/proc_frame.o: src/src/proc_frame.cpp.o
 .PHONY : src/src/proc_frame.o
@@ -308,7 +271,6 @@ src/src/time.o: src/src/time.cpp.o
 src/src/time.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tinyem.dir/build.make CMakeFiles/tinyem.dir/src/src/time.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/dummy.dir/build.make CMakeFiles/dummy.dir/src/src/time.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/dummy_duplex.dir/build.make CMakeFiles/dummy_duplex.dir/src/src/time.cpp.o
 .PHONY : src/src/time.cpp.o
 
 src/src/time.i: src/src/time.cpp.i
@@ -318,7 +280,6 @@ src/src/time.i: src/src/time.cpp.i
 src/src/time.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tinyem.dir/build.make CMakeFiles/tinyem.dir/src/src/time.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/dummy.dir/build.make CMakeFiles/dummy.dir/src/src/time.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/dummy_duplex.dir/build.make CMakeFiles/dummy_duplex.dir/src/src/time.cpp.i
 .PHONY : src/src/time.cpp.i
 
 src/src/time.s: src/src/time.cpp.s
@@ -328,7 +289,6 @@ src/src/time.s: src/src/time.cpp.s
 src/src/time.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tinyem.dir/build.make CMakeFiles/tinyem.dir/src/src/time.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/dummy.dir/build.make CMakeFiles/dummy.dir/src/src/time.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/dummy_duplex.dir/build.make CMakeFiles/dummy_duplex.dir/src/src/time.cpp.s
 .PHONY : src/src/time.cpp.s
 
 src/src/tinyem.o: src/src/tinyem.cpp.o
@@ -364,16 +324,12 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... dummy"
-	@echo "... dummy_duplex"
 	@echo "... tcp_client"
 	@echo "... tcp_server"
 	@echo "... tinyem"
 	@echo "... examples/dummy/src/dummy.o"
 	@echo "... examples/dummy/src/dummy.i"
 	@echo "... examples/dummy/src/dummy.s"
-	@echo "... examples/dummy/src/dummy_duplex.o"
-	@echo "... examples/dummy/src/dummy_duplex.i"
-	@echo "... examples/dummy/src/dummy_duplex.s"
 	@echo "... src/src/proc_frame.o"
 	@echo "... src/src/proc_frame.i"
 	@echo "... src/src/proc_frame.s"

@@ -120,7 +120,6 @@ set(CMAKE_MAKEFILE_PRODUCTS
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/tinyem.dir/DependInfo.cmake"
   "CMakeFiles/dummy.dir/DependInfo.cmake"
-  "CMakeFiles/dummy_duplex.dir/DependInfo.cmake"
   "CMakeFiles/tcp_server.dir/DependInfo.cmake"
   "CMakeFiles/tcp_client.dir/DependInfo.cmake"
   )

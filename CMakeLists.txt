@@ -24,14 +24,8 @@ set(SOURCES_DUMMY
     src/src/time.cpp
 )
 
-set(SOURCES_DUMMY_DUPLEX
-    examples/dummy/src/dummy_duplex.cpp
-    src/src/time.cpp
-)
-
 add_executable(tinyem ${SOURCES_TINYEM})
 add_executable(dummy ${SOURCES_DUMMY})
-add_executable(dummy_duplex ${SOURCES_DUMMY_DUPLEX})
 add_executable(tcp_server ${SOURCES_TCP_SERVER})
 add_executable(tcp_client ${SOURCES_TCP_CLIENT})
 
@@ -46,11 +40,6 @@ target_include_directories(tinyem
         ${PROJECT_SOURCE_DIR}/src/include
 )
 target_include_directories(dummy
-    PRIVATE 
-        ${PROJECT_SOURCE_DIR}/src/include
-        ${PROJECT_SOURCE_DIR}/examples/dummy/include
-)
-target_include_directories(dummy_duplex
     PRIVATE 
         ${PROJECT_SOURCE_DIR}/src/include
         ${PROJECT_SOURCE_DIR}/examples/dummy/include

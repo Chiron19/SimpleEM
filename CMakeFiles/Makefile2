@@ -65,7 +65,6 @@ CMAKE_BINARY_DIR = /mnt/c/Users/Admin/Documents/SimpleEM
 # The main recursive "all" target.
 all: CMakeFiles/tinyem.dir/all
 all: CMakeFiles/dummy.dir/all
-all: CMakeFiles/dummy_duplex.dir/all
 all: CMakeFiles/tcp_server.dir/all
 all: CMakeFiles/tcp_client.dir/all
 .PHONY : all
@@ -77,7 +76,6 @@ preinstall:
 # The main recursive "clean" target.
 clean: CMakeFiles/tinyem.dir/clean
 clean: CMakeFiles/dummy.dir/clean
-clean: CMakeFiles/dummy_duplex.dir/clean
 clean: CMakeFiles/tcp_server.dir/clean
 clean: CMakeFiles/tcp_client.dir/clean
 .PHONY : clean
@@ -89,7 +87,7 @@ clean: CMakeFiles/tcp_client.dir/clean
 CMakeFiles/tinyem.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tinyem.dir/build.make CMakeFiles/tinyem.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tinyem.dir/build.make CMakeFiles/tinyem.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/c/Users/Admin/Documents/SimpleEM/CMakeFiles --progress-num=11,12,13,14 "Built target tinyem"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/c/Users/Admin/Documents/SimpleEM/CMakeFiles --progress-num=8,9,10,11 "Built target tinyem"
 .PHONY : CMakeFiles/tinyem.dir/all
 
 # Build rule for subdir invocation for target.
@@ -135,39 +133,13 @@ CMakeFiles/dummy.dir/clean:
 .PHONY : CMakeFiles/dummy.dir/clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/dummy_duplex.dir
-
-# All Build rule for target.
-CMakeFiles/dummy_duplex.dir/all:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/dummy_duplex.dir/build.make CMakeFiles/dummy_duplex.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/dummy_duplex.dir/build.make CMakeFiles/dummy_duplex.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/c/Users/Admin/Documents/SimpleEM/CMakeFiles --progress-num=4,5,6 "Built target dummy_duplex"
-.PHONY : CMakeFiles/dummy_duplex.dir/all
-
-# Build rule for subdir invocation for target.
-CMakeFiles/dummy_duplex.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/Admin/Documents/SimpleEM/CMakeFiles 3
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/dummy_duplex.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/Admin/Documents/SimpleEM/CMakeFiles 0
-.PHONY : CMakeFiles/dummy_duplex.dir/rule
-
-# Convenience name for target.
-dummy_duplex: CMakeFiles/dummy_duplex.dir/rule
-.PHONY : dummy_duplex
-
-# clean rule for target.
-CMakeFiles/dummy_duplex.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/dummy_duplex.dir/build.make CMakeFiles/dummy_duplex.dir/clean
-.PHONY : CMakeFiles/dummy_duplex.dir/clean
-
-#=============================================================================
 # Target rules for target CMakeFiles/tcp_server.dir
 
 # All Build rule for target.
 CMakeFiles/tcp_server.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tcp_server.dir/build.make CMakeFiles/tcp_server.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tcp_server.dir/build.make CMakeFiles/tcp_server.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/c/Users/Admin/Documents/SimpleEM/CMakeFiles --progress-num=9,10 "Built target tcp_server"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/c/Users/Admin/Documents/SimpleEM/CMakeFiles --progress-num=6,7 "Built target tcp_server"
 .PHONY : CMakeFiles/tcp_server.dir/all
 
 # Build rule for subdir invocation for target.
@@ -193,7 +165,7 @@ CMakeFiles/tcp_server.dir/clean:
 CMakeFiles/tcp_client.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tcp_client.dir/build.make CMakeFiles/tcp_client.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tcp_client.dir/build.make CMakeFiles/tcp_client.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/c/Users/Admin/Documents/SimpleEM/CMakeFiles --progress-num=7,8 "Built target tcp_client"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/mnt/c/Users/Admin/Documents/SimpleEM/CMakeFiles --progress-num=4,5 "Built target tcp_client"
 .PHONY : CMakeFiles/tcp_client.dir/all
 
 # Build rule for subdir invocation for target.

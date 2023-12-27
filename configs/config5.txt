@@ -1,8 +1,17 @@
 tun0 172.16.0.1 255.240.0.0
-2
+5
 172.16.0.2 5555
 172.16.0.3 5556
-0 10
-10 0
-tcp_server 172.16.0.2 5555
-tcp_client 172.16.0.2 5555
+172.16.0.4 5557
+172.16.0.5 5558
+172.16.0.6 5559
+0 10 20 40 60
+10 0 50 30 60
+20 50 0 20 60
+40 30 20 0 60
+60 60 60 60 0
+dummy 0 ./examples/dummy/config/config5.txt
+dummy 1 ./examples/dummy/config/config5.txt
+dummy 2 ./examples/dummy/config/config5.txt
+dummy 3 ./examples/dummy/config/config5.txt
+dummy 4 ./examples/dummy/config/config5.txt

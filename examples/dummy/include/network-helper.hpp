@@ -47,7 +47,14 @@ public:
         setup_send_socket();
     }
 
-    /* Dumping the buffer on printing output in formats */
+    /**
+     * @brief Dump the buffer on printing output in formats.
+     * 
+     * @param buf The buffer to be dumped.
+     * @param len The length of the buffer.
+     * 
+     * This function takes a buffer and its length as input and prints the buffer in hex format.
+    */
     void dump(const char *buf, size_t len)
     {
         size_t i, j;
@@ -80,7 +87,11 @@ public:
         }
     }
 
-    /* Return local IP address in string */
+    /**
+     * @brief Get the local IP address.
+     * 
+     * This function returns the local IP address in string format.
+    */
     std::string getLocalIpAddress() {
         struct ifaddrs* ifAddrStruct = nullptr;
         struct ifaddrs* ifa = nullptr;
@@ -114,7 +125,11 @@ public:
         return localIp;
     }
 
-    /* Return local time in string */
+    /**
+     * @brief Get the local time.
+     * 
+     * This function returns the local time in string format.
+    */
     std::string getLocalTime() {
         auto t = std::time(nullptr);
         auto tm = *std::localtime(&t);
@@ -151,7 +166,7 @@ public:
      */
     int recvBuffer(int socketFd, void* buffer, int bufferSize) {
         if (buffer == nullptr || bufferSize <= 0) {
-            std::cerr << "Invalid buffer or buffer size." << std::endl;
+            std::cerr << "(recvBuffer) Invalid buffer or buffer size." << std::endl;
             return -1;
         }
 
@@ -184,88 +199,10 @@ public:
      * @param socketFd The file descriptor of the socket.
      * @param filePath The path of the file to send.
      * @param read_byte The starting position to read from the file (default: 0).
-     * @param chunkSize The size of each chunk to send (default: 65536).
+     * @param chunkSize The size of each chunk to send (default: 32768).
      * @return The number of bytes sent, or -1 if an error occurred.
      */
-    // int sendFile(int socketFd, const std::string& filePath, const std::streampos read_byte = 0, const int chunkSize = 65536) {
-
-    //     const int fileSize = getFileSize(filePath);
-    //     std::cout << "[sendFile] File: " << filePath << ", Filesize: " << fileSize << std::endl;
-    //     if (fileSize == 0) { 
-    //         std::cout << "[sendFile] File empty" << std::endl;
-    //         return 0; 
-    //     }
-    //     if (fileSize < 0) { 
-    //         std::cout << "[sendFile] File not exist" << std::endl;
-    //         return 0; 
-    //     }
-
-    //     std::ifstream file(filePath, std::ifstream::binary);
-    //     if (file.fail()) { 
-    //         std::cout << "[sendFile] File failed" << std::endl;
-    //         return -1; 
-    //     }
-
-    //     // Set the position in the file
-    //     file.seekg(read_byte, std::ios::beg);
-
-    //     // Check if the seek operation was successful
-    //     if (!file) {
-    //         std::cerr << "Failed to set the position in the file." << std::endl;
-    //         return -1;
-    //     }
-
-    //     // Send file length (if reconnect, neglect)
-    //     if (!read_byte)
-    //         if (sendBuffer(socketFd, reinterpret_cast<const char*>(&fileSize),
-    //             sizeof(fileSize)) != sizeof(fileSize)) {
-    //             std::cout << "[sendFile] Filesize not sent" << std::endl;
-    //             return -2;
-    //         }
-
-    //     char* buffer = new char[chunkSize];
-    //     bool errored = false;
-    //     int i = read_byte;
-    //     while (i < fileSize) {
-    //         const int ssize = std::min(fileSize - i, (int)chunkSize);
-            
-    //         if (!file.read(buffer, ssize)) {
-    //             if ( (file.rdstate() & std::ifstream::failbit ) != 0 )
-    //     std::cerr << "Error opening \n";
-    //             if ( (file.rdstate() & std::ifstream::eofbit ) != 0 )
-    //     std::cerr << "Error End-of-File reached on input operation\n";
-    //             if ( (file.rdstate() & std::ifstream::badbit ) != 0 )
-    //     std::cerr << "Error Read/writing on i/o operation\n";
-    //             // file.clear();
-
-    //             /* return error if error occurs */
-    //             errored = true; 
-    //             std::cout << "Cannot Read at: " << i << std::endl;
-    //             break; 
-    //         }
-            
-    //         std::cout << "Sending bytes at: " << i << std::endl;
-    //         int l = sendBuffer(socketFd, buffer, (int)ssize);
-    //         if (l < 0) {
-    //             int fdtype = isfdtype(socketFd, S_IFSOCK);
-    //             std::string fdtype_message = fdtype == 1 ? " (FD is open on an object of the indicated type)" : (fdtype == 0 ? " (FD is closed)" : " (errors (setting errno))");
-    //             std::cout << "socket status: " << fdtype << fdtype_message << std::endl;
-    //             std::cout << "Sent bytes: " << i << std::endl;
-    //             errored = true;
-    //             // break;
-    //             continue;
-    //         }
-    //         i += l;
-    //         std::cout << "Sent bytes: " << i << std::endl;
-    //     }
-    //     delete[] buffer;
-
-    //     file.close();
-
-    //     return i;
-    // }
-
-    int sendFile(int socketFd, const std::string& filePath, const std::streampos read_byte = 0, const std::streamsize chunkSize = 65536) {
+    int sendFile(int socketFd, const std::string& filePath, const std::streampos read_byte = 0, const std::streamsize chunkSize = 32768) {
         const std::streamsize fileSize = getFileSize(filePath);
         std::cout << "[sendFile] File: " << filePath << ", Filesize: " << fileSize << std::endl;
         if (fileSize == 0) { 
@@ -293,19 +230,17 @@ public:
         }
             
         std::vector<char> buffer(chunkSize);
-        std::streamsize totalSent = 0;
+        std::streamsize totalSent = read_byte;
 
         while (totalSent < fileSize) {
             std::streamsize toRead = std::min(chunkSize, fileSize - totalSent);
             file.read(buffer.data(), toRead);
-
             if (!file) {
                 std::cerr << "Failed to read from file." << std::endl;
                 return -3;
             }
 
             std::streamsize sent = sendBuffer(socketFd, buffer.data(), toRead);
-
             if (sent == -1) {
                 std::cerr << "Failed to send data." << std::endl;
                 return -3;
@@ -313,6 +248,9 @@ public:
 
             totalSent += sent;
             std::cout << "Sent bytes: " << totalSent << std::endl;
+
+            // if not doing congestion control, the recv socket will be blocked and full file could not be sent successfully
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
         file.close();
 
@@ -350,28 +288,29 @@ public:
             return -1;
         }
 
-        char* buffer = new char[chunkSize];
+        std::vector<char> buffer(chunkSize);
         bool errored = false;
         std::streamsize totalRecv = write_byte;
+
         while (totalRecv < fileSize_toRecv) {
-            int r = recvBuffer(socketFd, buffer, (int)std::min(fileSize_toRecv - totalRecv, (std::streamsize)chunkSize));
+            int r = recvBuffer(socketFd, buffer.data(), chunkSize);
             if (r <= 0) { 
                 std::cout << "[recvFile] recvFile error at " << totalRecv << "/" << fileSize_toRecv << std::endl;
                 errored = true; 
                 break;
             }
+
             try {
-                file.write(buffer, r);
+                file.write(buffer.data(), r);
             } catch (std::ofstream::failure e) {
                 std::cout << "[recvFile] recvFile write error at " << totalRecv << "/" << fileSize_toRecv << std::endl;
                 errored = true;
                 break;
             }
+
             totalRecv += r;
             std::cout << "Received bytes: " << totalRecv << std::endl;
         }
-        delete[] buffer;
-
         file.close();
 
         if (errored) {
@@ -402,16 +341,23 @@ public:
             target_em_id, addresses[target_em_id].first.c_str(), message.c_str());
     }
 
-    /*
-        mode 0, sending a string 'message' (default)
-        mode 1, sending a file, 'message' field is filepath
-    */
+   /**
+    * @brief Send a message to a process
+    * 
+    * @param target_em_id
+    * @param message
+    * @param mode 0, sending a string 'message' (default) 1, sending a file, 'message' field is filepath
+    * @return int
+    * 
+    * returns 0 if success
+    * returns -1 if fail
+   */
     int send_tcp(int target_em_id, const std::string& message, const int mode = 0) {
         // Setup socket for sending
         struct sockaddr_in recvaddr;
         memset(&recvaddr, 0, sizeof(recvaddr));
         if (procs <= target_em_id) return -1;
-        std::cout << "[network-helper] send tcp here " <<  std::endl;
+        // std::cout << "[network-helper] send tcp here " <<  std::endl;
         if (inet_pton(AF_INET, addresses[target_em_id].first.c_str(), &(recvaddr.sin_addr)) != 1) {
             std::cerr << "Invalid des IP address: " << addresses[target_em_id].first.c_str() << std::endl;
             return -1;
@@ -434,8 +380,13 @@ public:
             case 1: {  
                 // Send file length to receiver
                 const std::streamsize fileSize_toSend = getFileSize(message);
+                if (fileSize_toSend == 0) { 
+                    std::cout << "[sendFile] File empty" << std::endl;
+                    return 0; 
+                }
+
                 sendBuffer(send_fd, reinterpret_cast<const void*>(&fileSize_toSend), sizeof(std::streamsize));
-                std::cout << "[sendFile] Filesize: " << fileSize_toSend << std::endl;
+                std::cout << "[sendFile] Filesize: " << fileSize_toSend << std::endl;             
                 
                 // Send file to receiver
                 int n = 0, sendsize = 0;
@@ -449,18 +400,19 @@ public:
                             case -2: printf(" (file length couldn't be sent properly)\n"); break;
                             default: printf(" (file couldn't be sent properly)\n"); break;
                         }
-                        // close(send_fd);
-                        // setup_send_socket();
+                        close(send_fd);
+                        setup_send_socket();
+                        return -1;
                     }
                     else {
                         sendsize = n;
                         std::cout << "[network-helper] sent: " << n << "/" << fileSize_toSend << std::endl;
                     }
-                } while (n != fileSize_toSend);
+                } while (sendsize != fileSize_toSend);
                 
                 logger_ptr->log_event(CLOCK_PROCESS_CPUTIME_ID, 
                     "Send file to proc %d (%s), size: %d", 
-                    target_em_id, addresses[target_em_id].first.c_str(), n);
+                    target_em_id, addresses[target_em_id].first.c_str(), sendsize);
                 break;
             }
         
@@ -528,9 +480,15 @@ public:
         return {sender_id, buffer};
     }
 
-    /*
-        mode 0, recving buffer and return {sender_id, buffer} (default)
-        mode 1, recving a file and return {sender_id, recvfilepath}, use "temp" if recvfilepath not specified
+   /**
+    * @brief Receive a message from a process
+    * 
+    * @param recvfilepath
+    * @param mode 0, recving buffer and return {sender_id, buffer} (default) 1, recving a file and return {sender_id, recvfilepath}, use "temp" if recvfilepath not specified
+    * @return message_t
+    * 
+    * returns {sender_id, buffer} if success
+    * returns {-1, ""} if fail
     */
     message_t receive_tcp(const std::string& recvfilepath = "temp", const int mode = 0) {
         // Setup socket for receiving
@@ -560,7 +518,7 @@ public:
         switch (mode) {
         case 1: {
             // Receive file length from sender
-            recvBuffer(newSocket_fd, reinterpret_cast<void *>(fileSize_toRecv), sizeof(std::streamsize));
+            recvBuffer(newSocket_fd, reinterpret_cast<void *>(&fileSize_toRecv), sizeof(std::streamsize));
             std::cout << "[recvFile] Filesize: " << fileSize_toRecv << std::endl;
         
             // Receive file from sender
@@ -575,12 +533,16 @@ public:
                         case -2: printf(" (file length couldn't be received properly)\n"); break;
                         default: printf(" (file couldn't be received properly)\n"); break;
                     }
+                    close(newSocket_fd);
+                    close(recv_fd);
+                    setup_recv_socket();
+                    return {-1, ""};
                 }
                 else {
                     recvsize = n;
                     std::cout << "[network-helper] recv: " << n << "/" << fileSize_toRecv << std::endl;
                 }
-            } while (n != fileSize_toRecv);
+            } while (recvsize != fileSize_toRecv);
 
             // Get sender_id from address vector (by IP address)
             // If two processes are on the same IP, this will not work!
@@ -645,6 +607,9 @@ public:
 private:
     std::streamsize fileSize_toRecv;
 
+    /**
+     * @brief Setup the send socket.
+    */
     void setup_send_socket() {
         // SOCK_STREAM is for TCP socket
         // SOCK_DGRAM  is for UDP socket
@@ -672,6 +637,9 @@ private:
         setsockopt(send_fd, SOL_SOCKET, SO_LINGER, &so_linger, sizeof(so_linger));
     }
     
+    /**
+     * @brief Setup the receive socket.
+    */
     void setup_recv_socket() { 
         // SOCK_STREAM is for TCP socket
         // SOCK_DGRAM  is for UDP socket       

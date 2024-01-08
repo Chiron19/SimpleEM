@@ -1,2 +1,6 @@
-[sec: 000000 msec: 025 micsec: 794]Start of 1
-[sec: 000000 msec: 029 micsec: 401]Recv file from proc 0 (172.16.0.2), size: 0, path: 17-45-27-4464.png
+[sec: 000000 msec: 021 micsec: 681]Start of 1
+[sec: 000000 msec: 029 micsec: 416]Recv file from proc 0 (172.16.0.2), size: 1254, path: 19-05-53-8173.svg
+[sec: 000000 msec: 039 micsec: 442]Send file to proc 0 (172.16.0.2), size: 1254
+[sec: 000000 msec: 044 micsec: 990]Recv file from proc 0 (172.16.0.2), size: 1254, path: 19-05-53-5689.svg
+[sec: 000000 msec: 053 micsec: 349]Send file to proc 0 (172.16.0.2), size: 1254
+[sec: 000000 msec: 063 micsec: 936]Recv file from proc 0 (172.16.0.2), size: 1254, path: 19-05-54-6683.svg

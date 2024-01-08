@@ -33,7 +33,7 @@ int main(int argc, const char** argv) {
 	Network network(cp);
 	em_ptr = new Emulator(network, cp);
 	
-	real_sleep(10 * MILLISECOND); /* Give some time */
+	real_sleep(100 * MILLISECOND); /* Give some time */
 
 	/* Start emulation */
 	signal(SIGINT, signal_handler);

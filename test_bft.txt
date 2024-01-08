@@ -1,0 +1,3 @@
+./gradlew installDist
+cd ./library-master/build/install/SimpleEM
+sudo ../../../../tinyem ../../../../configs/config_bftsmart.txt

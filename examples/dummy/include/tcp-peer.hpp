@@ -11,6 +11,11 @@
 
 #include "network-helper.hpp"
 
+/**
+ * @brief Control the TCP peers (send and receive) in two threads
+ * 
+ * Class responsible for the cooperation bewteen TCP peers. It creates and starts two threads simultaneously, one for sending and one for receiving. The received messages are stored in a stack buffer, and the sending messages are popped from the stack buffer. The threads are synchronized by a mutex and a condition variable.
+ */
 class TCPpeer {
 
 protected:
@@ -21,20 +26,39 @@ protected:
 
 public: 
 
+    /**
+     * @brief Construct a new TCPpeer object
+     * 
+     * @param em_id The em_id of this peer
+     * @param net_send The network helper for sending
+     * @param net_recv The network helper for receiving
+    */
     TCPpeer(int em_id, NetworkHelper& net_send, NetworkHelper& net_recv): em_id(em_id), net_send(net_send), net_recv(net_recv) {
         // std::cout << "[tcp-peer] init net_send " << net_send.em_id << '/' << net_send.procs << std::endl;
         // std::cout << "[tcp-peer] init net_recv " << net_send.em_id << '/' << net_send.procs << std::endl;
     }
 
-    std::vector<message_t> messages_to_send;
+    std::vector<message_t> messages_to_send; ///< Message stack buffer
     pthread_mutex_t mutex;
     pthread_cond_t cond;
-    std::string extension_str = ".svg"; // For large file test
+    std::string extension_str = ".svg"; ///< For large file test
 
-    // create thread for both sender and receiver
+    /**
+     * @brief Create threads for both sender and receiver
+     * 
+     * @param obj The TCPpeer object, must initialized first.
+    */
     void tcp_thread(TCPpeer* obj) {
-        // if (em_id == 0) messages_to_send.push_back({1, "pong"}); // For buffer string test
+
+        /*****For ping-pong packet test********/
+        // if (em_id == 0) {
+        //     for (int i = 1; i < net_send.procs; ++i) {
+        //         messages_to_send.push_back({i, "pong"}); // For buffer string test
+        //     }
+        // }
+        /*****For large file transfer test*****/
         if (em_id == 0) messages_to_send.push_back({1, "epfl-logo.svg"}); // For large file test
+        /*************************************/
 
         // Initialize the mutex for thread synchronization
         pthread_mutex_init(&mutex, nullptr);
@@ -58,7 +82,12 @@ public:
         pthread_mutex_destroy(&mutex);
     }
 
-    // Send a message to another em
+    /**
+     * @brief Psuedo broadcast function (send to all other em_id except itself)
+     * 
+     * @param target_em_id The target em id
+     * @param message The message to send
+    */
     void broadcast(int em_id, const std::string& message) {
         for (int other_id = 0; other_id < net_send.procs; ++other_id) {
             if (em_id == other_id) continue;
@@ -70,11 +99,14 @@ public:
         }
     }
 
-    // force receive a message
+    /**
+     * @brief Force receive a message
+     * 
+     * @return The message received, or -1 if failed.
+    */
     message_t force_receive() {
         while(true) {
             message_t mes = net_recv.receive_tcp();
-            // std::cout << "[tcp-peer] recv mes: " << mes.first << " " << mes.second << std::endl;
             
             if (mes.first >= 0) {
                 std::cout << "[tcp-peer] recv from " << mes.first << " : " << mes.second << std::endl;
@@ -82,6 +114,7 @@ public:
             }
             else {
                 std::cout << "[tcp-peer] recv fail " << std::endl;
+                return {-1, ""};
             }
         }
     }
@@ -101,6 +134,11 @@ private:
         return static_cast<TCPpeer*>(obj)->recv_thread(nullptr);
     }
 
+    /**
+     * @brief The send thread function
+     * 
+     * @param arg The argument passed to the thread, must instantiated first.
+    */
     void* send_thread(void* arg) {
         // std::cout << "[tcp-peer] send_thread" << std::endl;
         int *result = static_cast<int*>(malloc(sizeof(int)));
@@ -122,21 +160,24 @@ private:
             std::string message = mes.second;
 
             if (target_em_id >= 0) {
-                // // For sending message string test
-                // if (message == "ping") message = "pong"; else message = "ping";
+                
+                /*****For ping-pong packet test********/
+                // if (message == "ping") message = "pong"; else message = "ping"; // For sending message string test
 
                 // std::cout << "[tcp-peer] send_thread sending:" << em_id << "->" << target_em_id << " " << message << std::endl;
 
-                // // Send the message
-                // while (net_send.send_tcp(target_em_id, message) < 0);
+                // while (net_send.send_tcp(target_em_id, message) < 0);// Send the message
 
+                /*****For large file transfer test*****/
                 // For sending large file test
                 std::cout << "[tcp-peer] send_thread sending:" << em_id << "->" << target_em_id << " " << message << std::endl;
 
                 // Send the file
                 while (net_send.send_tcp(target_em_id, message, 1) < 0);
+
+                /*************************************/
             }
-        }  
+        }
 
         sleep(1); 
         *result = 1;
@@ -144,6 +185,11 @@ private:
         return result;
     }
 
+    /**
+     * @brief The receive thread function
+     * 
+     * @param arg The argument passed to the thread, must instantiated first.
+    */
     void* recv_thread(void* arg) {
         // std::cout << "[tcp-peer] recv_thread" << std::endl;
         int *result = static_cast<int*>(malloc(sizeof(int)));
@@ -152,8 +198,12 @@ private:
         srand(time(NULL));
 
         while (1) {
+
+            /*****For ping-pong packet test********/
             // message_t mes = force_receive(); // For receiving text
-                
+            
+            /*****For large file transfer test*****/
+            // For receiving large file, rename the file to time + random number + extension
             std::string filePath = net_recv.getLocalTime() + "-" + std::to_string(rand()%10000) + extension_str;
             message_t mes;
             // std::cout << "[tcp-peer] recv filePath: " << filePath << std::endl;
@@ -161,6 +211,8 @@ private:
             do {
                 mes = net_recv.receive_tcp(filePath, 1); // For receiving large file
             } while (mes.first < 0);
+
+            /*************************************/
         
             std::cout << "[tcp-peer] " << em_id << " GOT FROM " << mes.first << " MESSAGE: " << mes.second << std::endl;
 

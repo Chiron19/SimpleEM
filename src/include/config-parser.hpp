@@ -9,7 +9,7 @@
 #include "utils.hpp"
 
 std::string CONFIG_PATH("./configs/config.txt"); ///< Path to configuration file (default)
-const int STEPS = 1000000; ///< Number of times emulator awakens some process
+const int STEPS = 1000; ///< Number of times emulator awakens some process
 
 /** @brief Class parsing and saving the configuration from a file
  */

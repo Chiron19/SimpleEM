@@ -18,6 +18,10 @@ set(SOURCES_TCP_CLIENT
     src/src/tcp_client.cpp
 )
 
+set(SOURCES_TEST_PACKET
+    src/src/test_packet.cpp
+)
+
 
 set(SOURCES_DUMMY
     examples/dummy/src/dummy.cpp
@@ -28,6 +32,7 @@ add_executable(tinyem ${SOURCES_TINYEM})
 add_executable(dummy ${SOURCES_DUMMY})
 add_executable(tcp_server ${SOURCES_TCP_SERVER})
 add_executable(tcp_client ${SOURCES_TCP_CLIENT})
+add_executable(test_packet ${SOURCES_TEST_PACKET})
 
 SET(GCC_MULTITHREADING_FLAG "-pthread")
 SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -g3 ${GCC_MULTITHREADING_FLAG}")
@@ -49,6 +54,10 @@ target_include_directories(tcp_server
         ${PROJECT_SOURCE_DIR}/src/include
 )
 target_include_directories(tcp_client
+    PRIVATE 
+        ${PROJECT_SOURCE_DIR}/src/include
+)
+target_include_directories(test_packet
     PRIVATE 
         ${PROJECT_SOURCE_DIR}/src/include
 )

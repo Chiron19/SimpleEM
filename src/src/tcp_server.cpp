@@ -64,35 +64,30 @@ int main(int argc, char* argv[]) {
         std::cout << "Failed to set SO_RCVBUF option. " << strerror(errno) << "\n";
         return 1;
     }
-    // if (setsockopt(serverSocket, SOL_SOCKET, SO_RCVLOWAT, &rcvlowat, sizeof(rcvlowat)) < 0) {
-    //     std::cout << "Failed to set SO_RCVLOWAT option. " << strerror(errno) << "\n";
-    //     return 1;
-    // }
 
     // Bind to IP and port
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_port = htons(port);
     serverAddr.sin_addr.s_addr = INADDR_ANY;
-
-    int bindStatus = bind(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
-    while (bindStatus == -1){
-        std::cout << "Failed to bind server socket." << std::endl;
+    if (bind(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1) {
+        std::cerr << "Failed to bind server socket." << std::endl;
         return 1;
     } 
 
     // Listen for connections
-    while (listen(serverSocket, 0) == -1) {
-        std::cout << "Error Listening, Retry!" << std::endl;
-        sleep(1);
+    if (listen(serverSocket, 0) == -1) {
+        std::cerr << "Error Listening, Retry!" << std::endl;
+        return 1;
     }
-    std::cout << "Server1, Listening" << std::endl;
+    std::cout << "[Server] " << ipAddress << ", Listening on " << port << std::endl;
 
     // Accept client connection
     addrSize = sizeof(serverStorage);
-    while ((newSocket = accept(serverSocket, (struct sockaddr*)&serverStorage, &addrSize)) == -1) {
-        std::cout << "Fail to accept!" << std::endl;
+    if ((newSocket = accept(serverSocket, (struct sockaddr*)&serverStorage, &addrSize)) == -1) {
+        std::cerr << "Fail to accept client connection!" << std::endl;
+        return 1;
     }
-    std::cout << "Socket on server1, Accepted" << std::endl;
+    std::cout << "[Server] " << ipAddress << ":" << port << " Socket Accepted" << std::endl;
 
     // if (setsockopt(newSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
     //     std::cout << "Failed to set SO_REUSEADDR option. " << strerror(errno) << "\n";
@@ -106,58 +101,52 @@ int main(int argc, char* argv[]) {
     //     std::cout << "Failed to set SO_RCVBUF option. " << strerror(errno) << "\n";
     //     return 1;
     // }
-    // if (setsockopt(newSocket, SOL_SOCKET, SO_RCVTIMEO, &rcvtimeo, sizeof(rcvtimeo)) < 0) {
-    //     std::cout << "Failed to set SO_RCVTIMEO option. " << strerror(errno) << "\n";
-    //     return 1;
-    // }
 
     char buffer[256];
     
     int loopNum = 1;
     while (loopNum--) {
         // Receive and print received data
-        // int bytesRecv = recv(newSocket, buffer, sizeof(buffer), 0);
-        // if (bytesRecv == -1)
-        // {
-        //     std::cerr << "Server: There was a connection issue." << std::endl;
-        //     continue;
-        // }
-        // if (bytesRecv == 0)
-        // {
-        //     std::cout << "Client Disconnected." << std::endl;
-        //     break;
-        // }
-        
-        // // display message
-        // std::cout << "Received: " << std::string(buffer, 0, bytesRecv);
-
-        // Receive TCP file
-        const int64_t rc = RecvFile(newSocket, "test_file_new.pdf");
-        if (rc < 0) {
-            std::cout << "Failed to recv file: " << rc << std::endl;
+        int bytesRecv = recv(newSocket, buffer, sizeof(buffer), 0);
+        if (bytesRecv == -1)
+        {
+            std::cerr << "Server: There was a connection issue." << std::endl;
+            continue;
         }
-        std::cout << "[Server] File Received!" << std::endl;
-
-        sleep(1);
-        
-        // Send TCP packet to server
-        std::strcpy(buffer, std::string("Helloworld from server").c_str());
-        std::strcat(buffer, getLocalTime().c_str());
-        while (send(newSocket, buffer, strlen(buffer), 0) == -1) {
-            sleep(1);
-            std::cout << "Message Sending Retry!" << std::endl;
+        if (bytesRecv == 0)
+        {
+            std::cout << "Client Disconnected." << std::endl;
+            break;
         }
-        std::cout << "[Server] Message Sent!" << std::endl;
+        // display message
+        std::cout << "[Server] Received: " << std::string(buffer, 0, bytesRecv) << std::endl;
+
+        // // Receive TCP file
+        // const int64_t rc = RecvFile(newSocket, "test_file_new.pdf");
+        // if (rc < 0) {
+        //     std::cout << "Failed to recv file: " << rc << std::endl;
+        // }
+        // std::cout << "[Server] File Received!" << std::endl;
+
+        // sleep(1); // wait for client to be ready
         
+        // // Send TCP packet to client
+        // std::strcpy(buffer, std::string("Helloworld from server ").c_str());
+        // std::strcat(buffer, getLocalTime().c_str());
+        // while (send(newSocket, buffer, strlen(buffer), 0) == -1) {
+        //     sleep(1);
+        //     std::cout << "Message Sending Retry!" << std::endl;
+        // }
+        // std::cout << "[Server] Message Sent: " << buffer << std::endl;
     }
 
-    // sleep(5);
+    sleep(1); // wait for client to be ready
     // Close sockets
     // shutdown(newSocket, SHUT_RDWR);
     close(newSocket);
-    std::cout << "Children socket closed!" << std::endl;
+    std::cout << "[Server] Children socket closed!" << std::endl;
     // shutdown(serverSocket, SHUT_RDWR);
     close(serverSocket);
-    std::cout << "Server socket closed!" << std::endl;
+    std::cout << "[Server] socket closed!" << std::endl;
     return 0;
 }

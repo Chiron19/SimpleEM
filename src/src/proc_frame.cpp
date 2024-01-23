@@ -11,7 +11,7 @@
 #include <cstring>
 #include <cassert>
 
-#include "proc_frame.hpp"
+#include "proc_control/proc_frame.hpp"
 #include "utils.hpp"
 
 static void write_or_die(const char *buf, size_t len)

@@ -14,7 +14,7 @@
 #include "config-parser.hpp"
 #include "network/network.hpp"
 #include "proc_control/emproc.hpp"
-#include "proc_frame.hpp"
+#include "proc_control/proc_frame.hpp"
 
 /** @brief Class encapsulating the main logic of the emulator.
  * 
@@ -37,7 +37,7 @@ public:
      * 
      * Creates the emulation by forking the process @ref procs times. 
      * Every newly created process immediately stops itself by the 
-     * \code{} raise(SIGSTOP) \endcode call. Objects corresponding to
+     * `raise(SIGSTOP)` call. Objects corresponding to
      * newly created processes are stored in the @ref emprocs vector.
      * 
      * @param network The network on which the emulator runs
@@ -87,12 +87,21 @@ private:
      */
     const char* extractProgramName(const char* filePath);
 
+    /** @brief Executes the program specified by @p program_path
+     * 
+     * Executes the program specified by @p program_path with arguments
+     * specified by @p program_args. The program is executed using the
+     * `system()` call.
+     * 
+     * @param program_path Path to the program to be executed
+     * @param program_args Arguments to be passed to the program
+     */
     void executeProgram(const std::string& program_path, const std::vector<std::string>& program_args);
 
     /** @brief Initialize the child process.
      * 
-     * Start by doing the \code{} raise(SIGSTOP) \endcode call. After the
-     * process is awaken (using the \code{} SIGCONT \endcode signal), it
+     * Start by doing the `raise(SIGSTOP)` call. After the
+     * process is awaken (using the `SIGCONT` signal), it
      * executes the program specified by @p program_path.
      * 
      * @param program_path Path to the program to be executed on this process
@@ -118,8 +127,9 @@ private:
      *
      * Every process has its virtual clock saved, returns 
      * minimum (over all processes p != @p em_id ) of 
-     * p->virtual_clock - em_id ->virtual_clock + network.get_latency(p, em_id)
-     * 
+     * \code{}
+     * p->virtual_clock - em_id->virtual_clock + network.get_latency(p, em_id)
+     * \endcode
      * @param em_id Process which will be run
      * @return The maximum possible time to run
      */
@@ -323,9 +333,6 @@ void Emulator::schedule_sent_packets(em_id_t em_id) {
         em_id_t dest_em_id = network.get_em_id(packet.get_dest_addr());
         packet.increase_ts(network.get_latency(em_id, dest_em_id));
 
-    // printf("[emulator.hpp] packet        :  %s (%d) -> %s (%d)\n", packet.get_source_addr().c_str(), em_id, packet.get_dest_addr().c_str(), dest_em_id); 
-    // dump(packet.get_buffer(), packet.get_size());
-
         // packet.set_dest_addr(network.get_inter_addr());
         // packet.set_source_addr(network.get_addr(em_id));
 
@@ -339,11 +346,15 @@ void Emulator::schedule_sent_packets(em_id_t em_id) {
         // std::cout << "packet buffer:" << packet.get_buffer() << std::endl;
         // std::cout << "Emulator here" << std::endl;
         packet.set_dest_addr_tcp(network.get_inter_addr());
-        // std::cout << "Emulator here 2" << std::endl;
+        packet.set_source_addr_tcp(network.get_addr(em_id));
+
+        packet.set_dest_addr_tcp(network.get_inter_addr());
         packet.set_source_addr_tcp(network.get_addr(em_id));
 
     // printf("[emulator.hpp] packet MODIFIED: %s (%d) -> %s (%d)\n", packet.get_source_addr().c_str(), em_id, packet.get_dest_addr().c_str(), dest_em_id); 
     // dump(packet.get_buffer(), packet.get_size());
+
+        logger_ptr->print_string_safe(packet.get_buffer());
 
         emprocs[dest_em_id].in_packets.push(packet);
     }

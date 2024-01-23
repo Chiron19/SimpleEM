@@ -5,6 +5,11 @@
 
 #include "network-helper.hpp"
 
+/**
+ * @brief Base class for all distributed network / algorithm testing
+ * 
+ * This class provides some basic functions for all algorithms, such as broadcast and receive.
+ */
 class AlgorithmBase {
 
 protected:

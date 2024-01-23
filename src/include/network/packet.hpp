@@ -81,18 +81,69 @@ public:
      * @return Packet IPv version (4/6)
      */
     int get_version() const;
+
+    /** @brief Get packet size (private variable)
+     * 
+     * @return Packet size
+     */
     size_t get_size() const;
+
+    /** @brief Get packet buffer (private variable)
+     * 
+     * @return Packet buffer
+     */
     char* get_buffer() const;
+
+    /** @brief Get packet timestamp (private variable)
+     * 
+     * @return Packet timestamp
+     */
     struct timespec get_ts() const;
+
+    /** @brief Get packet source address (from IPv4 header)
+     * 
+     * @return Packet source address (in number/dot form)
+     */
     std::string get_source_addr() const;
+
+    /** @brief Get packet destination address (from IPv4 header)
+     * 
+     * @return Packet destination address (in number/dot form)
+     */
     std::string get_dest_addr() const;
+
+    /** @brief Get packet source port (from UDP header)
+     * 
+     * @return Packet source port
+     */
     int get_source_port() const;
+
+    /** @brief Get packet destination port (from UDP header)
+     * 
+     * @return Packet destination port
+     */
     int get_dest_port() const;
+
+    /** @brief Get packet source port (from TCP header)
+     * 
+     * @return Packet source port
+     */
     int get_source_port_tcp() const;
+
+    /** @brief Get packet destination port (from TCP header)
+     * 
+     * @return Packet destination port
+     */
     int get_dest_port_tcp() const;
+
+    /** @brief Get packet TCP checksum (from TCP header)
+     * 
+     * @return Packet TCP checksum
+     */
     int get_tcp_checksum() const;
-    int get_tcp_checksum2() const;
-    int get_tcp_checksum3() const;
+
+    /** @brief Dump packet contents in hex format to stdout
+     */
     void dump();
     
     /** @brief Set a new source address for the packet
@@ -149,10 +200,6 @@ private:
     uint16_t udp_checksum(const struct iphdr *ip, 
         const struct udphdr* udp, const char* data, size_t data_len) const;
     uint16_t tcp_checksum(const struct iphdr *ip, 
-        const struct tcphdr *tcp, const char *data, size_t data_len) const;
-    uint16_t tcp_checksum2(const struct iphdr *ip, 
-        const struct tcphdr *tcp, const char *data, size_t data_len) const;
-    uint16_t tcp_checksum3(const struct iphdr *ip, 
         const struct tcphdr *tcp, const char *data, size_t data_len) const;
 
     bool has_transport_layer_hdr() const;
@@ -326,7 +373,8 @@ void Packet::set_source_addr_tcp(const std::string& addr) {
 	}
 
     if (has_transport_layer_hdr()) {
-        tcp->check = ntohs(tcp_checksum(ip, tcp, get_data_tcp(), get_data_len_tcp()));
+        // tcp->check = ntohs(tcp_checksum(ip, tcp, get_data_tcp(), get_data_len_tcp()));
+        tcp->check = ntohs(get_tcp_checksum());
         // std::cout << "Checksum set: " << std::hex << tcp->check << std::endl;
         for (size_t i = 0; i < sizeof(*tcp); ++i) {
             buffer[ip->ihl * sizeof(uint32_t) + i] = *(((uint8_t*) tcp) + i);
@@ -376,7 +424,8 @@ void Packet::set_dest_addr_tcp(const std::string& addr) {
 
         // std::cout << "data_len " << get_data_len_tcp() << std::endl;
         // std::cout << "tcp_checksum" << std::hex << tcp_checksum(ip, tcp, get_data_tcp(), get_data_len_tcp()) << std::endl;
-        tcp->check = ntohs(tcp_checksum(ip, tcp, get_data_tcp(), get_data_len_tcp()));
+        // tcp->check = ntohs(tcp_checksum(ip, tcp, get_data_tcp(), get_data_len_tcp()));
+        tcp->check = ntohs(get_tcp_checksum());
         // std::cout << "Checksum set: " << std::hex << tcp->check << std::endl;
         for (size_t i = 0; i < sizeof(*tcp); ++i) {
             buffer[ip->ihl * sizeof(uint32_t) + i] = *(((uint8_t*) tcp) + i);
@@ -391,16 +440,6 @@ void Packet::increase_ts(struct timespec other_ts) {
 
 int Packet::get_tcp_checksum() const {
     return tcp_checksum(get_iphdr(), get_tcp(), get_data_tcp(), get_data_len_tcp());
-}
-
-int Packet::get_tcp_checksum2() const {
-    return tcp_checksum2(get_iphdr(), get_tcp(), get_data_tcp(),
-			     get_data_len_tcp());
-}
-
-int Packet::get_tcp_checksum3() const {
-    return tcp_checksum3(get_iphdr(), get_tcp(), get_data_tcp(),
-			     get_data_len_tcp());
 }
 
 /* PRIVATE METHODS */
@@ -498,86 +537,41 @@ uint16_t Packet::udp_checksum(const struct iphdr *ip,
     return ~((uint16_t)sum);
 }
 
-uint16_t Packet::tcp_checksum3(const struct iphdr *ip,
-                              const struct tcphdr *tcp,
-                              const char *data, size_t data_len) const {
-    uint32_t sum = 0;
+// uint16_t Packet::tcp_checksum(const struct iphdr *ip, const struct tcphdr *tcp, const char *data, size_t data_len) const
+// {
+// 	const uint16_t *ptr = reinterpret_cast<uint16_t *>(buffer + sizeof(uint32_t) * ip->ihl);
+//     data_len = size - sizeof(uint32_t) * ip->ihl;
+// 	uint32_t sum = 0;
+// 	size_t i;
 
-    /* Add the pseudo header */
-    sum += ntohs((uint16_t) (ip->saddr & 0xffff)) + ntohs((uint16_t) (ip->saddr >> 16));
-    // std::cout <<  std::hex << sum << std::endl;
-    sum += ntohs((uint16_t) (ip->daddr & 0xffff)) + ntohs((uint16_t) (ip->daddr >> 16));
-    // std::cout << std::hex << sum << std::endl;
-    sum += IPPROTO_TCP;
-    // std::cout << std::hex << sum << std::endl;
-    sum += sizeof(struct tcphdr) + data_len;
-    // std::cout << std::hex << ntohs(sizeof(struct tcphdr) + data_len) << std::endl;
+// 	sum += ip->protocol;
+// 	sum += ntohs((uint16_t) (ip->saddr & 0xffff));
+// 	sum += ntohs((uint16_t) (ip->saddr >> 16));
+// 	sum += ntohs((uint16_t) (ip->daddr & 0xffff));
+// 	sum += ntohs((uint16_t) (ip->daddr >> 16));
+// 	sum += ntohs(ip->tot_len) - (ip->ihl * sizeof (uint32_t));
 
-    // std::cout << "psudoheader:" << std::hex << sum << std::endl;
+//     // std::cout << "psudoheader:" << std::hex << sum << std::endl;
 
-    /* Add tcphdr */
-    const uint16_t *ptr = reinterpret_cast<const uint16_t *>(tcp);
-    for (size_t i = 0; i < sizeof(struct tcphdr) / 2; i++) {
-        sum += ntohs(ptr[i]);
-    }
-    // sum -= ntohs(tcp->th_sum);
+// 	for (i = 0; (i + sizeof (*ptr)) <= data_len; i += sizeof (*ptr))
+// 		sum += ntohs(*ptr++);
 
-    /* Add data */
-    const uint8_t* byte_ptr = (const uint8_t*)data;
-    while (data_len > 1) {
-        sum += (uint16_t)(*byte_ptr++) << 8;
-        sum += (uint16_t)(*byte_ptr++);
-        data_len -= 2;
-    }
-    if (data_len == 1) { // Uneven length of data
-        sum += (uint16_t)(*byte_ptr) << 8;
-    }
+// 	if (i < data_len)
+// 		sum += ((uint16_t) data[i]) << 8;
 
-    // std::cout << "All:" << std::hex << sum << std::endl;
+// 	sum -= ntohs(tcp->th_sum);
 
-    /* Carries */
-    while (sum >> 16) {
-        sum = (sum & 0xffff) + (sum >> 16);
-    }
+//     // std::cout << "All:" << std::hex << sum << std::endl;
 
-    return ~(uint16_t)(sum);
-}
+// 	while (sum > 0xffff)
+// 		sum = (sum & 0xffff) + (sum >> 16);
 
-uint16_t Packet::tcp_checksum(const struct iphdr *ip, const struct tcphdr *tcp, const char *data, size_t data_len) const
-{
-	const uint16_t *ptr = reinterpret_cast<uint16_t *>(buffer + sizeof(uint32_t) * ip->ihl);
-    data_len = size - sizeof(uint32_t) * ip->ihl;
-	uint32_t sum = 0;
-	size_t i;
-
-	sum += ip->protocol;
-	sum += ntohs((uint16_t) (ip->saddr & 0xffff));
-	sum += ntohs((uint16_t) (ip->saddr >> 16));
-	sum += ntohs((uint16_t) (ip->daddr & 0xffff));
-	sum += ntohs((uint16_t) (ip->daddr >> 16));
-	sum += ntohs(ip->tot_len) - (ip->ihl * sizeof (uint32_t));
-
-    // std::cout << "psudoheader:" << std::hex << sum << std::endl;
-
-	for (i = 0; (i + sizeof (*ptr)) <= data_len; i += sizeof (*ptr))
-		sum += ntohs(*ptr++);
-
-	if (i < data_len)
-		sum += ((uint16_t) data[i]) << 8;
-
-	sum -= ntohs(tcp->th_sum);
-
-    // std::cout << "All:" << std::hex << sum << std::endl;
-
-	while (sum > 0xffff)
-		sum = (sum & 0xffff) + (sum >> 16);
-
-    // std::cout << std::hex << sum << " "<< ~((uint16_t)sum) << " " << (uint16_t)(~sum) << std::endl;
-	return ~(uint16_t)(sum);
-}
+//     // std::cout << std::hex << sum << " "<< ~((uint16_t)sum) << " " << (uint16_t)(~sum) << std::endl;
+// 	return ~((uint16_t)sum);
+// }
 
 // Function to calculate the TCP checksum
-uint16_t Packet::tcp_checksum2(const struct iphdr *ip, const struct tcphdr *tcp, const char *data, size_t data_len) const
+uint16_t Packet::tcp_checksum(const struct iphdr *ip, const struct tcphdr *tcp, const char *data, size_t data_len) const
 {
     // Pseudo-header for TCP checksum calculation
     struct pseudo_tcp_header {
@@ -640,6 +634,35 @@ uint16_t Packet::tcp_checksum2(const struct iphdr *ip, const struct tcphdr *tcp,
 
     return checksum;
 }
+
+// uint16_t Packet::tcp_checksum(const struct iphdr *ip, const struct tcphdr *tcp, const char *data, size_t data_len) const
+// {
+//     const uint16_t *ptr = reinterpret_cast<const uint16_t *>(tcp);
+//     uint32_t sum = 0;
+//     size_t i;
+
+//     sum += ip->protocol;
+//     sum += ntohs((uint16_t) (ip->saddr & 0xffff));
+//     sum += ntohs((uint16_t) (ip->saddr >> 16));
+//     sum += ntohs((uint16_t) (ip->daddr & 0xffff));
+//     sum += ntohs((uint16_t) (ip->daddr >> 16));
+//     sum += ntohs(ip->tot_len) - (ip->ihl * sizeof (uint32_t));
+
+//     for (i = 0; i < sizeof(struct tcphdr)/2; i++)
+//         sum += ntohs(*ptr++);
+
+//     ptr = reinterpret_cast<const uint16_t *>(data);
+//     for (i = 0; i < data_len/2; i++)
+//         sum += ntohs(*ptr++);
+
+//     if (data_len & 1)
+//         sum += ((uint16_t) data[data_len - 1]) << 8;
+
+//     while (sum > 0xffff)
+//         sum = (sum & 0xffff) + (sum >> 16);
+
+//     return ~((uint16_t)sum);
+// }
 
 // Can be improved, I assume that if ipheader has non-zero fragment offset, then 
 // transport layer header is not here

@@ -3,7 +3,9 @@
 #include "network-helper.hpp"
 #include "algorithms/algorithm-base.hpp"
 
-
+/**
+ * @brief For byzantine reliable broadcast test
+ */
 class ByzantineReliableBroadcast: public AlgorithmBase {
 
     const std::string type_send = std::string("SEND");

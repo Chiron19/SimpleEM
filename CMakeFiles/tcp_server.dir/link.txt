@@ -1,1 +1,0 @@
-/usr/bin/c++  -pthread CMakeFiles/tcp_server.dir/src/src/tcp_server.cpp.o -o tcp_server 

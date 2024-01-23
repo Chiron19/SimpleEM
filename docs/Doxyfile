@@ -1,5 +1,19 @@
-PROJECT_NAME           = "SimpleEM"
-INPUT                  = src
-OUTPUT_DIRECTORY       = build
-RECURSIVE              = YES
+# Doxyfile 1.9.1 (with Doxywizard)
+
+PROJECT_LOGO           = epfl-logo.svg
+OUTPUT_DIRECTORY       = Report
+BUILTIN_STL_SUPPORT    = YES
+CPP_CLI_SUPPORT        = YES
 EXTRACT_PRIVATE        = YES
+EXTRACT_PRIV_VIRTUAL   = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_METHODS  = YES
+INPUT                  = SimpleEM
+RECURSIVE              = YES
+EXAMPLE_RECURSIVE      = YES
+GENERATE_HTML          = NO
+DOT_WRAP_THRESHOLD     = 16
+CALL_GRAPH             = YES
+CALLER_GRAPH           = YES
+DOT_IMAGE_FORMAT       = svg
+INTERACTIVE_SVG        = YES

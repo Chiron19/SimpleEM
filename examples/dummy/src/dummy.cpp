@@ -1,3 +1,4 @@
+// External header
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
@@ -13,12 +14,14 @@
 #include <fstream>
 #include <string>
 
+// Internal header (from examples/dummy/include)
 #include "network-helper.hpp"
 #include "tcp-peer.hpp"
 #include "algorithms/loop-network.hpp"
 #include "algorithms/single-message.hpp"
 #include "algorithms/byzantine-reliable-broadcast.hpp"
 
+// Internal header (from examples/src/include)
 #include "logger.hpp"
 #include "utils.hpp"
 
@@ -27,13 +30,18 @@ void signal_handler(int signum);
 Logger* logger_ptr = nullptr;
 int em_id;
 
+/**
+ * @brief Check if file exists
+*/
 bool fileExists(const std::string& filePath) {
     std::ifstream file(filePath);
     return file.good();
 }
 
 int main(int argc, char* argv[]) {
+
     // arguements: em_id configPath
+    // example: ./dummy 0 ./examples/dummy/config/config.txt
     if (argc != 3) std::cout << "[dummy] usage: em_id configPath" << std::endl;
     em_id = std::stoi(std::string(argv[1]));
     logger_ptr = new Logger("logging_dummy_" + std::to_string(em_id) + ".txt");
@@ -45,12 +53,12 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    // Create 2 instances for send/recv
+    // Create 2 instances in network-helper for send/recv
     NetworkHelper net_send = NetworkHelper(em_id, std::string(argv[2]));
     NetworkHelper net_recv = NetworkHelper(em_id, std::string(argv[2]));
     logger_ptr->log_event(CLOCK_PROCESS_CPUTIME_ID, "Start of %d", em_id);
 
-    std::cout << "[dummy] em_id: " << em_id << std::endl;
+    // std::cout << "[dummy] em_id: " << em_id << std::endl;
     // for (int i = 0; i < net.addresses.size(); i++) {
     //     std::cout << net.addresses[i].first << " " << net.addresses[i].second << std::endl;
     // }
@@ -63,10 +71,9 @@ int main(int argc, char* argv[]) {
     // SingleMessage sm = SingleMessage(em_id, net);
     // sm.start("Hello man!");
     
+    // Create TCPpeer instance and start tcp_thread
     std::cout << "[dummy] " << net_send.em_id << '/' << net_send.procs << std::endl;
     TCPpeer tcp_peer = TCPpeer(em_id, net_send, net_recv);
-
-    std::cout << "[dummy] tcp_peer created" << std::endl;
     tcp_peer.tcp_thread(&tcp_peer);
 
     while(true) {}

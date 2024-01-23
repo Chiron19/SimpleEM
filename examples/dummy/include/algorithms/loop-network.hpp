@@ -5,7 +5,9 @@
 #include "network-helper.hpp"
 #include "algorithms/algorithm-base.hpp"
 
-
+/**
+ * @brief For loop network test
+ */
 class LoopNetwork: public AlgorithmBase {
 
 public: 

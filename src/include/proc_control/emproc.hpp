@@ -57,8 +57,8 @@ public:
      * of TUN interface specified by @p tun_fd will be intercepted and stored
      * in out_packets.
      * 
-     * Function sends SIGCONT signal to specified process, then after @p ts time
-     * it sends the SIGSTOP signal. During the time that the process is running
+     * Function sends `SIGCONT` signal to specified process, then after @p ts time
+     * it sends the `SIGSTOP` signal. During the time that the process is running
      * all packets sent by it will be intercepted. Also, in appropriate times,
      * packets from in_packets will be sent to the process using 
      * the TUN interface with @p tun_fd . virtual_clock is updated 

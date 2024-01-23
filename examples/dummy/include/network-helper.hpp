@@ -24,14 +24,27 @@
 
 #define MAXLINE 10000
 
-typedef std::pair<int, std::string> message_t; // sender em_id + message
+/** Type of a message pair <sender \p em_id, message> */
+typedef std::pair<int, std::string> message_t;
 
+/** @brief Control for above transport layer operations
+ * 
+ * Class responsible for sending and receiving messages / files between processes upon the transport layer, combining with the basic functions of sending and receiving UDP/TCP packets.
+*/
 class NetworkHelper {
 public:
     int em_id, procs;
     int send_fd, recv_fd;
     std::vector<std::pair<std::string, int>> addresses;
     
+    /**
+     * @brief Construct a new Network Helper object
+     * 
+     * The constructor reads the configuration file and stores the pairs of IP address and port into vector \p addresses. And then it sets up the sockets for sending and receiving.
+     * 
+     * @param em_id The \p em_id of the process.
+     * @param config_path The path of the configuration file.
+     */
     NetworkHelper(int em_id, const std::string& config_path): em_id(em_id) {  
         // General Setup: read config
         std::ifstream config(config_path);
@@ -48,12 +61,12 @@ public:
     }
 
     /**
-     * @brief Dump the buffer on printing output in formats.
+     * @brief Dump the buffer on printing output in formats
+     * 
+     * This function takes a buffer and its length as input and prints the buffer in hex format.
      * 
      * @param buf The buffer to be dumped.
      * @param len The length of the buffer.
-     * 
-     * This function takes a buffer and its length as input and prints the buffer in hex format.
     */
     void dump(const char *buf, size_t len)
     {
@@ -88,9 +101,9 @@ public:
     }
 
     /**
-     * @brief Get the local IP address.
+     * @brief Get the local IP address
      * 
-     * This function returns the local IP address in string format.
+     * @return The local IP address in string format. (e.g. "192.168.0.1")
     */
     std::string getLocalIpAddress() {
         struct ifaddrs* ifAddrStruct = nullptr;
@@ -126,9 +139,9 @@ public:
     }
 
     /**
-     * @brief Get the local time.
+     * @brief Get the local time
      * 
-     * This function returns the local time in string format.
+     * @return The local time in preset string format "%H-%M-%S". (e.g. "12-34-56")
     */
     std::string getLocalTime() {
         auto t = std::time(nullptr);
@@ -141,7 +154,7 @@ public:
     }
 
     /**
-     * @brief Get the size of a file.
+     * @brief Get the size of a file
      * 
      * This function takes a file path as input and returns the size of the file in bytes.
      * 
@@ -157,12 +170,12 @@ public:
     }
 
     /**
-     * @brief Receives data from a socket into a buffer.
+     * @brief Receives data from a socket into a buffer
      * 
      * @param socketFd The file descriptor of the socket.
      * @param buffer The buffer to store the received data.
      * @param bufferSize The size of the buffer.
-     * @return int The number of bytes received, or -1 if an error occurred.
+     * @return The number of bytes received, or -1 if an error occurred.
      */
     int recvBuffer(int socketFd, void* buffer, int bufferSize) {
         if (buffer == nullptr || bufferSize <= 0) {
@@ -178,7 +191,7 @@ public:
     }
 
     /**
-     * Sends a buffer of data over a socket.
+     * @brief Sends a buffer of data over a socket
      *
      * @param socketFd The file descriptor of the socket.
      * @param buffer The buffer containing the data to be sent.
@@ -194,13 +207,15 @@ public:
     }
 
     /**
-     * Sends a file over a socket.
+     * @brief Sends a file over a socket
      *
-     * @param socketFd The file descriptor of the socket.
+     * @param socketFd The file descriptor of the sender socket.
      * @param filePath The path of the file to send.
-     * @param read_byte The starting position to read from the file (default: 0).
-     * @param chunkSize The size of each chunk to send (default: 32768).
-     * @return The number of bytes sent, or -1 if an error occurred.
+     * @param read_byte The starting position to read from the file. (default: 0)
+     * @param chunkSize The size of each chunk to send. (default: 32768)
+     * @return The number of bytes sent;
+     * or -1 if an error occurred before sending any data,
+     * or -3 if the file couldn't be sent properly.
      */
     int sendFile(int socketFd, const std::string& filePath, const std::streampos read_byte = 0, const std::streamsize chunkSize = 32768) {
         const std::streamsize fileSize = getFileSize(filePath);
@@ -260,16 +275,13 @@ public:
    /**
     * @brief Receives a file
     * 
-    * @param socketFd
-    * @param filePath
-    * @param write_byte
-    * @param chunkSize
-    * @return int
-    * 
-    * returns number of bytes received
-    * returns -1 if file couldn't be opened for output
-    * returns -2 if couldn't receive file length properly
-    * returns -3 if couldn't receive file properly
+    * @param socketFd The file descriptor of the receiver socket.
+    * @param filePath The path of the file to receive.
+    * @param write_byte The starting position to write to the file. (default: 0)
+    * @param chunkSize The size of each chunk to receive. (default: 65536)
+    * @return The number of bytes received;
+    * or -1 if file couldn't be opened for output,
+    * or -3 if couldn't receive file properly.
    */
     int recvFile(int socketFd, const std::string& filePath, const std::streampos write_byte = 0, const int chunkSize = 65536) {
         // Open file for output
@@ -324,7 +336,12 @@ public:
         return totalRecv;
     }
 
-
+    /**
+     * @brief Send a message to a process (UDP, original)
+     * 
+     * @param target_em_id The \p em_id of the target process.
+     * @param message The message to be sent.
+    */
     void send_udp(int target_em_id, const std::string& message) {
         struct sockaddr_in recvaddr;
         memset(&recvaddr, 0, sizeof(recvaddr));
@@ -340,17 +357,56 @@ public:
             "Send packet to proc %d (%s), message: %s", 
             target_em_id, addresses[target_em_id].first.c_str(), message.c_str());
     }
+    
+    /**
+     * @brief Receive a message from a process (UDP, original)
+     * 
+     * @return The received message or empty string if nothing was received.
+     */
+    message_t receive_udp() {
+        char buffer[MAXLINE];
+        struct sockaddr_in sender_addr;
+        int sender_id = -1;
+        memset(&sender_addr, 0, sizeof(sender_addr));
+        socklen_t len = sizeof(sender_addr);
+
+        ssize_t n = recvfrom(recv_fd, (char *)buffer, MAXLINE, MSG_DONTWAIT, (struct sockaddr*) &sender_addr, &len);
+
+        if (n < 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK)
+                return {-1, ""};
+            std::cout << "RECVFROM ERROR" << std::endl;
+            exit(1);
+
+        }
+        buffer[n] = '\0';
+
+        for (sender_id = 0; sender_id < procs; ++sender_id) {
+            if (inet_addr(addresses[sender_id].first.c_str()) == 
+                sender_addr.sin_addr.s_addr) 
+                break;
+        }
+
+        if (sender_id == -1) {
+            std::cout << "ERROR - SENDER DOESNT EXIST" << std::endl;
+            exit(1);
+        }
+
+        logger_ptr->log_event(CLOCK_PROCESS_CPUTIME_ID,
+            "Recv packet fr proc %d (%s), message: %s",
+            sender_id, addresses[sender_id].first.c_str(), buffer);
+        return {sender_id, buffer};
+    }
 
    /**
     * @brief Send a message to a process
     * 
-    * @param target_em_id
-    * @param message
-    * @param mode 0, sending a string 'message' (default) 1, sending a file, 'message' field is filepath
-    * @return int
-    * 
-    * returns 0 if success
-    * returns -1 if fail
+    * @param target_em_id The \p em_id of the target process.
+    * @param message The message to be sent.
+    * @param mode 
+    * 0, sending a string \p message (default).\n
+    * 1, sending a file, \p message field is filepath.
+    * @return 0 if success or -1 if fail.
    */
     int send_tcp(int target_em_id, const std::string& message, const int mode = 0) {
         // Setup socket for sending
@@ -413,6 +469,7 @@ public:
                 logger_ptr->log_event(CLOCK_PROCESS_CPUTIME_ID, 
                     "Send file to proc %d (%s), size: %d", 
                     target_em_id, addresses[target_em_id].first.c_str(), sendsize);
+                sleep(1);
                 break;
             }
         
@@ -442,53 +499,14 @@ public:
         return 0;
     }
 
-    /*
-        Returns received message or empty string if nothing was received
-     */
-    message_t receive_udp() {
-        char buffer[MAXLINE];
-        struct sockaddr_in sender_addr;
-        int sender_id = -1;
-        memset(&sender_addr, 0, sizeof(sender_addr));
-        socklen_t len = sizeof(sender_addr);
-
-        ssize_t n = recvfrom(recv_fd, (char *)buffer, MAXLINE, MSG_DONTWAIT, (struct sockaddr*) &sender_addr, &len);
-
-        if (n < 0) {
-            if (errno == EAGAIN || errno == EWOULDBLOCK)
-                return {-1, ""};
-            std::cout << "RECVFROM ERROR" << std::endl;
-            exit(1);
-
-        }
-        buffer[n] = '\0';
-
-        for (sender_id = 0; sender_id < procs; ++sender_id) {
-            if (inet_addr(addresses[sender_id].first.c_str()) == 
-                sender_addr.sin_addr.s_addr) 
-                break;
-        }
-
-        if (sender_id == -1) {
-            std::cout << "ERROR - SENDER DOESNT EXIST" << std::endl;
-            exit(1);
-        }
-
-        logger_ptr->log_event(CLOCK_PROCESS_CPUTIME_ID,
-            "Recv packet fr proc %d (%s), message: %s",
-            sender_id, addresses[sender_id].first.c_str(), buffer);
-        return {sender_id, buffer};
-    }
-
    /**
     * @brief Receive a message from a process
     * 
-    * @param recvfilepath
-    * @param mode 0, recving buffer and return {sender_id, buffer} (default) 1, recving a file and return {sender_id, recvfilepath}, use "temp" if recvfilepath not specified
-    * @return message_t
-    * 
-    * returns {sender_id, buffer} if success
-    * returns {-1, ""} if fail
+    * @param recvfilepath The path of the file to receive, used in mode 1. (default: "temp")
+    * @param mode 
+    * 0, receiving buffer and return { \p sender_id, \p buffer }. (default)\n 
+    * 1, receiving a file and return { \p sender_id, \p recvfilepath }.
+    * @return corresponding \p message_t if success, or {-1, ""} if fail.
     */
     message_t receive_tcp(const std::string& recvfilepath = "temp", const int mode = 0) {
         // Setup socket for receiving
@@ -608,7 +626,7 @@ private:
     std::streamsize fileSize_toRecv;
 
     /**
-     * @brief Setup the send socket.
+     * @brief Setup the sender socket
     */
     void setup_send_socket() {
         // SOCK_STREAM is for TCP socket
@@ -638,7 +656,7 @@ private:
     }
     
     /**
-     * @brief Setup the receive socket.
+     * @brief Setup the receiver socket
     */
     void setup_recv_socket() { 
         // SOCK_STREAM is for TCP socket

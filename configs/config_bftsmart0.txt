@@ -1,5 +1,0 @@
-tun0 172.16.0.1 255.240.0.0
-1
-172.16.1.2 10000
-0
-java -Djava.security.properties="./config/java.security" -Dlogback.configurationFile="./config/logback.xml" -cp "lib/*" bftsmart.demo.counter.CounterServer 0

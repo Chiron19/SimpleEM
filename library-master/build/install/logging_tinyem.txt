@@ -1,2 +1,0 @@
-[sec: 000293 msec: 223 micsec: 752]Emulator created with 1 processes
-[sec: 000292 msec: 960 micsec: 931]Emulator created with 1 processes

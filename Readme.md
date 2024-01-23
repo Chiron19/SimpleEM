@@ -14,7 +14,7 @@ one and make it more practical. The features we added are listed below:
 recurring messages and file transfer.
 2. __Test Running on BFT-SMaRt__. We tested running TCP with verifying the performance of
 BFT-SMaRt.
-3. __Improvement on Configuration Parser and Debug Assistance__. We improved the configuration parser and added debug assistance.
+3. __Improvement on Configuration Parser and Debug Assistance__. We improved the configuration parser and added debug assistance.
 
 ## Installation
 This installation guide is based on Ubuntu 18.04 (or higher version). It is assumed that the user has root access to the machine.
@@ -40,7 +40,7 @@ specify it as the first argument of the executable file)
 sudo ./tinyem
 ```
 
-And you will see the following output on your terminal, which indicates the demo is running successfully:
+And you will see the following output on your terminal, which indicates the demo is running successfully:
 ```sh
 [Server] 172.16.0.3, Listening on 5556
 [Client] Socket Created!
@@ -53,7 +53,7 @@ And you will see the following output on your terminal, which indicates the demo
 [Server] socket closed!
 ```
 
-5. You can also run other executable files which the CMakeLists.txt specified.
+5. You can also run other executable files which the `CMakeLists.txt` specified.
 For example, test_packet demo allows you to input a hexstream which represents a
 TCP packet and test the result of the functions in `packet.hpp`;
 ```sh
